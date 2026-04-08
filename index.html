@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>Credify — 資格・CPD管理システム</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --c0:#001219;--c1:#005f73;--c2:#0a9396;--c3:#94d2bd;--c4:#e9d8a6;
+  --c5:#ee9b00;--c6:#ca6702;--c7:#bb3e03;--c8:#ae2012;--c9:#9b2226;
+  --bg:#f0f4f5;--surf:#ffffff;--border:#ccd8da;--muted:#5a7a82;--text:#001a22;
+  --sidebar-w:232px;
+}
+html,body{height:100%;font-family:'Noto Sans JP',sans-serif;font-size:13px;color:var(--text);background:var(--bg);}
+.app{display:flex;height:100vh;overflow:hidden;}
+.sb{width:var(--sidebar-w);flex-shrink:0;background:var(--c0);display:flex;flex-direction:column;height:100vh;position:fixed;left:0;top:0;z-index:100;}
+.sb-logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,0.07);}
+.sb-name{font-size:21px;font-weight:700;color:var(--c3);letter-spacing:.5px;}
+.sb-sub{font-size:10px;color:rgba(255,255,255,0.28);margin-top:2px;}
+.sb-nav{flex:1;padding:8px 0;overflow-y:auto;}
+.sb-sec{padding:13px 18px 4px;font-size:10px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:.9px;}
+.si{display:flex;align-items:center;gap:9px;padding:8px 18px;cursor:pointer;color:rgba(255,255,255,0.52);font-size:13px;border-left:2px solid transparent;transition:all .13s;user-select:none;}
+.si:hover{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.85);}
+.si.on{background:rgba(148,210,189,0.12);color:var(--c3);border-left-color:var(--c3);}
+.sb-badge{margin-left:auto;background:var(--c8);color:#fff;font-size:10px;padding:1px 6px;border-radius:9px;min-width:18px;text-align:center;line-height:1.6;}
+.sb-user{padding:12px 18px;border-top:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;gap:9px;}
+.sb-av{width:30px;height:30px;border-radius:50%;background:var(--c1);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--c3);flex-shrink:0;}
+.sb-un{font-size:12px;color:rgba(255,255,255,0.7);}
+.sb-ur{font-size:10px;color:rgba(255,255,255,0.3);}
+.main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-width:0;height:100vh;}
+.topbar{height:54px;flex-shrink:0;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:12px;background:var(--surf);position:sticky;top:0;z-index:50;}
+.tb-title{font-size:15px;font-weight:500;flex:1;}
+.srch{display:flex;align-items:center;gap:7px;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:6px 11px;}
+.srch input{border:none;background:transparent;font-size:12px;outline:none;color:var(--text);width:180px;}
+.btn{padding:6px 13px;border-radius:7px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:12px;color:var(--text);display:inline-flex;align-items:center;gap:5px;transition:background .12s;}
+.btn:hover{background:var(--bg);}
+.btn-p{background:var(--c1);color:#fff;border-color:var(--c1);font-weight:500;}
+.btn-p:hover{background:#004a5e;border-color:#004a5e;}
+.btn-sm{padding:3px 9px;font-size:11px;}
+.page{flex:1;overflow-y:auto;padding:24px;display:none;background:var(--bg);}
+.page.on{display:block;}
+.krow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px;}
+.kpi{background:var(--surf);border:1px solid var(--border);border-radius:9px;padding:14px 16px;}
+.kl{font-size:11px;color:var(--muted);margin-bottom:5px;}
+.kv{font-size:26px;font-weight:500;line-height:1;}
+.ks{font-size:11px;margin-top:4px;}
+.vn{color:var(--text);}
+.vr{color:var(--c8);}
+.vo{color:var(--c6);}
+.vg{color:var(--c2);}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:9px;padding:16px 18px;}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;}
+.card-t{font-size:13px;font-weight:500;}
+.card-lnk{font-size:11px;color:var(--c2);cursor:pointer;}
+.two-col{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:16px;margin-bottom:16px;}
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{text-align:left;padding:8px 11px;background:var(--bg);font-weight:500;color:var(--muted);border-bottom:1px solid var(--border);font-size:11px;white-space:nowrap;cursor:pointer;user-select:none;}
+th:hover{color:var(--c1);}
+td{padding:9px 11px;border-bottom:1px solid #dde6e8;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr.clickable:hover td{background:#f5fbfc;cursor:pointer;}
+.tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:500;}
+.tg-r{background:#fde8e6;color:var(--c9);}
+.tg-o{background:#fdefd8;color:#8b4400;}
+.tg-y{background:#fdf5dc;color:#7a5500;}
+.tg-g{background:#e0f2ec;color:#005540;}
+.tg-b{background:#dff0f5;color:var(--c1);}
+.tg-gr{background:var(--bg);color:var(--muted);}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px;}
+.dr{background:var(--c8);}
+.do{background:var(--c6);}
+.dg{background:var(--c2);}
+.fbar{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.fsel{padding:5px 9px;border:1px solid var(--border);border-radius:7px;background:var(--surf);font-size:12px;color:var(--text);outline:none;}
+.fsel:focus{border-color:var(--c2);}
+.pbar{height:6px;background:#dde6e8;border-radius:3px;overflow:hidden;}
+.pf{height:100%;border-radius:3px;transition:width .3s;}
+.pg{background:var(--c2);}
+.po{background:var(--c5);}
+.pr{background:var(--c7);}
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:16px;}
+.tab{padding:8px 16px;cursor:pointer;font-size:13px;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;}
+.tab.on{color:var(--c2);border-bottom-color:var(--c2);font-weight:500;}
+.tab:hover:not(.on){color:var(--text);}
+.fi{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:7px;background:var(--surf);color:var(--text);font-size:12px;outline:none;}
+.fi:focus{border-color:var(--c2);}
+.flabel{font-size:11px;color:var(--muted);margin-bottom:4px;display:block;}
+.fgroup{margin-bottom:12px;}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:center;justify-content:center;}
+.overlay.on{display:flex;}
+.modal{background:var(--surf);border-radius:12px;padding:24px;width:520px;max-height:80vh;overflow-y:auto;position:relative;}
+.modal-title{font-size:15px;font-weight:500;margin-bottom:18px;}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;font-size:18px;color:var(--muted);}
+.alist{display:flex;flex-direction:column;gap:8px;}
+.aitem{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;border:1px solid;}
+.ai-r{background:#fdf0e8;border-color:#e0b89a;}
+.ai-o{background:#fef7ee;border-color:#f5cfa0;}
+.ai-g{background:#f0f7f0;border-color:#b0d8b0;}
+.rec-card{background:linear-gradient(135deg,#001a22,#003a4a);border-radius:10px;padding:20px;margin-bottom:14px;color:#fff;}
+.rec-title{font-size:14px;font-weight:500;color:var(--c3);margin-bottom:6px;}
+.rec-body{font-size:12px;color:rgba(255,255,255,0.7);line-height:1.7;}
+.rec-link{display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:6px 12px;background:var(--c2);color:#fff;border-radius:6px;font-size:12px;text-decoration:none;font-weight:500;}
+.rec-link:hover{background:var(--c1);}
+.course-item{display:flex;align-items:flex-start;gap:12px;padding:12px;background:var(--surf);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;}
+.course-meta{flex:1;min-width:0;}
+.course-name{font-size:13px;font-weight:500;margin-bottom:3px;}
+.course-info{font-size:11px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;}
+.course-unit{font-size:13px;font-weight:500;color:var(--c2);white-space:nowrap;}
+.ai-thinking{display:flex;align-items:center;gap:8px;padding:14px;color:var(--muted);font-size:12px;}
+.spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--c2);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:48px;color:var(--muted);}
+#toast{position:fixed;bottom:24px;right:24px;background:var(--c0);color:#fff;padding:12px 18px;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:opacity .2s;pointer-events:none;}
+#toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div id="toast"></div>
+
+<div class="overlay" id="modal-eng">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-eng')">✕</button>
+    <div class="modal-title">技術者を追加</div>
+    <div class="fgroup"><label class="flabel">氏名</label><input class="fi" id="m-name" placeholder="例：山田 太郎"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="fgroup"><label class="flabel">所属部署</label>
+        <select class="fi" id="m-dept"><option>技術部</option><option>設計部</option><option>営業本部</option><option>管理部</option></select>
+      </div>
+      <div class="fgroup"><label class="flabel">雇用区分</label>
+        <select class="fi" id="m-type"><option>常勤</option><option>非常勤</option><option>協力会社</option></select>
+      </div>
+    </div>
+    <div class="fgroup"><label class="flabel">メールアドレス</label><input class="fi" id="m-email" placeholder="例：yamada@example.co.jp"></div>
+    <div class="fgroup"><label class="flabel">入社年月</label><input class="fi" type="month" id="m-join"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;padding-top:8px;">
+      <button class="btn" onclick="closeModal('modal-eng')">キャンセル</button>
+      <button class="btn btn-p" onclick="addEngineer()">追加する</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-cpd">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-cpd')">✕</button>
+    <div class="modal-title">CPD実績を登録</div>
+    <div class="fgroup"><label class="flabel">技術者</label><select class="fi" id="mc-eng"></select></div>
+    <div class="fgroup"><label class="flabel">資格・登録団体</label>
+      <select class="fi" id="mc-qual"><option>技術士（CPDS）</option><option>RCCM（JCCA）</option><option>地質調査技士（JAEG）</option><option>施工管理技士（CPDS）</option></select>
+    </div>
+    <div class="fgroup"><label class="flabel">講習・研修名</label><input class="fi" id="mc-name" placeholder="例：土木学会年次講演会2024"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="fgroup"><label class="flabel">受講日</label><input class="fi" type="date" id="mc-date"></div>
+      <div class="fgroup"><label class="flabel">取得単位数</label><input class="fi" type="number" id="mc-units" placeholder="0.0" step="0.5" min="0"></div>
+    </div>
+    <div class="fgroup"><label class="flabel">証明書（ファイル名）</label><input class="fi" id="mc-cert" placeholder="例：受講証明_土木学会2024.pdf"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;padding-top:8px;">
+      <button class="btn" onclick="closeModal('modal-cpd')">キャンセル</button>
+      <button class="btn btn-p" onclick="addCPDRecord()">登録する</button>
+    </div>
+  </div>
+</div>
+
+<div class="app">
+<div class="sb">
+  <div class="sb-logo"><div class="sb-name">Credify</div><div class="sb-sub">資格・CPD管理システム</div></div>
+  <div class="sb-nav">
+    <div class="sb-sec">メイン</div>
+    <div class="si on" onclick="go('dashboard')" data-page="dashboard">⊞ &nbsp;ダッシュボード</div>
+    <div class="sb-sec">管理</div>
+    <div class="si" onclick="go('engineers')" data-page="engineers">👤 &nbsp;技術者台帳</div>
+    <div class="si" onclick="go('qualifications')" data-page="qualifications">📋 &nbsp;資格管理</div>
+    <div class="si" onclick="go('cpd')" data-page="cpd">📊 &nbsp;CPD管理 <span class="sb-badge" id="badge-cpd">3</span></div>
+    <div class="si" onclick="go('alerts')" data-page="alerts">🔔 &nbsp;アラート <span class="sb-badge" id="badge-alerts">5</span></div>
+    <div class="sb-sec">支援</div>
+    <div class="si" onclick="go('recommend')" data-page="recommend">✨ &nbsp;受講提案</div>
+    <div class="sb-sec">書類</div>
+    <div class="si" onclick="go('documents')" data-page="documents">📁 &nbsp;証憑管理</div>
+    <div class="si" onclick="go('reports')" data-page="reports">📤 &nbsp;レポート出力</div>
+    <div class="sb-sec">設定</div>
+    <div class="si" onclick="go('settings')" data-page="settings">⚙️ &nbsp;マスタ設定</div>
+  </div>
+  <div class="sb-user">
+    <div class="sb-av">南</div>
+    <div><div class="sb-un">南 かおり</div><div class="sb-ur">管理者</div></div>
+  </div>
+</div>
+
+<div class="main">
+<div class="topbar">
+  <div class="tb-title" id="hd-t">ダッシュボード</div>
+  <div class="srch"><span>🔍</span><input type="text" id="search-input" placeholder="技術者・資格を検索..." oninput="handleSearch(this.value)"></div>
+  <button class="btn btn-p" id="hd-b" onclick="handleTopBtn()">＋ 技術者を追加</button>
+</div>
+
+<!-- DASHBOARD -->
+<div class="page on" id="page-dashboard">
+  <div class="krow" id="kpi-row"></div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-hd"><div class="card-t">緊急アラート</div><div class="card-lnk" onclick="go('alerts')">すべて見る →</div></div>
+      <div class="alist" id="dash-alerts"></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div class="card-t">CPD達成率（今年度）</div></div>
+      <div id="cpd-progress"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-t">全技術者ステータス一覧</div>
+      <div style="display:flex;gap:8px">
+        <select class="fsel" id="df-dept" onchange="renderDashTable()"><option value="">所属：すべて</option><option>技術部</option><option>設計部</option><option>営業本部</option></select>
+        <select class="fsel" id="df-risk" onchange="renderDashTable()"><option value="">リスク：すべて</option><option value="1">期限切れあり</option><option value="2">要対応</option><option value="3">正常</option></select>
+        <select class="fsel" id="df-cpd" onchange="renderDashTable()"><option value="">CPD：すべて</option><option value="bad">未達</option><option value="ok">達成済</option></select>
+      </div>
+    </div>
+    <div class="tw"><table>
+      <thead><tr>
+        <th onclick="sortDash('name')">氏名 ↕</th><th>所属</th><th>雇用区分</th><th>保有資格数</th>
+        <th onclick="sortDash('deadline')">最短更新期限 ↕</th>
+        <th>期限切れ</th><th>30日以内</th><th>CPD状況</th><th>不足単位</th>
+        <th onclick="sortDash('risk')">リスク ↕</th><th>操作</th>
+      </tr></thead>
+      <tbody id="dash-tbody"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ENGINEERS -->
+<div class="page" id="page-engineers">
+  <div class="fbar">
+    <select class="fsel" id="ef-dept" onchange="renderEngTable()"><option value="">所属：すべて</option><option>技術部</option><option>設計部</option><option>営業本部</option></select>
+    <select class="fsel" id="ef-type" onchange="renderEngTable()"><option value="">雇用区分：すべて</option><option>常勤</option><option>非常勤</option></select>
+    <select class="fsel" id="ef-status" onchange="renderEngTable()"><option value="">ステータス：すべて</option><option value="1">期限切れあり</option><option value="2">要対応</option><option value="3">正常</option></select>
+    <span id="eng-count" style="margin-left:auto;font-size:11px;color:var(--muted)"></span>
+  </div>
+  <div class="card" style="padding:0"><div class="tw"><table>
+    <thead><tr><th>氏名</th><th>社員番号</th><th>所属</th><th>雇用区分</th><th>保有資格数</th><th>CPD状況</th><th>ステータス</th><th>操作</th></tr></thead>
+    <tbody id="eng-tbody"></tbody>
+  </table></div></div>
+</div>
+
+<!-- ENGINEER DETAIL -->
+<div class="page" id="page-engineer-detail">
+  <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+    <button class="btn btn-sm" onclick="go('engineers')">← 一覧に戻る</button>
+    <button class="btn btn-sm btn-p" onclick="fillEngSelect('mc-eng');openModal('modal-cpd')">＋ CPD実績を登録</button>
+  </div>
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px">
+    <div>
+      <div class="card" style="margin-bottom:14px" id="detail-info"></div>
+      <div class="card" id="detail-history"></div>
+    </div>
+    <div class="card" id="detail-quals"></div>
+  </div>
+</div>
+
+<!-- QUALIFICATIONS -->
+<div class="page" id="page-qualifications">
+  <div class="fbar">
+    <select class="fsel" id="qf-type" onchange="renderQualTable()"><option value="">資格種別：すべて</option><option>技術士</option><option>RCCM</option><option>地質調査技士</option><option>施工管理技士</option></select>
+    <select class="fsel" id="qf-status" onchange="renderQualTable()"><option value="">ステータス：すべて</option><option value="expired">期限切れ</option><option value="near">間近</option><option value="ok">有効</option></select>
+    <span id="qual-count" style="margin-left:auto;font-size:11px;color:var(--muted)"></span>
+  </div>
+  <div class="card" style="padding:0"><div class="tw"><table>
+    <thead><tr><th>技術者名</th><th>資格名</th><th>登録番号</th><th>有効期限</th><th>必要CPD</th><th>取得済</th><th>ステータス</th></tr></thead>
+    <tbody id="qual-tbody"></tbody>
+  </table></div></div>
+</div>
+
+<!-- CPD -->
+<div class="page" id="page-cpd">
+  <div class="tabs">
+    <div class="tab on" id="tab-cs" onclick="switchTab('cs')">達成状況</div>
+    <div class="tab" id="tab-ci" onclick="switchTab('ci')">実績入力</div>
+  </div>
+  <div id="view-cs">
+    <div class="krow" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:14px" id="cpd-kpi"></div>
+    <div class="card" style="padding:0"><div class="tw"><table>
+      <thead><tr><th>技術者名</th><th>資格</th><th>必要単位</th><th>取得済</th><th>不足</th><th>達成率</th><th>進捗</th><th>状況</th><th>操作</th></tr></thead>
+      <tbody id="cpd-tbody"></tbody>
+    </table></div></div>
+  </div>
+  <div id="view-ci" style="display:none">
+    <div class="card" style="max-width:540px">
+      <div class="card-t" style="margin-bottom:16px">CPD実績を登録</div>
+      <div class="fgroup"><label class="flabel">技術者</label><select class="fi" id="ci-eng"></select></div>
+      <div class="fgroup"><label class="flabel">資格・登録団体</label>
+        <select class="fi" id="ci-qual"><option>技術士（CPDS）</option><option>RCCM（JCCA）</option><option>地質調査技士（JAEG）</option></select>
+      </div>
+      <div class="fgroup"><label class="flabel">講習・研修名</label><input class="fi" id="ci-name" placeholder="例：土木学会年次講演会2024"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="fgroup"><label class="flabel">受講日</label><input class="fi" type="date" id="ci-date"></div>
+        <div class="fgroup"><label class="flabel">取得単位数</label><input class="fi" type="number" id="ci-units" placeholder="0.0" step="0.5" min="0"></div>
+      </div>
+      <div class="fgroup"><label class="flabel">証明書（ファイル名）</label><input class="fi" id="ci-cert" placeholder="例：受講証明.pdf"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn btn-p" onclick="addCPDFromPage()">登録する</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ALERTS -->
+<div class="page" id="page-alerts">
+  <div class="fbar">
+    <select class="fsel" id="af-level" onchange="renderAlerts()"><option value="">緊急度：すべて</option><option value="1">期限切れ</option><option value="2">要注意</option><option value="3">通知</option></select>
+    <select class="fsel" id="af-type" onchange="renderAlerts()"><option value="">種別：すべて</option><option value="qual">資格更新</option><option value="cpd">CPD未達</option></select>
+  </div>
+  <div class="card" style="padding:0"><div class="tw"><table>
+    <thead><tr><th>緊急度</th><th>技術者名</th><th>内容</th><th>期限</th><th>残日数</th><th>対応状況</th><th>操作</th></tr></thead>
+    <tbody id="alert-tbody"></tbody>
+  </table></div></div>
+</div>
+
+<!-- RECOMMEND -->
+<div class="page" id="page-recommend">
+  <div class="two-col" style="margin-bottom:0">
+    <div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-hd"><div class="card-t">✨ AI受講提案を生成</div></div>
+        <div class="fgroup"><label class="flabel">対象技術者</label><select class="fi" id="rec-eng" onchange="updateRecQuals()"></select></div>
+        <div class="fgroup"><label class="flabel">対象資格・CPD制度</label><select class="fi" id="rec-qual"></select></div>
+        <div class="fgroup"><label class="flabel">不足単位数（自動計算）</label><input class="fi" id="rec-shortage" readonly style="background:var(--bg)"></div>
+        <div class="fgroup"><label class="flabel">締切日</label><input class="fi" type="date" id="rec-deadline"></div>
+        <button class="btn btn-p" style="width:100%;margin-top:4px" onclick="generateRecommend()">✨ 受講提案を生成する</button>
+      </div>
+      <div class="card">
+        <div class="card-t" style="margin-bottom:12px">登録済み講座データベース</div>
+        <div id="course-list"></div>
+      </div>
+    </div>
+    <div><div class="card" id="rec-result-area" style="min-height:200px"><div class="empty">← 条件を選択して「提案を生成」を押してください</div></div></div>
+  </div>
+</div>
+
+<!-- DOCUMENTS -->
+<div class="page" id="page-documents">
+  <div class="fbar">
+    <select class="fsel" id="docf-eng" onchange="renderDocs()"><option value="">技術者：すべて</option></select>
+    <select class="fsel" id="docf-type" onchange="renderDocs()"><option value="">書類種別：すべて</option><option>資格証</option><option>受講証明</option><option>申請書</option></select>
+    <button class="btn btn-p" style="margin-left:auto" onclick="addDoc()">＋ 証憑を追加</button>
+  </div>
+  <div class="card" style="padding:0"><div class="tw"><table>
+    <thead><tr><th>ファイル名</th><th>技術者名</th><th>資格・講習</th><th>書類種別</th><th>登録日</th><th>操作</th></tr></thead>
+    <tbody id="doc-tbody"></tbody>
+  </table></div></div>
+</div>
+
+<!-- REPORTS -->
+<div class="page" id="page-reports">
+  <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px">
+    <div class="card" style="cursor:pointer" onclick="downloadReport('cpd')">
+      <div style="font-size:22px;margin-bottom:10px">📄</div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:6px">CPD達成状況レポート</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">全技術者のCPD達成状況。経審提出用フォーマット対応。</div>
+      <button class="btn btn-p" style="width:100%">出力する（CSV）</button>
+    </div>
+    <div class="card" style="cursor:pointer" onclick="downloadReport('risk')">
+      <div style="font-size:22px;margin-bottom:10px">⚠️</div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:6px">リスク一覧レポート</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">期限切れ・未達者一覧。入札前確認チェックリスト。</div>
+      <button class="btn btn-p" style="width:100%">出力する（CSV）</button>
+    </div>
+    <div class="card" style="cursor:pointer" onclick="downloadReport('ledger')">
+      <div style="font-size:22px;margin-bottom:10px">🏢</div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:6px">技術者台帳（全社）</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">資格・有効期限・CPD状況のExcel形式台帳。</div>
+      <button class="btn btn-p" style="width:100%">出力する（CSV）</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="page" id="page-settings">
+  <div class="tabs">
+    <div class="tab on" id="tab-sm" onclick="switchSettingsTab('m')">資格マスタ</div>
+    <div class="tab" id="tab-sc" onclick="switchSettingsTab('c')">CPDルール</div>
+    <div class="tab" id="tab-sn" onclick="switchSettingsTab('n')">通知設定</div>
+    <div class="tab" id="tab-su" onclick="switchSettingsTab('u')">ユーザー管理</div>
+  </div>
+  <div id="settings-content"></div>
+</div>
+
+</div></div>
+
+<script>
+// ── DATA ──────────────────────────────────────
+let engineers=[
+  {id:'E-0021',name:'田中 一郎',dept:'技術部',type:'常勤',email:'tanaka@example.co.jp',join:'2015-04',quals:['RCCM（鋼構造）','技術士（建設部門）','1級土木施工管理技士','コンクリート診断士'],cpdTarget:100,cpdDone:22,deadline:'2024/03/31',expired:true,d30:true,d60:true,risk:1},
+  {id:'E-0034',name:'山田 花子',dept:'設計部',type:'常勤',email:'yamada@example.co.jp',join:'2018-07',quals:['技術士（建設部門）','地質調査技士','測量士'],cpdTarget:50,cpdDone:36,deadline:'2025/05/12',expired:false,d30:false,d60:true,risk:2},
+  {id:'E-0008',name:'佐藤 次郎',dept:'営業本部',type:'常勤',email:'sato@example.co.jp',join:'2012-04',quals:['地質調査技士','RCCM（河川）','1級土木施工管理技士','技術士（建設部門）','コンクリート技士'],cpdTarget:50,cpdDone:50,deadline:'2025/05/03',expired:false,d30:true,d60:true,risk:2},
+  {id:'E-0015',name:'鈴木 三郎',dept:'技術部',type:'非常勤',email:'suzuki@example.co.jp',join:'2020-10',quals:['1級土木施工管理技士','測量士'],cpdTarget:30,cpdDone:30,deadline:'2026/08/15',expired:false,d30:false,d60:false,risk:3},
+  {id:'E-0042',name:'伊藤 四郎',dept:'設計部',type:'常勤',email:'ito@example.co.jp',join:'2016-04',quals:['技術士（建設部門）','RCCM（道路）','コンクリート診断士'],cpdTarget:50,cpdDone:50,deadline:'2027/03/31',expired:false,d30:false,d60:false,risk:3},
+  {id:'E-0057',name:'渡辺 五郎',dept:'技術部',type:'常勤',email:'watanabe@example.co.jp',join:'2014-04',quals:['RCCM（都市計画）','地質調査技士','1級土木施工管理技士','2級土木施工管理技士','測量士','コンクリート技士'],cpdTarget:100,cpdDone:92,deadline:'2026/04/30',expired:false,d30:false,d60:false,risk:2},
+  {id:'E-0063',name:'中村 六助',dept:'設計部',type:'常勤',email:'nakamura@example.co.jp',join:'2019-04',quals:['技術士（建設部門）','測量士'],cpdTarget:50,cpdDone:50,deadline:'2025/06/20',expired:false,d30:false,d60:true,risk:3},
+  {id:'E-0071',name:'小林 七海',dept:'技術部',type:'常勤',email:'kobayashi@example.co.jp',join:'2021-04',quals:['RCCM（鋼構造）','1級土木施工管理技士','地質調査技士','測量士'],cpdTarget:80,cpdDone:75,deadline:'2025/04/10',expired:false,d30:true,d60:true,risk:2},
+];
+let qualifications=[
+  {engId:'E-0021',name:'RCCM（鋼構造及びコンクリート）',no:'RC-28741',expiry:'2024/03/31',requiredCpd:'50単位',doneCpd:'22単位',status:'expired'},
+  {engId:'E-0021',name:'技術士（建設部門）',no:'PE-11052',expiry:'—',requiredCpd:'50単位/年',doneCpd:'22単位',status:'ok'},
+  {engId:'E-0034',name:'技術士（建設部門）',no:'PE-55023',expiry:'2025/05/12',requiredCpd:'50単位',doneCpd:'36単位',status:'near'},
+  {engId:'E-0034',name:'地質調査技士',no:'GE-8820',expiry:'2026/09/01',requiredCpd:'所定CPD',doneCpd:'達成',status:'ok'},
+  {engId:'E-0008',name:'地質調査技士',no:'GE-9021',expiry:'2025/05/03',requiredCpd:'所定CPD',doneCpd:'達成',status:'near'},
+  {engId:'E-0008',name:'RCCM（河川、砂防及び海岸）',no:'RC-31029',expiry:'2025/05/08',requiredCpd:'50単位',doneCpd:'52単位',status:'near'},
+  {engId:'E-0042',name:'技術士（建設部門）',no:'PE-44119',expiry:'2027/03/31',requiredCpd:'50単位',doneCpd:'50単位',status:'ok'},
+  {engId:'E-0057',name:'RCCM（都市及び地方計画）',no:'RC-50281',expiry:'2026/04/30',requiredCpd:'100単位',doneCpd:'92単位',status:'ok'},
+  {engId:'E-0071',name:'RCCM（鋼構造）',no:'RC-62110',expiry:'2025/04/10',requiredCpd:'80単位',doneCpd:'75単位',status:'near'},
+];
+let cpdRecords=[
+  {id:'r1',engId:'E-0021',qual:'RCCM（JCCA）',name:'土木学会年次講演会2024',date:'2024/09/11',units:3.0,cert:'受講証明_土木学会2024.pdf'},
+  {id:'r2',engId:'E-0021',qual:'技術士（CPDS）',name:'CPD認定セミナー（橋梁）',date:'2024/06/20',units:2.5,cert:'セミナー証明.pdf'},
+  {id:'r3',engId:'E-0034',qual:'技術士（CPDS）',name:'地盤工学会シンポジウム',date:'2024/10/15',units:6.0,cert:'参加証明.pdf'},
+  {id:'r4',engId:'E-0008',qual:'地質調査技士（JAEG）',name:'全国地質調査業大会',date:'2024/11/20',units:5.0,cert:'大会参加証.pdf'},
+  {id:'r5',engId:'E-0042',qual:'技術士（CPDS）',name:'建設マネジメント研修',date:'2024/08/22',units:4.0,cert:'研修修了書.pdf'},
+];
+let alerts=[
+  {id:'a1',level:1,type:'qual',engId:'E-0021',content:'RCCM（鋼構造）— 有効期限切れ',deadline:'2024/03/31',remaining:-8,status:'未対応'},
+  {id:'a2',level:1,type:'cpd',engId:'E-0021',content:'技術士（建設）— CPD 28単位不足',deadline:'2025/06/30',remaining:83,status:'対応中'},
+  {id:'a3',level:2,type:'qual',engId:'E-0008',content:'地質調査技士 — 更新期限 25日前',deadline:'2025/05/03',remaining:25,status:'未対応'},
+  {id:'a4',level:2,type:'qual',engId:'E-0034',content:'技術士（建設）— 更新期限 35日前',deadline:'2025/05/12',remaining:35,status:'未対応'},
+  {id:'a5',level:2,type:'cpd',engId:'E-0057',content:'RCCM — CPD 8単位不足',deadline:'2025/06/30',remaining:83,status:'未対応'},
+];
+let documents=[
+  {id:'d1',engId:'E-0042',file:'技術士登録証_伊藤四郎.pdf',qual:'技術士（建設部門）',type:'資格証',date:'2024/04/10'},
+  {id:'d2',engId:'E-0034',file:'CPD受講証明_山田_2024.pdf',qual:'土木学会CPDセミナー',type:'受講証明',date:'2024/09/22'},
+  {id:'d3',engId:'E-0008',file:'RCCM登録証_佐藤.pdf',qual:'RCCM（河川）',type:'資格証',date:'2023/06/01'},
+  {id:'d4',engId:'E-0021',file:'更新申請書_田中_2024.pdf',qual:'RCCM（鋼構造）更新申請',type:'申請書',date:'2024/02/28'},
+];
+const courses=[
+  {id:'c1',name:'土木学会年次講演会',org:'土木学会',units:5.0,format:'offline',cpd:'CPDS/JCCA',url:'https://committees.jsce.or.jp/opcet/cpd'},
+  {id:'c2',name:'RCCM CPD認定セミナー（橋梁工学）',org:'建設コンサルタンツ協会',units:3.0,format:'online',cpd:'JCCA',url:'https://www.rccm-cpd.com/'},
+  {id:'c3',name:'地盤工学会シンポジウム',org:'地盤工学会',units:5.0,format:'offline',cpd:'CPDS/G-CPD',url:'https://www.jiban.or.jp/gcpd/'},
+  {id:'c4',name:'建設技術展（CPD認定）',org:'建設系CPD協議会',units:3.0,format:'offline',cpd:'全団体',url:'https://www.cpd-ccesa.org/'},
+  {id:'c5',name:'RCCM e-Learning講座',org:'建設コンサルタンツ協会',units:2.0,format:'elearning',cpd:'JCCA',url:'https://www.rccm-cpd.com/'},
+  {id:'c6',name:'地質調査技士CPD研修会',org:'全国地質調査業協会連合会',units:4.0,format:'offline',cpd:'JAEG',url:'https://www.zenchiren.or.jp/cpd/'},
+  {id:'c7',name:'施工管理技士 技術力向上研修',org:'全国土木施工管理技士会',units:3.5,format:'online',cpd:'CPDS',url:'https://www.zenkiren.com/cpds/'},
+  {id:'c8',name:'コンクリート診断士CPD認定講座',org:'日本コンクリート工学会',units:4.0,format:'elearning',cpd:'CPDS/JCI',url:'https://www.jci-net.or.jp/'},
+];
+
+// ── NAVIGATION ─────────────────────────────────
+const PAGE_CFG={
+  dashboard:{title:'ダッシュボード',btn:'＋ 技術者を追加'},
+  engineers:{title:'技術者台帳',btn:'＋ 技術者を追加'},
+  'engineer-detail':{title:'技術者詳細',btn:'＋ CPD実績を登録'},
+  qualifications:{title:'資格管理',btn:null},
+  cpd:{title:'CPD管理',btn:'＋ 実績を登録'},
+  alerts:{title:'アラート',btn:null},
+  recommend:{title:'受講提案（AI）',btn:null},
+  documents:{title:'証憑管理',btn:null},
+  reports:{title:'レポート出力',btn:null},
+  settings:{title:'マスタ設定',btn:null},
+};
+let currentPage='dashboard', currentEngId=null, dashSortKey='risk', dashSortDir=1;
+
+function go(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.getElementById('page-'+id)?.classList.add('on');
+  document.querySelectorAll('.si').forEach(s=>s.classList.remove('on'));
+  document.querySelector(`[data-page="${id==='engineer-detail'?'engineers':id}"]`)?.classList.add('on');
+  const cfg=PAGE_CFG[id]||{title:id,btn:null};
+  document.getElementById('hd-t').textContent=cfg.title;
+  const b=document.getElementById('hd-b');
+  b.style.display=cfg.btn?'':'none';
+  if(cfg.btn)b.textContent=cfg.btn;
+  currentPage=id;
+  renderPage(id);
+}
+function renderPage(id){
+  if(id==='dashboard'){renderKPIs();renderDashAlerts();renderCPDProgress();renderDashTable();}
+  if(id==='engineers')renderEngTable();
+  if(id==='engineer-detail')renderDetail();
+  if(id==='qualifications')renderQualTable();
+  if(id==='cpd'){renderCPDKPIs();renderCPDTable();fillEngSelect('ci-eng');}
+  if(id==='alerts')renderAlerts();
+  if(id==='recommend'){fillEngSelect('rec-eng');renderCourseList();updateRecQuals();}
+  if(id==='documents'){renderDocs();fillDocEngSelect();}
+  if(id==='settings')renderSettings('m');
+}
+function handleTopBtn(){
+  if(currentPage==='cpd'||currentPage==='engineer-detail'){fillEngSelect('mc-eng');openModal('modal-cpd');}
+  else openModal('modal-eng');
+}
+
+// ── DASHBOARD ──────────────────────────────────
+function renderKPIs(){
+  const exp=engineers.filter(e=>e.expired).length;
+  const near=engineers.filter(e=>e.d30&&!e.expired).length;
+  const un=engineers.filter(e=>e.cpdDone<e.cpdTarget).length;
+  document.getElementById('kpi-row').innerHTML=`
+    <div class="kpi"><div class="kl">登録技術者数</div><div class="kv vn">${engineers.length}</div><div class="ks" style="color:var(--muted)">常勤${engineers.filter(e=>e.type==='常勤').length} / 非常勤${engineers.filter(e=>e.type!=='常勤').length}</div></div>
+    <div class="kpi"><div class="kl">期限切れ（即対応）</div><div class="kv vr">${exp}</div><div class="ks" style="color:var(--c8)">今すぐ対応が必要</div></div>
+    <div class="kpi"><div class="kl">30日以内に期限切れ</div><div class="kv vo">${near}</div><div class="ks" style="color:var(--c6)">早めの対応を推奨</div></div>
+    <div class="kpi"><div class="kl">CPD未達者</div><div class="kv vo">${un}</div><div class="ks" style="color:var(--c6)">今年度締切まで83日</div></div>`;
+}
+function renderDashAlerts(){
+  document.getElementById('dash-alerts').innerHTML=alerts.slice(0,5).map(a=>{
+    const e=engineers.find(x=>x.id===a.engId);
+    const [cls,dcls]= a.level===1?['ai-r','dr']:a.level===2?['ai-o','do']:['ai-g','dg'];
+    const tc=a.level===1?'var(--c8)':'var(--c6)';
+    const days=a.remaining<0?`<span style="color:var(--c8)">${a.remaining}日</span>`:a.remaining<=30?`<span style="color:var(--c7)">${a.remaining}日後</span>`:`<span style="color:var(--muted)">${a.remaining}日後</span>`;
+    return `<div class="aitem ${cls}"><span class="dot ${dcls}"></span><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:${tc}">${e?.name} ／ ${a.content.split('—')[0].trim()}</div><div style="font-size:11px;color:var(--muted)">${a.content.split('—')[1]?.trim()||''}</div></div><div style="font-size:11px;font-weight:500">${days}</div></div>`;
+  }).join('');
+}
+function renderCPDProgress(){
+  const groups=['技術士（建設部門）','RCCM','地質調査技士','施工管理技士（1級）'];
+  document.getElementById('cpd-progress').innerHTML=groups.map(g=>{
+    const tgt=engineers.filter(e=>e.quals.some(q=>q.includes(g.split('（')[0])));
+    const dn=tgt.filter(e=>e.cpdDone>=e.cpdTarget*0.8);
+    const pct=tgt.length?Math.round(dn.length/tgt.length*100):0;
+    const cls=pct>=80?'pg':pct>=50?'po':'pr';
+    return `<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:12px"><span>${g}</span><span style="color:var(--muted)">${dn.length}/${tgt.length}名</span></div><div class="pbar"><div class="pf ${cls}" style="width:${pct}%"></div></div></div>`;
+  }).join('');
+}
+function renderDashTable(){
+  const dept=document.getElementById('df-dept')?.value||'';
+  const risk=document.getElementById('df-risk')?.value||'';
+  const cpd=document.getElementById('df-cpd')?.value||'';
+  let data=engineers.filter(e=>(!dept||e.dept===dept)&&(!risk||String(e.risk)===risk)&&(!cpd||(cpd==='bad'?e.cpdDone<e.cpdTarget:e.cpdDone>=e.cpdTarget)));
+  data.sort((a,b)=>{const va=a[dashSortKey],vb=b[dashSortKey];return typeof va==='string'?va.localeCompare(vb)*dashSortDir:(va-vb)*dashSortDir;});
+  document.getElementById('dash-tbody').innerHTML=data.map(e=>{
+    const sh=e.cpdTarget-e.cpdDone;
+    const cpdC=sh>0?`<span style="color:var(--c7)"><span class="dot do"></span>未達（-${sh}）</span>`:`<span style="color:var(--c2)"><span class="dot dg"></span>達成済</span>`;
+    return `<tr class="clickable" onclick="openDetail('${e.id}')"><td><b style="font-weight:500">${e.name}</b></td><td>${e.dept}</td><td>${typeTag(e.type)}</td><td style="text-align:center">${e.quals.length}</td><td>${e.deadline}</td><td style="text-align:center">${e.expired?'<span class="tag tg-r">あり</span>':'<span style="color:var(--muted)">—</span>'}</td><td style="text-align:center">${e.d30&&!e.expired?'<span class="tag tg-o">あり</span>':'<span style="color:var(--muted)">—</span>'}</td><td>${cpdC}</td><td style="text-align:center">${sh>0?`<span style="color:var(--c7)">-${sh}</span>`:'—'}</td><td>${riskTag(e.risk)}</td><td><button class="btn btn-sm" onclick="event.stopPropagation();openDetail('${e.id}')">詳細</button></td></tr>`;
+  }).join('');
+}
+function sortDash(k){if(dashSortKey===k)dashSortDir*=-1;else{dashSortKey=k;dashSortDir=1;}renderDashTable();}
+
+// ── ENGINEERS ──────────────────────────────────
+function renderEngTable(){
+  const dept=document.getElementById('ef-dept')?.value||'';
+  const type=document.getElementById('ef-type')?.value||'';
+  const st=document.getElementById('ef-status')?.value||'';
+  const data=engineers.filter(e=>(!dept||e.dept===dept)&&(!type||e.type===type)&&(!st||String(e.risk)===st));
+  document.getElementById('eng-count').textContent=`${data.length}件`;
+  document.getElementById('eng-tbody').innerHTML=data.map(e=>{
+    const sh=e.cpdTarget-e.cpdDone;
+    const cC=sh>0?`<span style="color:var(--c8)"><span class="dot do"></span>未達（-${sh}）</span>`:`<span style="color:var(--c2)"><span class="dot dg"></span>達成済</span>`;
+    return `<tr class="clickable" onclick="openDetail('${e.id}')"><td><b style="font-weight:500">${e.name}</b></td><td style="color:var(--muted);font-size:11px">${e.id}</td><td>${e.dept}</td><td>${typeTag(e.type)}</td><td style="text-align:center">${e.quals.length}</td><td>${cC}</td><td>${riskTag(e.risk)}</td><td><button class="btn btn-sm" onclick="event.stopPropagation();openDetail('${e.id}')">詳細</button></td></tr>`;
+  }).join('');
+}
+function openDetail(id){currentEngId=id;go('engineer-detail');}
+function renderDetail(){
+  const e=engineers.find(x=>x.id===currentEngId); if(!e)return;
+  const cpd=cpdRecords.filter(r=>r.engId===e.id);
+  const qs=qualifications.filter(q=>q.engId===e.id);
+  const sh=e.cpdTarget-e.cpdDone;
+  document.getElementById('detail-info').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:44px;height:44px;border-radius:50%;background:var(--c1);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:var(--c3)">${e.name[0]}</div>
+        <div><div style="font-size:15px;font-weight:500">${e.name}</div><div style="font-size:11px;color:var(--muted)">${e.id} ／ ${e.dept} ／ ${e.type}</div></div>
+      </div>${riskTag(e.risk)}
+    </div>
+    <div style="display:grid;grid-template-columns:90px 1fr;gap:6px 10px;font-size:12px">
+      <span style="color:var(--muted)">入社年月</span><span>${e.join.replace('-','年')}月</span>
+      <span style="color:var(--muted)">メール</span><span style="color:var(--c2)">${e.email}</span>
+      <span style="color:var(--muted)">保有資格数</span><span>${e.quals.length}件</span>
+      <span style="color:var(--muted)">今年度CPD</span><span style="${sh>0?'color:var(--c8);font-weight:500':''}">${e.cpdDone}単位 ／ ${e.cpdTarget}単位必要${sh>0?' （不足'+sh+'単位）':' ✓達成'}</span>
+    </div>`;
+  document.getElementById('detail-history').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="font-size:13px;font-weight:500">受講履歴</div>
+      <button class="btn btn-p btn-sm" onclick="fillEngSelect('mc-eng');document.getElementById('mc-eng').value='${e.id}';openModal('modal-cpd')">＋ 登録</button>
+    </div>
+    ${cpd.length?`<table><thead><tr><th>講習名</th><th>受講日</th><th>単位</th><th>証憑</th></tr></thead><tbody>${cpd.map(r=>`<tr><td>${r.name}</td><td>${r.date}</td><td>${r.units}</td><td><span class="tag tg-g">${r.cert?'あり':'なし'}</span></td></tr>`).join('')}</tbody></table>`:'<div class="empty" style="padding:20px">受講履歴なし</div>'}`;
+  document.getElementById('detail-quals').innerHTML=`
+    <div style="font-size:13px;font-weight:500;margin-bottom:12px">保有資格一覧</div>
+    ${qs.length?qs.map(q=>{
+      const ie=q.status==='expired',in2=q.status==='near';
+      const bg=ie?'#fde8e6':in2?'#fdefd8':'var(--bg)';
+      const bc=ie?'#e0b89a':in2?'#f5cfa0':'var(--border)';
+      const tc=ie?'var(--c8)':in2?'#8b4400':'var(--text)';
+      const st=ie?'<span class="tag tg-r">期限切れ</span>':in2?'<span class="tag tg-o">間近</span>':'<span class="tag tg-g">有効</span>';
+      return `<div style="padding:11px;border-radius:7px;border:1px solid ${bc};background:${bg};margin-bottom:8px"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><b style="font-size:12px;color:${tc}">${q.name}</b>${st}</div><div style="font-size:11px;color:var(--muted)">No: ${q.no} ／ 期限: ${q.expiry}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">必要: ${q.requiredCpd} ／ 取得: ${q.doneCpd}</div></div>`;
+    }).join(''):'<div class="empty" style="padding:20px">データなし</div>'}`;
+}
+
+// ── QUALIFICATIONS ─────────────────────────────
+function renderQualTable(){
+  const type=document.getElementById('qf-type')?.value||'';
+  const st=document.getElementById('qf-status')?.value||'';
+  const data=qualifications.filter(q=>(!type||q.name.includes(type))&&(!st||q.status===st));
+  document.getElementById('qual-count').textContent=`計 ${data.length}件`;
+  document.getElementById('qual-tbody').innerHTML=data.map(q=>{
+    const e=engineers.find(x=>x.id===q.engId);
+    const sc=q.status==='expired'?'tg-r':q.status==='near'?'tg-o':'tg-g';
+    const sl=q.status==='expired'?'期限切れ':q.status==='near'?'間近':'有効';
+    const dc=q.status==='expired'?'color:var(--c8)':q.status==='near'?'color:var(--c6)':'';
+    return `<tr><td>${e?.name||'—'}</td><td>${q.name}</td><td style="font-size:11px;color:var(--muted)">${q.no}</td><td style="${dc}">${q.expiry}</td><td>${q.requiredCpd}</td><td>${q.doneCpd}</td><td><span class="tag ${sc}">${sl}</span></td></tr>`;
+  }).join('');
+}
+
+// ── CPD ────────────────────────────────────────
+function renderCPDKPIs(){
+  const un=engineers.filter(e=>e.cpdDone<e.cpdTarget);
+  const dn=engineers.filter(e=>e.cpdDone>=e.cpdTarget);
+  document.getElementById('cpd-kpi').innerHTML=`
+    <div class="kpi"><div class="kl">今年度締切</div><div class="kv vo">83日後</div><div class="ks" style="color:var(--muted)">2025/06/30</div></div>
+    <div class="kpi"><div class="kl">未達者</div><div class="kv vr">${un.length}名</div><div class="ks" style="color:var(--c8)">要フォロー</div></div>
+    <div class="kpi"><div class="kl">達成者</div><div class="kv vg">${dn.length}名</div><div class="ks" style="color:var(--c2)">全体の${Math.round(dn.length/engineers.length*100)}%</div></div>`;
+}
+function renderCPDTable(){
+  document.getElementById('cpd-tbody').innerHTML=engineers.map(e=>{
+    const sh=e.cpdTarget-e.cpdDone;
+    const pct=Math.round(e.cpdDone/e.cpdTarget*100);
+    const cls=pct>=100?'pg':pct>=70?'po':'pr';
+    const sc=sh<=0?'tg-g':pct>=70?'tg-o':'tg-r';
+    const sl=sh<=0?'達成':pct>=70?'未達':'要対応';
+    return `<tr><td><b style="font-weight:500">${e.name}</b></td><td style="font-size:11px">${e.quals.slice(0,2).join(' / ')}</td><td style="text-align:center">${e.cpdTarget}</td><td style="text-align:center;${sh>0?'color:var(--c7)':'color:var(--c2)'}">${e.cpdDone}</td><td style="text-align:center;${sh>0?'color:var(--c7)':'color:var(--muted)'}">${sh>0?sh:'0'}</td><td style="text-align:center;${sh>0?'color:var(--c7)':'color:var(--c2)'}">${pct}%</td><td style="width:100px"><div class="pbar"><div class="pf ${cls}" style="width:${Math.min(pct,100)}%"></div></div></td><td><span class="tag ${sc}">${sl}</span></td><td style="display:flex;gap:4px"><button class="btn btn-sm" onclick="openDetail('${e.id}')">詳細</button><button class="btn btn-sm" onclick="prefillRecommend('${e.id}')" style="margin-left:4px">提案</button></td></tr>`;
+  }).join('');
+}
+function switchTab(id){
+  document.getElementById('tab-cs').classList.toggle('on',id==='cs');
+  document.getElementById('tab-ci').classList.toggle('on',id==='ci');
+  document.getElementById('view-cs').style.display=id==='cs'?'':'none';
+  document.getElementById('view-ci').style.display=id==='ci'?'':'none';
+}
+
+// ── ALERTS ─────────────────────────────────────
+function renderAlerts(){
+  const lv=document.getElementById('af-level')?.value||'';
+  const tp=document.getElementById('af-type')?.value||'';
+  const data=alerts.filter(a=>(!lv||String(a.level)===lv)&&(!tp||a.type===tp));
+  document.getElementById('badge-alerts').textContent=alerts.filter(a=>a.status!=='対応済').length;
+  document.getElementById('alert-tbody').innerHTML=data.map(a=>{
+    const e=engineers.find(x=>x.id===a.engId);
+    const lt=a.level===1?'<span class="tag tg-r">期限切れ</span>':a.level===2?'<span class="tag tg-o">要注意</span>':'<span class="tag tg-gr">通知</span>';
+    const st=a.status==='対応済'?'<span class="tag tg-g">対応済</span>':a.status==='対応中'?'<span class="tag tg-o">対応中</span>':'<span class="tag tg-r">未対応</span>';
+    const dc=a.remaining<0?'color:var(--c8)':a.remaining<=30?'color:var(--c7)':'color:var(--muted)';
+    const d=a.remaining<0?`${a.remaining}日`:`${a.remaining}日後`;
+    return `<tr><td>${lt}</td><td>${e?.name||'—'}</td><td>${a.content}</td><td style="${dc}">${a.deadline}</td><td style="${dc}">${d}</td><td>${st}</td><td style="display:flex;gap:4px">${a.status!=='対応済'?`<button class="btn btn-sm" onclick="resolveAlert('${a.id}')">対応済にする</button>`:''}<button class="btn btn-sm" onclick="openDetail('${a.engId}')">詳細</button></td></tr>`;
+  }).join('');
+}
+function resolveAlert(id){const a=alerts.find(x=>x.id===id);if(a){a.status='対応済';renderAlerts();showToast('✅ 対応済にしました');}}
+
+// ── RECOMMEND ──────────────────────────────────
+function renderCourseList(){
+  const fmt={offline:'集合',online:'オンライン',elearning:'e-Learning'};
+  document.getElementById('course-list').innerHTML=courses.map(c=>`
+    <div class="course-item">
+      <div class="course-meta"><div class="course-name">${c.name}</div>
+        <div class="course-info"><span>🏛 ${c.org}</span><span>📚 ${fmt[c.format]||c.format}</span><span>🎯 ${c.cpd}</span></div>
+      </div>
+      <div style="text-align:right"><div class="course-unit">${c.units}単位</div>
+        <a href="${c.url}" target="_blank" class="rec-link" style="font-size:11px;padding:4px 8px;margin-top:5px">申込 →</a>
+      </div>
+    </div>`).join('');
+}
+function fillEngSelect(selId){
+  const sel=document.getElementById(selId); if(!sel)return;
+  sel.innerHTML=engineers.map(e=>`<option value="${e.id}">${e.name}（${e.id}）</option>`).join('');
+}
+function updateRecQuals(){
+  const e=engineers.find(x=>x.id===document.getElementById('rec-eng')?.value); if(!e)return;
+  document.getElementById('rec-qual').innerHTML=e.quals.map(q=>`<option>${q}</option>`).join('');
+  const sh=e.cpdTarget-e.cpdDone;
+  document.getElementById('rec-shortage').value=sh>0?`${sh}単位不足`:'達成済（0単位不足）';
+}
+function prefillRecommend(engId){
+  go('recommend');
+  setTimeout(()=>{const s=document.getElementById('rec-eng');if(s){s.value=engId;updateRecQuals();}},100);
+}
+
+async function generateRecommend(){
+  const engId=document.getElementById('rec-eng').value;
+  const qual=document.getElementById('rec-qual').value;
+  const shortage=document.getElementById('rec-shortage').value;
+  const deadline=document.getElementById('rec-deadline').value;
+  const e=engineers.find(x=>x.id===engId); if(!e)return;
+  const area=document.getElementById('rec-result-area');
+  area.innerHTML=`<div class="ai-thinking"><div class="spinner"></div>AIが受講プランを生成中...</div>`;
+  const prompt=`あなたはCredifyというCPD管理SaaSのAIアドバイザーです。以下の技術者情報をもとに、CPD単位不足を解消するための具体的な受講提案をJSON形式で返してください。
+
+【技術者情報】
+- 氏名: ${e.name}（${e.dept}）
+- 対象資格: ${qual}
+- 単位状況: ${shortage}
+- 締切: ${deadline||'2025年6月30日'}
+
+【利用可能な講座】
+${courses.map(c=>`- id:${c.id} 「${c.name}」${c.org} ${c.units}単位 ${c.format} 対応:${c.cpd}`).join('\n')}
+
+JSONのみ返答（コードブロック不要）:
+{"summary":"総評（2文）","plan":["ステップ1","ステップ2","ステップ3"],"courses":[{"id":"c1","reason":"理由1文"},{"id":"c3","reason":"理由1文"}],"message":"励ましメッセージ1文"}`;
+
+  try{
+    // Netlify Functions経由でAPIコール（APIキーはサーバー側で保持）
+    const resp=await fetch('/.netlify/functions/recommend',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    });
+    if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data=await resp.json();
+    if(data.error) throw new Error(data.error);
+    const raw=data.content?.map(b=>b.text||'').join('');
+    const result=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    renderRecommendResult(result,e,shortage);
+  }catch(err){
+    renderFallbackRecommend(e,shortage,err.message);
+  }
+}
+
+function renderRecommendResult(result,e,shortage){
+  const fmt={offline:'集合',online:'オンライン',elearning:'e-Learning'};
+  const rCourses=(result.courses||[]).map(rc=>{const c=courses.find(x=>x.id===rc.id);return c?{course:c,reason:rc.reason}:null;}).filter(Boolean);
+  document.getElementById('rec-result-area').innerHTML=`
+    <div class="rec-card"><div class="rec-title">✨ ${e.name} さんへの受講提案</div><div class="rec-body">${result.summary||''}</div></div>
+    <div class="card" style="margin-bottom:12px">
+      <div style="font-size:12px;font-weight:500;margin-bottom:10px">📋 推奨ステップ</div>
+      ${(result.plan||[]).map((s,i)=>`<div style="display:flex;gap:10px;margin-bottom:8px;font-size:12px"><span style="width:20px;height:20px;border-radius:50%;background:var(--c2);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0">${i+1}</span><span>${s}</span></div>`).join('')}
+    </div>
+    <div style="font-size:12px;font-weight:500;margin-bottom:10px">🎯 おすすめ講座</div>
+    ${rCourses.map(({course:c,reason})=>`
+      <div class="course-item">
+        <div class="course-meta"><div class="course-name">${c.name}</div>
+          <div class="course-info"><span>🏛 ${c.org}</span><span>📚 ${fmt[c.format]||c.format}</span></div>
+          <div style="font-size:11px;color:var(--c2);margin-top:4px">💡 ${reason}</div>
+        </div>
+        <div style="text-align:right"><div class="course-unit">${c.units}単位</div>
+          <a href="${c.url}" target="_blank" class="rec-link" style="font-size:11px;padding:4px 8px;margin-top:6px">詳細・申込 →</a>
+        </div>
+      </div>`).join('')}
+    <div style="margin-top:12px;padding:12px;background:var(--bg);border-radius:7px;font-size:12px;color:var(--muted)">💬 ${result.message||''}</div>`;
+}
+
+function renderFallbackRecommend(e,shortage,errMsg){
+  const sh=parseInt(shortage)||0;
+  const top=courses.filter(()=>sh>0).slice(0,3);
+  document.getElementById('rec-result-area').innerHTML=`
+    <div style="padding:12px;background:#fde8e6;border-radius:8px;color:var(--c9);margin-bottom:12px;font-size:12px">
+      ⚠️ AI接続エラー（${errMsg||'不明'}）<br>
+      <span style="font-size:11px;color:var(--muted)">Netlify Functions の設定を確認してください。以下はデフォルト提案です。</span>
+    </div>
+    <div style="font-size:12px;font-weight:500;margin-bottom:8px">デフォルト提案（上位${top.length}件）</div>
+    ${top.map(c=>`<div class="course-item"><div class="course-meta"><div class="course-name">${c.name}</div><div class="course-info"><span>🏛 ${c.org}</span></div></div><div style="text-align:right"><div class="course-unit">${c.units}単位</div><a href="${c.url}" target="_blank" class="rec-link" style="font-size:11px;padding:4px 8px">詳細 →</a></div></div>`).join('')}`;
+}
+
+// ── DOCUMENTS ──────────────────────────────────
+function renderDocs(){
+  const ei=document.getElementById('docf-eng')?.value||'';
+  const tp=document.getElementById('docf-type')?.value||'';
+  const data=documents.filter(d=>(!ei||d.engId===ei)&&(!tp||d.type===tp));
+  const tt=t=>t==='資格証'?'tg-b':t==='受講証明'?'tg-g':'tg-o';
+  document.getElementById('doc-tbody').innerHTML=data.map(d=>{
+    const e=engineers.find(x=>x.id===d.engId);
+    return `<tr><td style="color:var(--c2)">${d.file}</td><td>${e?.name||'—'}</td><td>${d.qual}</td><td><span class="tag ${tt(d.type)}">${d.type}</span></td><td>${d.date}</td><td><button class="btn btn-sm" onclick="showToast('📄 ${d.file}')">表示</button></td></tr>`;
+  }).join('');
+}
+function fillDocEngSelect(){
+  const s=document.getElementById('docf-eng');if(!s)return;
+  s.innerHTML='<option value="">技術者：すべて</option>'+engineers.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');
+}
+function addDoc(){
+  const n=prompt('ファイル名:');if(!n)return;
+  documents.push({id:'d'+Date.now(),engId:engineers[0].id,file:n,qual:'手動登録',type:'受講証明',date:new Date().toLocaleDateString('ja-JP')});
+  renderDocs();showToast('✅ 証憑を追加しました');
+}
+
+// ── REPORTS ────────────────────────────────────
+function downloadReport(type){
+  let rows=[],fn='';
+  if(type==='cpd'){rows=[['氏名','社員番号','必要単位','取得済','不足','達成率'],...engineers.map(e=>[e.name,e.id,e.cpdTarget,e.cpdDone,Math.max(0,e.cpdTarget-e.cpdDone),Math.round(e.cpdDone/e.cpdTarget*100)+'%'])];fn='CPD達成状況_'+today()+'.csv';}
+  else if(type==='risk'){const r=engineers.filter(e=>e.risk<=2);rows=[['氏名','ステータス','期限切れ','不足単位'],...r.map(e=>[e.name,riskLabel(e.risk),e.expired?'あり':'なし',Math.max(0,e.cpdTarget-e.cpdDone)])];fn='リスク一覧_'+today()+'.csv';}
+  else{rows=[['氏名','社員番号','所属','雇用区分','保有資格数','最短更新期限'],...engineers.map(e=>[e.name,e.id,e.dept,e.type,e.quals.length,e.deadline])];fn='技術者台帳_'+today()+'.csv';}
+  const csv=rows.map(r=>r.join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));a.download=fn;a.click();
+  showToast('✅ '+fn+' をダウンロードしました');
+}
+function today(){return new Date().toISOString().slice(0,10).replace(/-/g,'');}
+function riskLabel(r){return r===1?'期限切れあり':r===2?'要対応':'正常';}
+
+// ── SETTINGS ───────────────────────────────────
+function switchSettingsTab(t){
+  ['m','c','n','u'].forEach(k=>document.getElementById('tab-s'+k)?.classList.toggle('on',k===t));
+  renderSettings(t);
+}
+function renderSettings(t){
+  const el=document.getElementById('settings-content');
+  if(t==='m'){
+    const qs=[{name:'技術士（建設部門）',org:'日本技術士会',cycle:'—',cpd:'50単位/年',note:'CPDSシステム登録必須'},{name:'RCCM',org:'JCCA',cycle:'5年',cpd:'50単位/更新期間',note:'更新講習受講必須'},{name:'地質調査技士',org:'JAEG',cycle:'5年',cpd:'所定CPD',note:'CPD報告書提出必須'},{name:'1級土木施工管理技士',org:'国土交通省',cycle:'5年',cpd:'—',note:'講習受講で更新'}];
+    el.innerHTML=`<div class="card" style="padding:0"><div class="tw"><table><thead><tr><th>資格名</th><th>認定団体</th><th>更新周期</th><th>必要CPD</th><th>備考</th><th>操作</th></tr></thead><tbody>${qs.map(q=>`<tr><td>${q.name}</td><td>${q.org}</td><td>${q.cycle}</td><td>${q.cpd}</td><td style="font-size:11px;color:var(--muted)">${q.note}</td><td><button class="btn btn-sm" onclick="showToast('編集機能は実装予定')">編集</button></td></tr>`).join('')}</tbody></table></div></div>`;
+  }else if(t==='n'){
+    el.innerHTML=`<div class="card" style="max-width:480px"><div class="card-t" style="margin-bottom:14px">アラート通知設定</div>${[['30日前通知','期限切れ30日前にメール通知',true],['60日前通知','期限切れ60日前にメール通知',true],['CPD未達通知','締切90日前にCPD未達者へ通知',true],['上長エスカレーション','未対応7日で上長へ転送',false]].map(([l,d,c])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;font-weight:500">${l}</div><div style="font-size:11px;color:var(--muted)">${d}</div></div><label><input type="checkbox" ${c?'checked':''} onchange="showToast('設定を保存しました')"> ON</label></div>`).join('')}</div>`;
+  }else{
+    el.innerHTML=`<div class="card"><div class="empty">この設定は実装予定です</div></div>`;
+  }
+}
+
+// ── MODAL / CRUD ───────────────────────────────
+function openModal(id){document.getElementById(id).classList.add('on');}
+function closeModal(id){document.getElementById(id).classList.remove('on');}
+function addEngineer(){
+  const name=document.getElementById('m-name').value.trim();
+  if(!name){alert('氏名を入力してください');return;}
+  const newId='E-'+String(engineers.length+1).padStart(4,'0');
+  engineers.push({id:newId,name,dept:document.getElementById('m-dept').value,type:document.getElementById('m-type').value,email:document.getElementById('m-email').value,join:document.getElementById('m-join').value,quals:[],cpdTarget:30,cpdDone:0,deadline:'—',expired:false,d30:false,d60:false,risk:3});
+  closeModal('modal-eng');['m-name','m-email','m-join'].forEach(id=>document.getElementById(id).value='');
+  renderPage('engineers');showToast('✅ '+name+' を追加しました（'+newId+'）');
+}
+function addCPDRecord(){
+  const engId=document.getElementById('mc-eng').value;
+  const name=document.getElementById('mc-name').value.trim();
+  const date=document.getElementById('mc-date').value;
+  const units=parseFloat(document.getElementById('mc-units').value)||0;
+  if(!name||!date||!units){alert('講習名・受講日・単位数を入力してください');return;}
+  cpdRecords.push({id:'r'+Date.now(),engId,qual:document.getElementById('mc-qual').value,name,date:date.replace(/-/g,'/'),units,cert:document.getElementById('mc-cert').value});
+  const e=engineers.find(x=>x.id===engId);
+  if(e)e.cpdDone=Math.min(e.cpdDone+units,e.cpdTarget);
+  closeModal('modal-cpd');['mc-name','mc-date','mc-units','mc-cert'].forEach(id=>document.getElementById(id).value='');
+  renderPage(currentPage);showToast('✅ CPD実績を登録しました（+'+units+'単位）');
+}
+function addCPDFromPage(){
+  const engId=document.getElementById('ci-eng').value;
+  const name=document.getElementById('ci-name').value.trim();
+  const date=document.getElementById('ci-date').value;
+  const units=parseFloat(document.getElementById('ci-units').value)||0;
+  if(!name||!date||!units){alert('必須項目を入力してください');return;}
+  cpdRecords.push({id:'r'+Date.now(),engId,qual:document.getElementById('ci-qual').value,name,date:date.replace(/-/g,'/'),units,cert:document.getElementById('ci-cert').value});
+  const e=engineers.find(x=>x.id===engId);if(e)e.cpdDone=Math.min(e.cpdDone+units,e.cpdTarget);
+  ['ci-name','ci-date','ci-units','ci-cert'].forEach(id=>document.getElementById(id).value='');
+  renderCPDKPIs();renderCPDTable();showToast('✅ 登録しました（+'+units+'単位）');
+}
+function handleSearch(q){
+  if(!q)return;
+  const hits=engineers.filter(e=>e.name.includes(q)||e.id.includes(q)||e.quals.some(x=>x.includes(q)));
+  if(hits.length===1)openDetail(hits[0].id);
+  else if(hits.length>1)go('engineers');
+}
+
+// ── HELPERS ────────────────────────────────────
+function riskTag(r){return r===1?'<span class="tag tg-r">期限切れあり</span>':r===2?'<span class="tag tg-o">要対応</span>':'<span class="tag tg-g">正常</span>';}
+function typeTag(t){return t==='非常勤'?'<span class="tag tg-b">非常勤</span>':'<span class="tag tg-gr">常勤</span>';}
+let toastTimer;
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2800);}
+
+// ── INIT ───────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  go('dashboard');
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.overlay.on').forEach(m=>m.classList.remove('on'));});
+  document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('on');}));
+});
+</script>
+</body>
+</html>
