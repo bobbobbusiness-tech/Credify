@@ -1,829 +1,1145 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Credify — 建設技術者 資格・CPD 継続監視基盤</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --navy:#001219; --teal-d:#005f73; --teal:#0a9396; --mint:#94d2bd;
-      --amber:#ee9b00; --orange:#ca6702; --red:#ae2012; --red-d:#9b2226;
-      --ok-c:#0a9396;  --ok-bg:#e8f7f7;
-      --cau-c:#b57800; --cau-bg:#fff8e6;
-      --act-c:#ca6702; --act-bg:#fff3e8;
-      --urg-c:#ae2012; --urg-bg:#fde8e6;
-      --done-c:#2a8070;--done-bg:#eaf7f4;
-      --sb-w:222px; --rp-w:372px;
-      --bg:#eef1f5; --surface:#fff; --border:#e0e4ea;
-      --text-main:#1a2332; --text-sub:#7a8599; --text-muted:#aab3c0;
-    }
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Noto Sans JP','Hiragino Sans',sans-serif;background:var(--bg);color:var(--text-main);font-size:13px;height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased}
-    ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#c4cdd8;border-radius:3px}
-    .app{display:flex;height:100vh;overflow:hidden}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Credify — 建設技術者 資格・CPD 継続監視基盤</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#001219;--teal-d:#005f73;--teal:#0a9396;--mint:#94d2bd;
+  --amber:#ee9b00;--orange:#ca6702;--red:#ae2012;
+  --ok-c:#0a9396;--ok-bg:#e8f7f7;
+  --cau-c:#b57800;--cau-bg:#fff8e6;
+  --act-c:#ca6702;--act-bg:#fff3e8;
+  --urg-c:#ae2012;--urg-bg:#fde8e6;
+  --done-c:#2a8070;--done-bg:#eaf7f4;
+  --sb-w:222px;--rp-w:372px;
+  --bg:#eef1f5;--surface:#fff;--border:#e0e4ea;
+  --text-main:#1a2332;--text-sub:#7a8599;--text-muted:#aab3c0;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans JP','Hiragino Sans',sans-serif;background:var(--bg);color:var(--text-main);font-size:13px;height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#c4cdd8;border-radius:3px}
+.app{display:flex;height:100vh;overflow:hidden}
 
-    /* サイドバー */
-    .sidebar{width:var(--sb-w);min-width:var(--sb-w);background:var(--navy);display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden}
-    .logo-area{padding:13px 16px 10px;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0}
-    .logo-mark{display:flex;align-items:center;gap:7px}
-    .logo-icon{width:26px;height:26px;border-radius:7px;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
-    .logo-text{font-size:17px;font-weight:700;color:var(--mint);letter-spacing:.5px}
-    .logo-tag{font-size:9px;color:rgba(255,255,255,0.3);margin-top:3px;line-height:1.5}
-    .co-row{display:flex;align-items:center;gap:8px;padding:9px 16px;border-bottom:1px solid rgba(255,255,255,0.07);cursor:pointer}
-    .co-row:hover{background:rgba(255,255,255,0.04)}
-    .co-av{width:26px;height:26px;border-radius:5px;background:var(--teal-d);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-    .co-name{font-size:10.5px;color:rgba(255,255,255,0.55);line-height:1.4;flex:1}
-    .nav{flex:1;padding:5px 0 14px;overflow-y:auto}
-    .nav-main{display:flex;align-items:center;gap:7px;padding:7px 12px 7px 16px;color:rgba(255,255,255,0.45);cursor:pointer;font-size:12px;font-weight:500;transition:color .15s,background .15s;user-select:none}
-    .nav-main:hover{color:rgba(255,255,255,0.82);background:rgba(255,255,255,0.04)}
-    .nav-main.open{color:rgba(255,255,255,0.82)}
-    .nav-icon{font-size:13px;width:17px;text-align:center;flex-shrink:0}
-    .nav-lbl{flex:1}
-    .nav-arrow{font-size:9px;transition:transform .2s;color:rgba(255,255,255,0.18);flex-shrink:0}
-    .nav-main.open .nav-arrow{transform:rotate(90deg)}
-    .nav-badge{background:var(--red);color:#fff;border-radius:10px;padding:1px 6px;font-size:9.5px;font-weight:700;flex-shrink:0}
-    .nav-badge.amb{background:var(--orange)}
-    .nav-subs{display:none;background:rgba(0,0,0,0.14)}
-    .nav-subs.open{display:block}
-    .nav-sub{display:flex;align-items:center;padding:5.5px 12px 5.5px 40px;color:rgba(255,255,255,0.36);font-size:11.5px;cursor:pointer;transition:color .13s,background .13s;position:relative}
-    .nav-sub:hover{color:rgba(255,255,255,0.75);background:rgba(255,255,255,0.03)}
-    .nav-sub.active{color:var(--mint);background:rgba(148,210,189,0.09)}
-    .nav-sub.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--mint);border-radius:0 2px 2px 0}
-    .nsb{margin-left:auto;border-radius:8px;padding:0 5px;font-size:9.5px;font-weight:600;background:rgba(174,32,18,0.75);color:#fff;flex-shrink:0}
-    .nsb.amb{background:rgba(202,103,2,0.75)}
+/* ─── サイドバー ─── */
+.sidebar{width:var(--sb-w);min-width:var(--sb-w);background:var(--navy);display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden}
+.logo-area{padding:13px 16px 10px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0}
+.logo-mark{display:flex;align-items:center;gap:7px}
+.logo-icon{width:26px;height:26px;border-radius:7px;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.logo-text{font-size:17px;font-weight:700;color:var(--mint);letter-spacing:.5px}
+.logo-tag{font-size:9px;color:rgba(255,255,255,.3);margin-top:3px;line-height:1.5}
+.co-row{display:flex;align-items:center;gap:8px;padding:9px 16px;border-bottom:1px solid rgba(255,255,255,.07);cursor:pointer}
+.co-row:hover{background:rgba(255,255,255,.04)}
+.co-av{width:26px;height:26px;border-radius:5px;background:var(--teal-d);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.co-name{font-size:10.5px;color:rgba(255,255,255,.55);line-height:1.4;flex:1}
+.nav{flex:1;padding:5px 0 14px;overflow-y:auto}
+.nav-main{display:flex;align-items:center;gap:7px;padding:7px 12px 7px 16px;color:rgba(255,255,255,.45);cursor:pointer;font-size:12px;font-weight:500;transition:color .15s,background .15s;user-select:none}
+.nav-main:hover{color:rgba(255,255,255,.82);background:rgba(255,255,255,.04)}
+.nav-main.open{color:rgba(255,255,255,.82)}
+.nav-icon{font-size:13px;width:17px;text-align:center;flex-shrink:0}
+.nav-lbl{flex:1}
+.nav-arrow{font-size:9px;transition:transform .2s;color:rgba(255,255,255,.18);flex-shrink:0}
+.nav-main.open .nav-arrow{transform:rotate(90deg)}
+.nav-badge{background:var(--red);color:#fff;border-radius:10px;padding:1px 6px;font-size:9.5px;font-weight:700;flex-shrink:0}
+.nav-badge.amb{background:var(--orange)}
+.nav-subs{display:none;background:rgba(0,0,0,.14)}
+.nav-subs.open{display:block}
+.nav-sub{display:flex;align-items:center;padding:5.5px 12px 5.5px 40px;color:rgba(255,255,255,.36);font-size:11.5px;cursor:pointer;transition:color .13s,background .13s;position:relative}
+.nav-sub:hover{color:rgba(255,255,255,.75);background:rgba(255,255,255,.03)}
+.nav-sub.active{color:var(--mint);background:rgba(148,210,189,.09)}
+.nav-sub.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--mint);border-radius:0 2px 2px 0}
+.nsb{margin-left:auto;border-radius:8px;padding:0 5px;font-size:9.5px;font-weight:600;background:rgba(174,32,18,.75);color:#fff;flex-shrink:0}
+.nsb.amb{background:rgba(202,103,2,.75)}
 
-    /* レイアウト */
-    .main{flex:1;display:flex;overflow:hidden;min-width:0}
-    .center{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
-    .panel-header{background:var(--surface);border-bottom:1px solid var(--border);padding:11px 20px;display:flex;align-items:center;gap:10px;flex-shrink:0;z-index:5}
-    .panel-tg{flex:1;min-width:0}
-    .panel-title{font-size:14px;font-weight:700;color:var(--text-main)}
-    .panel-desc{font-size:11px;color:var(--text-sub);margin-top:2px}
-    .panel-acts{display:flex;gap:7px;align-items:center;flex-shrink:0}
-    .center-scroll{flex:1;overflow-y:auto}
-    .right-panel{width:var(--rp-w);min-width:var(--rp-w);background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
-    .rp-ph{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-muted);text-align:center;padding:30px}
-    .rp-ph-icon{font-size:32px;margin-bottom:10px;opacity:.45}
-    .rp-ph-txt{font-size:11.5px;line-height:1.7}
-    .rp-content{flex:1;overflow-y:auto;display:none}
+/* ─── レイアウト ─── */
+.main{flex:1;display:flex;overflow:hidden;min-width:0}
+.center{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.panel-header{background:var(--surface);border-bottom:1px solid var(--border);padding:11px 20px;display:flex;align-items:center;gap:10px;flex-shrink:0;z-index:5}
+.panel-tg{flex:1;min-width:0}
+.panel-title{font-size:14px;font-weight:700;color:var(--text-main)}
+.panel-desc{font-size:11px;color:var(--text-sub);margin-top:2px}
+.panel-acts{display:flex;gap:7px;align-items:center;flex-shrink:0}
+.center-scroll{flex:1;overflow-y:auto}
+.right-panel{width:var(--rp-w);min-width:var(--rp-w);background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.rp-ph{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-muted);text-align:center;padding:30px}
+.rp-ph-icon{font-size:32px;margin-bottom:10px;opacity:.45}
+.rp-ph-txt{font-size:11.5px;line-height:1.7}
+.rp-content{flex:1;overflow-y:auto;display:none}
 
-    /* 汎用コンポーネント */
-    .btn{display:inline-flex;align-items:center;gap:4px;padding:5px 11px;border-radius:6px;font-size:12px;font-weight:500;font-family:inherit;cursor:pointer;border:none;transition:all .13s;white-space:nowrap}
-    .btn-prim{background:var(--teal-d);color:#fff}.btn-prim:hover{background:var(--teal)}
-    .btn-out{background:transparent;border:1px solid #d0d5de;color:#445566}.btn-out:hover{background:#f5f7fa;border-color:#99aabb}
-    .btn-amb{background:var(--amber);color:#1a0d00}.btn-amb:hover{filter:brightness(.92)}
-    .btn-ghost{background:transparent;color:var(--text-sub);border:none;padding:5px 8px}.btn-ghost:hover{background:#f0f2f5;color:var(--text-main)}
-    .btn-sm{padding:3px 9px;font-size:11px}.btn-xs{padding:2px 7px;font-size:10.5px}
-    .badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap}
-    .b-ok{background:var(--ok-bg);color:var(--ok-c)}.b-cau{background:var(--cau-bg);color:var(--cau-c)}
-    .b-act{background:var(--act-bg);color:var(--act-c)}.b-urg{background:var(--urg-bg);color:var(--urg-c)}
-    .b-done{background:var(--done-bg);color:var(--done-c)}.b-gray{background:#f0f2f5;color:var(--text-sub)}
-    .beta{display:inline-block;padding:1px 5px;background:#e8edf4;color:var(--text-sub);border-radius:4px;font-size:9.5px;font-weight:500;vertical-align:middle;margin-left:4px}
-    .prog{height:6px;background:#e4e8ef;border-radius:3px;overflow:hidden;min-width:50px}
-    .pf{height:100%;border-radius:3px;transition:width .4s}
-    .pf-ok{background:var(--teal)}.pf-cau{background:var(--amber)}.pf-urg{background:var(--red)}
-    .filter-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 20px;display:flex;align-items:center;gap:7px;flex-shrink:0;flex-wrap:wrap}
-    .sw{position:relative}.sw::before{content:'🔍';position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:10px;pointer-events:none}
-    .si{width:200px;padding:4px 10px 4px 27px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;color:var(--text-main)}
-    .si:focus{outline:none;border-color:var(--teal)}
-    .chip{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:500;border:1px solid var(--border);cursor:pointer;background:#fff;color:var(--text-sub);transition:all .13s}
-    .chip:hover{border-color:var(--teal);color:var(--teal)}.chip.on{background:var(--teal);border-color:var(--teal);color:#fff}
-    .data-table{width:100%;border-collapse:collapse;background:var(--surface)}
-    .data-table th{background:#f5f7fb;padding:8px 12px;text-align:left;font-size:10.5px;font-weight:700;color:var(--text-sub);border-bottom:2px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:2}
-    .data-table td{padding:9px 12px;border-bottom:1px solid #f0f2f5;font-size:12px;color:var(--text-main);vertical-align:middle}
-    .data-table tbody tr{cursor:pointer;transition:background .1s}
-    .data-table tbody tr:hover td{background:#f7f9fb}
-    .data-table tbody tr.selected td{background:#edf4f9}
-    .cb-col{width:34px;text-align:center}
-    .bulk-bar{position:sticky;bottom:0;z-index:15;background:var(--navy);color:#fff;padding:9px 20px;display:none;align-items:center;gap:8px;border-top:2px solid var(--teal-d)}
-    .bulk-bar.show{display:flex}
-    .bulk-count{font-size:12.5px;font-weight:700;color:var(--mint);white-space:nowrap}
-    .bulk-btn{background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.18);padding:4px 10px;border-radius:5px;font-size:11px;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:3px;transition:background .13s}
-    .bulk-btn:hover{background:rgba(255,255,255,0.2)}
-    .bulk-clear{margin-left:auto;background:transparent;border:none;color:rgba(255,255,255,0.32);cursor:pointer;font-family:inherit;font-size:11px}
+/* ─── ボタン ─── */
+.btn{display:inline-flex;align-items:center;gap:4px;padding:5px 11px;border-radius:6px;font-size:12px;font-weight:500;font-family:inherit;cursor:pointer;border:none;transition:all .13s;white-space:nowrap}
+.btn-prim{background:var(--teal-d);color:#fff}.btn-prim:hover{background:var(--teal)}
+.btn-out{background:transparent;border:1px solid #d0d5de;color:#445566}.btn-out:hover{background:#f5f7fa;border-color:#99aabb}
+.btn-amb{background:var(--amber);color:#1a0d00}.btn-amb:hover{filter:brightness(.92)}
+.btn-ghost{background:transparent;color:var(--text-sub);border:none;padding:5px 8px}.btn-ghost:hover{background:#f0f2f5;color:var(--text-main)}
+.btn-sm{padding:3px 9px;font-size:11px}.btn-xs{padding:2px 7px;font-size:10.5px}
 
-    /* ダッシュボード */
-    .val-banner{background:linear-gradient(135deg,var(--navy),var(--teal-d));color:#fff;padding:12px 20px;display:flex;align-items:center;gap:14px;border-bottom:1px solid rgba(255,255,255,0.1);flex-shrink:0}
-    .vb-icon{font-size:24px;flex-shrink:0}
-    .vb-title{font-size:13px;font-weight:700}
-    .vb-desc{font-size:11px;color:rgba(255,255,255,0.55);margin-top:2px}
-    .vb-acts{margin-left:auto;display:flex;gap:7px;align-items:center;flex-shrink:0}
-    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 20px 0}
-    .kpi-card{background:var(--surface);border-radius:9px;border:1px solid var(--border);padding:13px 15px;cursor:pointer;transition:transform .13s,box-shadow .13s}
-    .kpi-card:hover{transform:translateY(-2px);box-shadow:0 5px 18px rgba(0,18,25,0.09)}
-    .kpi-card.urg{border-left:4px solid var(--red)}.kpi-card.act{border-left:4px solid var(--orange)}
-    .kpi-card.cau{border-left:4px solid var(--amber)}.kpi-card.inf{border-left:4px solid var(--teal)}
-    .kpi-lbl{font-size:10.5px;color:var(--text-sub);font-weight:500}
-    .kpi-val{font-size:28px;font-weight:700;margin:4px 0 2px;line-height:1}
-    .kpi-card.urg .kpi-val{color:var(--red)}.kpi-card.act .kpi-val{color:var(--orange)}
-    .kpi-card.cau .kpi-val{color:var(--amber)}.kpi-card.inf .kpi-val{color:var(--teal)}
-    .kpi-detail{font-size:10px;color:var(--text-muted)}
-    .section{padding:0 20px 16px}
-    .slbl{font-size:10.5px;font-weight:700;color:var(--text-sub);letter-spacing:.4px;margin:13px 0 8px;display:flex;align-items:center;gap:7px}
-    .sdivider{flex:1;height:1px;background:#e8edf4}
-    .today-item{display:flex;align-items:center;gap:10px;padding:9px 13px;border-radius:8px;border:1px solid var(--border);background:var(--surface);margin-bottom:6px;cursor:pointer;transition:all .13s}
-    .today-item:hover{background:#f7f9fb;border-color:var(--teal)}
-    .pdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-    .t-name{font-size:12px;font-weight:600;color:var(--text-main)}
-    .t-meta{font-size:10.5px;color:var(--text-sub);margin-top:1px}
-    .prog-summary{background:var(--surface);border-radius:9px;border:1px solid var(--border);padding:14px 16px}
-    .prog-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px}
-    .stat-row{display:flex;gap:7px}
-    .stat-mini{flex:1;text-align:center;padding:9px 6px;background:#f7f9fb;border-radius:7px}
-    .stat-mini.r{background:#fde8e6}.stat-mini.a{background:#fff8e6}.stat-mini.g{background:#eaf7f4}
-    .stat-num{font-size:18px;font-weight:700}.stat-lbl{font-size:9.5px;color:var(--text-sub)}
+/* ─── バッジ（色+アイコン+ラベル 必ずセットで使用）─── */
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap}
+.b-ok{background:var(--ok-bg);color:var(--ok-c)}.b-cau{background:var(--cau-bg);color:var(--cau-c)}
+.b-act{background:var(--act-bg);color:var(--act-c)}.b-urg{background:var(--urg-bg);color:var(--urg-c)}
+.b-done{background:var(--done-bg);color:var(--done-c)}.b-gray{background:#f0f2f5;color:var(--text-sub)}
 
-    /* アラートカード */
-    .alert-card{background:var(--surface);border-radius:9px;border:1px solid var(--border);margin-bottom:8px;overflow:hidden;transition:box-shadow .13s}
-    .alert-card:hover{box-shadow:0 3px 12px rgba(0,18,25,0.09)}
-    .alert-card.urg{border-left:4px solid var(--red)}.alert-card.act{border-left:4px solid var(--orange)}.alert-card.cau{border-left:4px solid var(--amber)}
-    .a-head{padding:11px 13px;display:flex;align-items:flex-start;gap:9px}
-    .a-body{padding:0 13px 9px 42px}
-    .a-acts{padding:0 13px 11px 42px;display:flex;gap:5px;flex-wrap:wrap}
-    .a-em{font-size:18px}
-    .highlight{background:linear-gradient(135deg,#edf8f7,#e8f4f8);border:1px solid #bcd8e4;border-radius:7px;padding:9px 11px}
-    .hl-title{font-size:10.5px;font-weight:700;color:var(--teal-d);margin-bottom:4px}
-    .hl-body{font-size:11.5px;color:#334455}
+/* ─── プログレスバー ─── */
+.prog{height:6px;background:#e4e8ef;border-radius:3px;overflow:hidden}
+.pf{height:100%;border-radius:3px;transition:width .4s}
+.pf-ok{background:var(--teal)}.pf-cau{background:var(--amber)}.pf-urg{background:var(--red)}
 
-    /* 証憑 */
-    .doc-card{background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:11px 14px;margin-bottom:7px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:box-shadow .13s}
-    .doc-card:hover{box-shadow:0 2px 10px rgba(0,18,25,0.08)}
-    .doc-icon{width:36px;height:36px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+/* ─── フィルターバー ─── */
+.filter-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 20px;display:flex;align-items:center;gap:7px;flex-shrink:0;flex-wrap:wrap}
+.sw{position:relative}.sw::before{content:'🔍';position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:10px;pointer-events:none}
+.si{width:200px;padding:4px 10px 4px 27px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;color:var(--text-main)}
+.si:focus{outline:none;border-color:var(--teal)}
+.chip{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:500;border:1px solid var(--border);cursor:pointer;background:#fff;color:var(--text-sub);transition:all .13s}
+.chip:hover{border-color:var(--teal);color:var(--teal)}.chip.on{background:var(--teal);border-color:var(--teal);color:#fff}
 
-    /* 設定 */
-    .settings-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 20px}
-    .settings-card{background:var(--surface);border-radius:9px;border:1px solid var(--border);padding:16px;cursor:pointer;transition:all .13s}
-    .settings-card:hover{border-color:var(--teal);box-shadow:0 3px 10px rgba(10,147,150,0.1)}
-    .sc-icon{font-size:20px;margin-bottom:8px}.sc-name{font-size:13px;font-weight:600;color:var(--text-main)}.sc-desc{font-size:11px;color:var(--text-muted);margin-top:3px;line-height:1.5}
+/* ─── テーブル ─── */
+.dt{width:100%;border-collapse:collapse;background:var(--surface)}
+.dt th{background:#f5f7fb;padding:8px 12px;text-align:left;font-size:10.5px;font-weight:700;color:var(--text-sub);border-bottom:2px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:2}
+.dt td{padding:9px 12px;border-bottom:1px solid #f0f2f5;font-size:12px;color:var(--text-main);vertical-align:middle}
+.dt tbody tr{cursor:pointer;transition:background .1s}
+.dt tbody tr:hover td{background:#f7f9fb}
+.dt tbody tr.selected td{background:#edf4f9}
+.cb-col{width:34px;text-align:center}
 
-    /* レポート */
-    .rpc{background:var(--surface);border-radius:9px;border:1px solid var(--border);padding:15px 17px;margin-bottom:9px;cursor:pointer;transition:all .13s}
-    .rpc:hover{border-color:var(--teal);box-shadow:0 3px 10px rgba(10,147,150,0.1)}
-    .rpc-h{display:flex;align-items:center;gap:10px;margin-bottom:9px}
-    .rpc-icon{font-size:22px}.rpc-title{font-size:13px;font-weight:700;color:var(--text-main)}.rpc-desc{font-size:11px;color:var(--text-sub);margin-top:2px}
+/* ─── 一括アクションバー ─── */
+.bulk-bar{position:sticky;bottom:0;z-index:15;background:var(--navy);color:#fff;padding:9px 20px;display:none;align-items:center;gap:8px;border-top:2px solid var(--teal-d)}
+.bulk-bar.show{display:flex}
+.bulk-count{font-size:12.5px;font-weight:700;color:var(--mint);white-space:nowrap}
+.bulk-btn{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.18);padding:4px 10px;border-radius:5px;font-size:11px;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:3px;transition:background .13s}
+.bulk-btn:hover{background:rgba(255,255,255,.2)}
+.bulk-clear{margin-left:auto;background:transparent;border:none;color:rgba(255,255,255,.32);cursor:pointer;font-family:inherit;font-size:11px}
 
-    /* 右パネル詳細 */
-    .rp-head{padding:13px 15px;background:linear-gradient(135deg,#f7f9fb,#eef2f7);border-bottom:1px solid var(--border);flex-shrink:0}
-    .rp-name{font-size:14px;font-weight:700;color:var(--text-main)}.rp-dept{font-size:11px;color:var(--text-sub);margin-top:2px}
-    .rp-sec{padding:10px 15px;border-bottom:1px solid #f0f2f5}
-    .rp-sec-t{font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px}
-    .act-block{background:#f7f9fb;border-radius:7px;padding:11px;margin:9px 15px}
-    .ab-title{font-size:10.5px;font-weight:700;color:var(--orange);margin-bottom:7px}
-    .act-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
-    .ab-btn{padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:#fff;font-size:11px;font-weight:500;color:#334455;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;transition:all .12s}
-    .ab-btn:hover{background:#edf4f8;border-color:var(--teal);color:var(--teal)}
-    .ab-btn.full{grid-column:span 2}.ab-btn.prim{background:var(--teal-d);border-color:var(--teal-d);color:#fff;grid-column:span 2}
-    .ab-btn.prim:hover{background:var(--teal);border-color:var(--teal)}
-    .qual-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid #f0f2f5}
-    .qual-item:last-child{border-bottom:none}
-    .qi-icon{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-    .qi-name{font-size:12px;font-weight:600;color:var(--text-main)}.qi-org{font-size:10px;color:var(--text-muted)}
-    .hist-item{display:flex;gap:7px;padding:7px 0;border-bottom:1px solid #f0f2f5}
-    .hist-item:last-child{border-bottom:none}
-    .hi-av{width:24px;height:24px;border-radius:50%;background:var(--teal-d);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-    .hi-act{font-size:11.5px;font-weight:500;color:#334455}.hi-meta{font-size:10px;color:var(--text-muted);margin-top:1px}
+/* ─── ダッシュボード ─── */
+.val-banner{background:linear-gradient(135deg,var(--navy),var(--teal-d));color:#fff;padding:12px 20px;display:flex;align-items:center;gap:14px;border-bottom:1px solid rgba(255,255,255,.1);flex-shrink:0}
+.vb-icon{font-size:24px;flex-shrink:0}
+.vb-title{font-size:13px;font-weight:700}
+.vb-desc{font-size:11px;color:rgba(255,255,255,.55);margin-top:2px}
+.vb-acts{margin-left:auto;display:flex;gap:7px;align-items:center;flex-shrink:0}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 20px 0}
+.kpi-card{background:var(--surface);border-radius:9px;border:1px solid var(--border);padding:13px 15px;cursor:pointer;transition:transform .13s,box-shadow .13s}
+.kpi-card:hover{transform:translateY(-2px);box-shadow:0 5px 18px rgba(0,18,25,.09)}
+.kpi-card.urg{border-left:4px solid var(--red)}.kpi-card.act{border-left:4px solid var(--orange)}
+.kpi-card.cau{border-left:4px solid var(--amber)}.kpi-card.inf{border-left:4px solid var(--teal)}
+.kpi-lbl{font-size:10.5px;color:var(--text-sub);font-weight:500}
+.kpi-val{font-size:28px;font-weight:700;margin:4px 0 2px;line-height:1}
+.kpi-card.urg .kpi-val{color:var(--red)}.kpi-card.act .kpi-val{color:var(--orange)}
+.kpi-card.cau .kpi-val{color:var(--amber)}.kpi-card.inf .kpi-val{color:var(--teal)}
+.kpi-detail{font-size:10px;color:var(--text-muted)}
+.section{padding:0 20px 16px}
+.slbl{font-size:10.5px;font-weight:700;color:var(--text-sub);letter-spacing:.4px;margin:13px 0 8px;display:flex;align-items:center;gap:7px}
+.sdivider{flex:1;height:1px;background:#e8edf4}
+.today-item{display:flex;align-items:center;gap:10px;padding:9px 13px;border-radius:8px;border:1px solid var(--border);background:var(--surface);margin-bottom:6px;cursor:pointer;transition:all .13s}
+.today-item:hover{background:#f7f9fb;border-color:var(--teal)}
+.pdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.t-name{font-size:12px;font-weight:600;color:var(--text-main)}
+.t-meta{font-size:10.5px;color:var(--text-sub);margin-top:1px}
+.prog-summary{background:var(--surface);border-radius:9px;border:1px solid var(--border);padding:14px 16px}
+.prog-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px}
+.stat-row{display:flex;gap:7px}
+.stat-mini{flex:1;text-align:center;padding:9px 6px;background:#f7f9fb;border-radius:7px}
+.stat-mini.r{background:#fde8e6}.stat-mini.a{background:#fff8e6}.stat-mini.g{background:#eaf7f4}
+.stat-num{font-size:18px;font-weight:700}.stat-lbl{font-size:9.5px;color:var(--text-sub)}
 
-    /* モーダル */
-    .modal-overlay{position:fixed;inset:0;background:rgba(0,18,25,0.45);z-index:100;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .18s}
-    .modal-overlay.open{opacity:1;pointer-events:all}
-    .modal{background:#fff;border-radius:11px;width:490px;max-height:82vh;overflow-y:auto;box-shadow:0 18px 55px rgba(0,18,25,0.2);transform:translateY(10px);transition:transform .18s}
-    .modal-overlay.open .modal{transform:translateY(0)}
-    .modal-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-    .modal-title{font-size:14px;font-weight:700}
-    .modal-body{padding:16px 20px}.modal-foot{padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:7px}
-    .fg{margin-bottom:12px}.fl{display:block;font-size:11px;font-weight:600;color:var(--text-sub);margin-bottom:4px}
-    .fc{width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12.5px;font-family:inherit;color:var(--text-main)}
-    .fc:focus{outline:none;border-color:var(--teal)}
-    textarea.fc{min-height:80px;resize:vertical}
-    .mab-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:13px}
-    .mab{padding:10px;border-radius:7px;border:1px solid var(--border);background:#fff;font-size:12px;font-weight:500;color:#334455;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;transition:all .12s}
-    .mab:hover{background:#edf4f8;border-color:var(--teal);color:var(--teal)}
-    .mab.sel{background:var(--teal-d);border-color:var(--teal-d);color:#fff}
-    .mab.full{grid-column:span 2}
+/* ─── アラートカード ─── */
+.alert-card{background:var(--surface);border-radius:9px;border:1px solid var(--border);margin-bottom:8px;overflow:hidden;transition:box-shadow .13s}
+.alert-card:hover{box-shadow:0 3px 12px rgba(0,18,25,.09)}
+.alert-card.urg{border-left:4px solid var(--red)}.alert-card.act{border-left:4px solid var(--orange)}.alert-card.cau{border-left:4px solid var(--amber)}.alert-card.done-card{border-left:4px solid var(--done-c);opacity:.75}
+.a-head{padding:11px 13px;display:flex;align-items:flex-start;gap:9px}
+.a-body{padding:0 13px 9px 42px}
+.a-acts{padding:0 13px 11px 42px;display:flex;gap:5px;flex-wrap:wrap}
+.a-em{font-size:18px}
+.highlight{background:linear-gradient(135deg,#edf8f7,#e8f4f8);border:1px solid #bcd8e4;border-radius:7px;padding:9px 11px}
+.hl-title{font-size:10.5px;font-weight:700;color:var(--teal-d);margin-bottom:4px}
+.hl-body{font-size:11.5px;color:#334455}
 
-    /* トースト */
-    .toast-wrap{position:fixed;bottom:18px;right:18px;z-index:200;display:flex;flex-direction:column;gap:6px}
-    .toast{background:var(--navy);color:#fff;padding:10px 14px;border-radius:8px;font-size:12px;box-shadow:0 4px 18px rgba(0,18,25,0.22);display:flex;align-items:center;gap:7px;animation:toastIn .18s ease}
-    .toast.ok{border-left:4px solid var(--mint)}.toast.err{border-left:4px solid var(--red)}
-    @keyframes toastIn{from{transform:translateX(70px);opacity:0}to{transform:translateX(0);opacity:1}}
+/* ─── 証憑カード ─── */
+.doc-card{background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:11px 14px;margin-bottom:7px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:box-shadow .13s}
+.doc-card:hover{box-shadow:0 2px 10px rgba(0,18,25,.08)}
+.doc-icon{width:36px;height:36px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
 
-    /* 期限ラベル */
-    .dl-urg{color:var(--red);font-weight:700;font-size:11px}
-    .dl-act{color:var(--orange);font-weight:600;font-size:11px}
-    .dl-cau{color:var(--amber);font-weight:600;font-size:11px}
-    .dl-ok{color:var(--text-sub);font-size:11px}
+/* ─── 設定グリッド ─── */
+.settings-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 20px}
+.settings-card{background:var(--surface);border-radius:9px;border:1px solid var(--border);padding:16px;cursor:pointer;transition:all .13s}
+.settings-card:hover{border-color:var(--teal);box-shadow:0 3px 10px rgba(10,147,150,.1)}
+.sc-icon{font-size:20px;margin-bottom:8px}.sc-name{font-size:13px;font-weight:600;color:var(--text-main)}.sc-desc{font-size:11px;color:var(--text-muted);margin-top:3px;line-height:1.5}
 
-    .empty-state{text-align:center;padding:55px 20px;color:var(--text-muted)}
-    .empty-icon{font-size:34px;margin-bottom:10px;opacity:.45}
-    .empty-text{font-size:13px;font-weight:500}.empty-sub{font-size:11.5px;margin-top:5px}
-    .view{display:none;flex-direction:column;min-height:100%}
-    .view.show{display:flex}
-  </style>
+/* ─── レポートカード ─── */
+.rpc{background:var(--surface);border-radius:9px;border:1px solid var(--border);padding:15px 17px;margin-bottom:9px;cursor:pointer;transition:all .13s}
+.rpc:hover{border-color:var(--teal);box-shadow:0 3px 10px rgba(10,147,150,.1)}
+.rpc-h{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.rpc-icon{font-size:22px}.rpc-title{font-size:13px;font-weight:700;color:var(--text-main)}.rpc-desc{font-size:11px;color:var(--text-sub);margin-top:2px}
+
+/* ─── 右パネル ─── */
+.rp-head{padding:13px 15px;background:linear-gradient(135deg,#f7f9fb,#eef2f7);border-bottom:1px solid var(--border);flex-shrink:0}
+.rp-name{font-size:14px;font-weight:700;color:var(--text-main)}.rp-dept{font-size:11px;color:var(--text-sub);margin-top:2px}
+.rp-sec{padding:10px 15px;border-bottom:1px solid #f0f2f5}
+.rp-sec-t{font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px}
+.act-block{background:#f7f9fb;border-radius:7px;padding:11px;margin:9px 15px}
+.ab-title{font-size:10.5px;font-weight:700;color:var(--orange);margin-bottom:7px}
+.act-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.ab-btn{padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:#fff;font-size:11px;font-weight:500;color:#334455;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;transition:all .12s}
+.ab-btn:hover{background:#edf4f8;border-color:var(--teal);color:var(--teal)}
+.ab-btn.full{grid-column:span 2}.ab-btn.prim{background:var(--teal-d);border-color:var(--teal-d);color:#fff;grid-column:span 2}
+.ab-btn.prim:hover{background:var(--teal)}
+.qual-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid #f0f2f5}
+.qual-item:last-child{border-bottom:none}
+.qi-icon{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.qi-name{font-size:12px;font-weight:600;color:var(--text-main)}.qi-org{font-size:10px;color:var(--text-muted)}
+.hist-item{display:flex;gap:7px;padding:7px 0;border-bottom:1px solid #f0f2f5}
+.hist-item:last-child{border-bottom:none}
+.hi-av{width:24px;height:24px;border-radius:50%;background:var(--teal-d);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hi-act{font-size:11.5px;font-weight:500;color:#334455}.hi-meta{font-size:10px;color:var(--text-muted);margin-top:1px}
+
+/* ─── CPD達成状況グリッド ─── */
+.cpd-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:14px 20px}
+.cpd-card{background:var(--surface);border-radius:9px;border:1px solid var(--border);padding:14px}
+.cpd-card.urg{border-left:4px solid var(--red)}.cpd-card.act{border-left:4px solid var(--orange)}
+.cpd-card.cau{border-left:4px solid var(--amber)}.cpd-card.ok{border-left:4px solid var(--teal)}
+.cpd-name{font-size:12.5px;font-weight:700;color:var(--text-main)}
+.cpd-qual{font-size:10px;color:var(--text-muted);margin-top:2px;margin-bottom:9px}
+
+/* ─── 実績入力フォーム ─── */
+.input-card{background:var(--surface);border-radius:9px;border:1px solid var(--border);padding:16px 18px;margin-bottom:10px}
+.ic-title{font-size:13px;font-weight:700;color:var(--text-main);margin-bottom:12px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.form-row.full{grid-template-columns:1fr}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fl{font-size:10.5px;font-weight:600;color:var(--text-sub)}
+.fc{padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;color:var(--text-main)}
+.fc:focus{outline:none;border-color:var(--teal)}
+select.fc{cursor:pointer}
+.fc-recent{font-size:11px;color:var(--text-sub);margin-top:12px;border-top:1px solid var(--border);padding-top:12px}
+
+/* ─── ルール確認テーブル ─── */
+.rule-group{background:var(--surface);border-radius:9px;border:1px solid var(--border);margin:0 20px 14px;overflow:hidden}
+.rule-group-h{background:#f5f7fb;padding:10px 14px;font-size:12px;font-weight:700;color:var(--text-main);display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
+.rule-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1.5fr;padding:8px 14px;border-bottom:1px solid #f0f2f5;font-size:11.5px;align-items:center}
+.rule-row:last-child{border-bottom:none}
+.rule-row.head{background:#fafbfc;font-size:10.5px;font-weight:700;color:var(--text-sub);border-bottom:1px solid var(--border)}
+
+/* ─── 出力履歴 ─── */
+.hist-log{background:var(--surface);border-bottom:1px solid #f0f2f5;padding:10px 20px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .1s}
+.hist-log:hover{background:#f7f9fb}
+.hl-icon{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+
+/* ─── 提出状況 ─── */
+.sub-summary-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 20px}
+.sub-mini{background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:12px 14px;text-align:center}
+.sub-num{font-size:24px;font-weight:700}
+.sub-lbl{font-size:10.5px;color:var(--text-sub);margin-top:3px}
+
+/* ─── 連絡履歴タイムライン ─── */
+.tl-item{display:flex;gap:12px;padding:12px 20px;border-bottom:1px solid #f0f2f5}
+.tl-dot-wrap{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:28px}
+.tl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.tl-line{width:2px;flex:1;background:#e0e4ea;margin-top:4px}
+.tl-content{flex:1;padding-bottom:4px}
+.tl-action{font-size:12.5px;font-weight:600;color:var(--text-main)}
+.tl-target{font-size:11.5px;color:var(--teal-d);font-weight:500}
+.tl-meta{font-size:10px;color:var(--text-muted);margin-top:2px}
+.tl-body{font-size:11.5px;color:#445566;margin-top:5px;background:#f7f9fb;border-radius:5px;padding:7px 9px;line-height:1.6}
+
+/* ─── 保存ビュー ─── */
+.saved-card{background:var(--surface);border-radius:9px;border:1px solid var(--border);padding:14px 16px;margin:0 20px 10px;cursor:pointer;transition:all .13s;display:flex;align-items:center;gap:12px}
+.saved-card:hover{border-color:var(--teal);box-shadow:0 2px 10px rgba(10,147,150,.1)}
+
+/* ─── モーダル ─── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,18,25,.45);z-index:100;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .18s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:#fff;border-radius:11px;width:490px;max-height:82vh;overflow-y:auto;box-shadow:0 18px 55px rgba(0,18,25,.2);transform:translateY(10px);transition:transform .18s}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:14px;font-weight:700}
+.modal-body{padding:16px 20px}.modal-foot{padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:7px}
+.mfg{margin-bottom:12px}.mfl{display:block;font-size:11px;font-weight:600;color:var(--text-sub);margin-bottom:4px}
+.mfc{width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12.5px;font-family:inherit;color:var(--text-main)}
+.mfc:focus{outline:none;border-color:var(--teal)}
+textarea.mfc{min-height:80px;resize:vertical}
+.mab-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:13px}
+.mab{padding:10px;border-radius:7px;border:1px solid var(--border);background:#fff;font-size:12px;font-weight:500;color:#334455;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;transition:all .12s}
+.mab:hover{background:#edf4f8;border-color:var(--teal);color:var(--teal)}
+.mab.sel{background:var(--teal-d);border-color:var(--teal-d);color:#fff}
+.mab.full{grid-column:span 2}
+
+/* ─── トースト ─── */
+.toast-wrap{position:fixed;bottom:18px;right:18px;z-index:200;display:flex;flex-direction:column;gap:6px}
+.toast{background:var(--navy);color:#fff;padding:10px 14px;border-radius:8px;font-size:12px;box-shadow:0 4px 18px rgba(0,18,25,.22);display:flex;align-items:center;gap:7px;animation:toastIn .18s ease}
+.toast.ok{border-left:4px solid var(--mint)}.toast.err{border-left:4px solid var(--red)}
+@keyframes toastIn{from{transform:translateX(70px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* 期限ラベル */
+.dl-urg{color:var(--red);font-weight:700;font-size:11px}
+.dl-act{color:var(--orange);font-weight:600;font-size:11px}
+.dl-cau{color:var(--amber);font-weight:600;font-size:11px}
+.dl-ok{color:var(--text-sub);font-size:11px}
+
+.view{display:none;flex-direction:column;min-height:100%}
+.view.show{display:flex}
+
+/* インライン入力フォーム用タグ */
+.tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10.5px;font-weight:600;background:#e8edf4;color:#556677}
+.tag.ok{background:var(--ok-bg);color:var(--ok-c)}.tag.cau{background:var(--cau-bg);color:var(--cau-c)}.tag.urg{background:var(--urg-bg);color:var(--urg-c)}
+</style>
 </head>
-
 <body>
 <div class="app">
 
-  <!-- ==========================================
-       左サイドバー
-       ========================================== -->
-  <aside class="sidebar">
-    <div class="logo-area">
-      <div class="logo-mark">
-        <div class="logo-icon">🛡️</div>
-        <span class="logo-text">Credify</span>
-      </div>
-      <div class="logo-tag">資格・CPD・証憑を継続監視し<br>入札リスクを事前に防ぐ運用基盤</div>
+<!-- ═══════════════════════════════════════════
+     左サイドバー
+═══════════════════════════════════════════ -->
+<aside class="sidebar">
+  <div class="logo-area">
+    <div class="logo-mark">
+      <div class="logo-icon">🛡️</div>
+      <span class="logo-text">Credify</span>
+    </div>
+    <div class="logo-tag">資格・CPD・証憑を継続監視し<br>入札リスクを事前に防ぐ運用基盤</div>
+  </div>
+  <div class="co-row">
+    <div class="co-av">東和</div>
+    <div class="co-name">株式会社東和建設<br>コンサルタント</div>
+    <span style="font-size:9px;color:rgba(255,255,255,.22);">▾</span>
+  </div>
+  <nav class="nav">
+
+    <!-- ダッシュボード -->
+    <div class="nav-main open" data-cat="dashboard" onclick="toggleCat(this,'dashboard')">
+      <span class="nav-icon">📊</span><span class="nav-lbl">ダッシュボード</span><span class="nav-arrow">›</span>
+    </div>
+    <div class="nav-subs open" id="cat-dashboard">
+      <div class="nav-sub active" onclick="goView('dashboard',this)">全体サマリー</div>
+      <div class="nav-sub" onclick="goView('deadline',this)">更新期限一覧<span class="nsb">3</span></div>
+      <div class="nav-sub" onclick="goView('shortage',this)">不足要件一覧<span class="nsb amb">5</span></div>
+      <div class="nav-sub" onclick="goView('submission',this)">提出状況<span class="nsb amb">6</span></div>
+      <div class="nav-sub" onclick="goView('saved',this)">保存ビュー</div>
     </div>
 
-    <div class="co-row">
-      <div class="co-av">東和</div>
-      <div class="co-name">株式会社東和建設<br>コンサルタント</div>
-      <span style="font-size:9px;color:rgba(255,255,255,0.22);">▾</span>
+    <!-- 技術者 -->
+    <div class="nav-main" data-cat="eng" onclick="toggleCat(this,'eng')">
+      <span class="nav-icon">👷</span><span class="nav-lbl">技術者</span><span class="nav-arrow">›</span>
+    </div>
+    <div class="nav-subs" id="cat-eng">
+      <div class="nav-sub" onclick="goView('eng-list',this)">一覧</div>
+      <div class="nav-sub" onclick="goView('eng-list',this)">要対応者<span class="nsb">4</span></div>
+      <div class="nav-sub" onclick="goView('eng-list',this)">期限切れ<span class="nsb">2</span></div>
+      <div class="nav-sub" onclick="goView('eng-list',this)">証憑未提出<span class="nsb amb">6</span></div>
+      <div class="nav-sub" onclick="goView('contact-history',this)">連絡履歴</div>
     </div>
 
-    <nav class="nav">
-      <!-- ダッシュボード -->
-      <div class="nav-main open" data-cat="dashboard" onclick="toggleCat(this,'dashboard')">
-        <span class="nav-icon">📊</span><span class="nav-lbl">ダッシュボード</span><span class="nav-arrow">›</span>
-      </div>
-      <div class="nav-subs open" id="cat-dashboard">
-        <div class="nav-sub active" onclick="goView('dashboard','全体サマリー',this)">全体サマリー</div>
-        <div class="nav-sub" onclick="goView('ph','更新期限一覧',this)">更新期限一覧<span class="nsb">3</span></div>
-        <div class="nav-sub" onclick="goView('ph','不足要件一覧',this)">不足要件一覧<span class="nsb amb">5</span></div>
-        <div class="nav-sub" onclick="goView('ph','提出状況',this)">提出状況</div>
-        <div class="nav-sub" onclick="goView('ph','保存ビュー',this)">保存ビュー</div>
-      </div>
+    <!-- 資格/CPD -->
+    <div class="nav-main" data-cat="cpd" onclick="toggleCat(this,'cpd')">
+      <span class="nav-icon">📋</span><span class="nav-lbl">資格 / CPD</span><span class="nav-arrow">›</span>
+    </div>
+    <div class="nav-subs" id="cat-cpd">
+      <div class="nav-sub" onclick="goView('qual-status',this)">資格状況</div>
+      <div class="nav-sub" onclick="goView('cpd-status',this)">CPD達成状況</div>
+      <div class="nav-sub" onclick="goView('cpd-input',this)">実績入力</div>
+      <div class="nav-sub" onclick="goView('rule-check',this)">ルール確認</div>
+    </div>
 
-      <!-- 技術者 -->
-      <div class="nav-main" data-cat="eng" onclick="toggleCat(this,'eng')">
-        <span class="nav-icon">👷</span><span class="nav-lbl">技術者</span><span class="nav-arrow">›</span>
-      </div>
-      <div class="nav-subs" id="cat-eng">
-        <div class="nav-sub" onclick="goView('eng-list','技術者一覧',this)">一覧</div>
-        <div class="nav-sub" onclick="goView('eng-list','要対応者',this)">要対応者<span class="nsb">4</span></div>
-        <div class="nav-sub" onclick="goView('eng-list','期限切れ',this)">期限切れ<span class="nsb">2</span></div>
-        <div class="nav-sub" onclick="goView('eng-list','証憑未提出',this)">証憑未提出<span class="nsb amb">6</span></div>
-        <div class="nav-sub" onclick="goView('ph','連絡履歴',this)">連絡履歴</div>
-      </div>
+    <!-- アラート -->
+    <div class="nav-main" data-cat="alert" onclick="toggleCat(this,'alert')">
+      <span class="nav-icon">🔔</span><span class="nav-lbl">アラート</span><span class="nav-badge">7</span>
+    </div>
+    <div class="nav-subs" id="cat-alert">
+      <div class="nav-sub" onclick="goView('alert-urgent',this)">🔴 緊急<span class="nsb">2</span></div>
+      <div class="nav-sub" onclick="goView('alert-action',this)">🟠 要対応<span class="nsb amb">5</span></div>
+      <div class="nav-sub" onclick="goView('alert-done',this)">✅ 対応済み</div>
+    </div>
 
-      <!-- 資格/CPD -->
-      <div class="nav-main" data-cat="cpd" onclick="toggleCat(this,'cpd')">
-        <span class="nav-icon">📋</span><span class="nav-lbl">資格 / CPD</span><span class="nav-arrow">›</span>
-      </div>
-      <div class="nav-subs" id="cat-cpd">
-        <div class="nav-sub" onclick="goView('ph','資格状況',this)">資格状況</div>
-        <div class="nav-sub" onclick="goView('ph','CPD達成状況',this)">CPD達成状況</div>
-        <div class="nav-sub" onclick="goView('ph','実績入力',this)">実績入力</div>
-        <div class="nav-sub" onclick="goView('ph','ルール確認',this)">ルール確認</div>
-      </div>
+    <!-- 書類/レポート -->
+    <div class="nav-main" data-cat="docs" onclick="toggleCat(this,'docs')">
+      <span class="nav-icon">📁</span><span class="nav-lbl">書類 / レポート</span><span class="nav-arrow">›</span>
+    </div>
+    <div class="nav-subs" id="cat-docs">
+      <div class="nav-sub" onclick="goView('docs-evidence',this)">証憑管理</div>
+      <div class="nav-sub" onclick="goView('output-history',this)">出力履歴</div>
+      <div class="nav-sub" onclick="goView('docs-report',this)">レポート出力</div>
+    </div>
 
-      <!-- アラート -->
-      <div class="nav-main" data-cat="alert" onclick="toggleCat(this,'alert')">
-        <span class="nav-icon">🔔</span><span class="nav-lbl">アラート</span><span class="nav-badge">7</span>
-      </div>
-      <div class="nav-subs" id="cat-alert">
-        <div class="nav-sub" onclick="goView('alert-urgent','緊急',this)">🔴 緊急<span class="nsb">2</span></div>
-        <div class="nav-sub" onclick="goView('alert-action','要対応',this)">🟠 要対応<span class="nsb amb">5</span></div>
-        <div class="nav-sub" onclick="goView('ph','対応済み',this)">✅ 対応済み</div>
-      </div>
+    <!-- 設定 -->
+    <div class="nav-main" data-cat="settings" onclick="toggleCat(this,'settings')">
+      <span class="nav-icon">⚙️</span><span class="nav-lbl">設定</span><span class="nav-arrow">›</span>
+    </div>
+    <div class="nav-subs" id="cat-settings">
+      <div class="nav-sub" onclick="goView('settings',this)">企業設定</div>
+      <div class="nav-sub" onclick="goView('settings',this)">対象資格設定</div>
+      <div class="nav-sub" onclick="goView('settings',this)">CPDルール設定</div>
+      <div class="nav-sub" onclick="goView('settings',this)">アラート設定</div>
+      <div class="nav-sub" onclick="goView('settings',this)">証憑設定</div>
+      <div class="nav-sub" onclick="goView('settings',this)">通知テンプレート</div>
+      <div class="nav-sub" onclick="goView('settings',this)">表示カラム設定</div>
+      <div class="nav-sub" onclick="goView('settings',this)">権限設定</div>
+    </div>
+  </nav>
+</aside>
 
-      <!-- 書類/レポート -->
-      <div class="nav-main" data-cat="docs" onclick="toggleCat(this,'docs')">
-        <span class="nav-icon">📁</span><span class="nav-lbl">書類 / レポート</span><span class="nav-arrow">›</span>
-      </div>
-      <div class="nav-subs" id="cat-docs">
-        <div class="nav-sub" onclick="goView('docs-evidence','証憑管理',this)">証憑管理</div>
-        <div class="nav-sub" onclick="goView('ph','出力履歴',this)">出力履歴</div>
-        <div class="nav-sub" onclick="goView('docs-report','レポート出力',this)">レポート出力</div>
-      </div>
+<!-- ═══════════════════════════════════════════
+     メインエリア
+═══════════════════════════════════════════ -->
+<div class="main">
+<div class="center">
 
-      <!-- 設定 -->
-      <div class="nav-main" data-cat="settings" onclick="toggleCat(this,'settings')">
-        <span class="nav-icon">⚙️</span><span class="nav-lbl">設定</span><span class="nav-arrow">›</span>
+<!-- ────────────────────────────────────────
+     ① ダッシュボード: 全体サマリー
+──────────────────────────────────────── -->
+<div class="view show" id="view-dashboard">
+  <div class="val-banner">
+    <div class="vb-icon">🛡️</div>
+    <div>
+      <div class="vb-title">継続監視・予防・対応実行・証明 — 一気通貫の運用基盤</div>
+      <div class="vb-desc">更新漏れ・CPD不足・証憑未提出による入札リスクを事前に防ぎます</div>
+    </div>
+    <div class="vb-acts">
+      <span style="font-size:10px;color:rgba(255,255,255,.4);">最終更新: 2026/04/13 09:00</span>
+      <button class="btn btn-out btn-sm" style="color:#fff;border-color:rgba(255,255,255,.28);" onclick="toast('書き出しを開始しました','ok')">書き出し</button>
+    </div>
+  </div>
+  <div class="center-scroll">
+    <div class="kpi-grid">
+      <div class="kpi-card urg" onclick="goView('alert-urgent',null)"><div class="kpi-lbl">🔴 期限切れ / 当日</div><div class="kpi-val">2</div><div class="kpi-detail">資格 1件・CPD 1件 — 即対応が必要</div></div>
+      <div class="kpi-card act" onclick="goView('deadline',null)"><div class="kpi-lbl">🟠 30日以内に更新</div><div class="kpi-val">5</div><div class="kpi-detail">資格 3件・証憑 2件 — 今月中に対応</div></div>
+      <div class="kpi-card cau" onclick="goView('shortage',null)"><div class="kpi-lbl">🟡 CPD単位不足</div><div class="kpi-val">4</div><div class="kpi-detail">うち2名は締切30日以内</div></div>
+      <div class="kpi-card inf" onclick="goView('docs-evidence',null)"><div class="kpi-lbl">🔵 証憑未提出</div><div class="kpi-val">6</div><div class="kpi-detail">確認・アップロード待ち</div></div>
+    </div>
+    <div class="section">
+      <div class="slbl">🚨 本日対応すべき項目 — リスクが高い順<div class="sdivider"></div></div>
+      <div class="today-item" onclick="openAction('山田 太郎','RCCM更新期限（本日）')">
+        <div class="pdot" style="background:var(--red)"></div>
+        <div style="flex:1"><div class="t-name">山田 太郎 — RCCM（建設部門）更新期限が本日</div><div class="t-meta">更新手続き未確認・証憑未提出 / 土木設計部 主任</div></div>
+        <span class="badge b-urg">🔴 緊急</span>
+        <button class="btn btn-prim btn-sm" onclick="event.stopPropagation();openAction('山田 太郎','RCCM更新 — 緊急対応')">対応する</button>
       </div>
-      <div class="nav-subs" id="cat-settings">
-        <div class="nav-sub" onclick="goView('settings','企業設定',this)">企業設定</div>
-        <div class="nav-sub" onclick="goView('settings','対象資格設定',this)">対象資格設定</div>
-        <div class="nav-sub" onclick="goView('settings','CPDルール設定',this)">CPDルール設定</div>
-        <div class="nav-sub" onclick="goView('settings','アラート設定',this)">アラート設定</div>
-        <div class="nav-sub" onclick="goView('settings','証憑設定',this)">証憑設定</div>
-        <div class="nav-sub" onclick="goView('settings','通知テンプレート',this)">通知テンプレート</div>
-        <div class="nav-sub" onclick="goView('settings','表示カラム設定',this)">表示カラム設定</div>
-        <div class="nav-sub" onclick="goView('settings','権限設定',this)">権限設定</div>
+      <div class="today-item" onclick="openAction('鈴木 健二','CPD単位不足 12単位・締切28日前')">
+        <div class="pdot" style="background:var(--orange)"></div>
+        <div style="flex:1"><div class="t-name">鈴木 健二 — CPD不足 12単位・締切28日前</div><div class="t-meta">技術士（建設部門）年度更新 / 建設設計部</div></div>
+        <span class="badge b-act">🟠 要対応</span>
+        <button class="btn btn-amb btn-sm" onclick="event.stopPropagation();openAction('鈴木 健二','受講提案送信')">提案送信</button>
       </div>
-    </nav>
-  </aside>
-
-  <!-- メインエリア -->
-  <div class="main">
-    <div class="center">
-
-      <!-- ===================================
-           ① ダッシュボード
-           =================================== -->
-      <div class="view show" id="view-dashboard">
-        <!-- 価値訴求バナー -->
-        <div class="val-banner">
-          <div class="vb-icon">🛡️</div>
+      <div class="today-item" onclick="openAction('田中 美沙','受講証明書 未提出（2件）')">
+        <div class="pdot" style="background:var(--amber)"></div>
+        <div style="flex:1"><div class="t-name">田中 美沙 — 受講証明書 未提出（2件）</div><div class="t-meta">CPDS申請に必要 / 地質調査部</div></div>
+        <span class="badge b-cau">🟡 要注意</span>
+        <button class="btn btn-out btn-sm" onclick="event.stopPropagation();openAction('田中 美沙','証憑提出依頼')">依頼する</button>
+      </div>
+      <div class="today-item" onclick="openAction('伊藤 誠一','地質調査技士 更新26日前')">
+        <div class="pdot" style="background:var(--amber)"></div>
+        <div style="flex:1"><div class="t-name">伊藤 誠一 — 地質調査技士 更新26日前</div><div class="t-meta">更新書類準備・郵送対応が必要 / 地質調査部 主任</div></div>
+        <span class="badge b-cau">🟡 要注意</span>
+        <button class="btn btn-out btn-sm" onclick="event.stopPropagation();openAction('伊藤 誠一','更新書類対応連絡')">連絡する</button>
+      </div>
+    </div>
+    <div class="section">
+      <div class="slbl">📈 対応進捗・全体状況<div class="sdivider"></div></div>
+      <div class="prog-summary">
+        <div class="prog-row">
           <div>
-            <div class="vb-title">継続監視・予防・対応実行・証明 — 一気通貫の運用基盤</div>
-            <div class="vb-desc">更新漏れ・CPD不足・証憑未提出による入札リスクを事前に防ぎます</div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:11px;font-weight:600;color:#334455;">今月のアラート対応完了率</span><span style="font-size:13px;font-weight:700;color:var(--teal)">68%</span></div>
+            <div class="prog"><div class="pf pf-ok" style="width:68%"></div></div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">対応済み: 8 / 12件</div>
           </div>
-          <div class="vb-acts">
-            <span style="font-size:10px;color:rgba(255,255,255,0.4);">最終更新: 2026/04/13 09:00</span>
-            <button class="btn btn-out btn-sm" style="color:#fff;border-color:rgba(255,255,255,0.28);" onclick="toast('書き出しを開始しました','ok')">書き出し</button>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:11px;font-weight:600;color:#334455;">全技術者CPD達成率</span><span style="font-size:13px;font-weight:700;color:var(--amber)">72%</span></div>
+            <div class="prog"><div class="pf pf-cau" style="width:72%"></div></div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">達成: 13 / 18名</div>
           </div>
         </div>
-
-        <div class="center-scroll">
-          <!-- KPIカード -->
-          <div class="kpi-grid">
-            <div class="kpi-card urg" onclick="goView('alert-urgent','緊急',null)">
-              <div class="kpi-lbl">🔴 期限切れ / 当日</div>
-              <div class="kpi-val">2</div>
-              <div class="kpi-detail">資格 1件・CPD 1件 — 即対応が必要</div>
-            </div>
-            <div class="kpi-card act" onclick="goView('ph','30日以内更新',null)">
-              <div class="kpi-lbl">🟠 30日以内に更新</div>
-              <div class="kpi-val">5</div>
-              <div class="kpi-detail">資格 3件・証憑 2件 — 今月中に対応</div>
-            </div>
-            <div class="kpi-card cau">
-              <div class="kpi-lbl">🟡 CPD単位不足</div>
-              <div class="kpi-val">4</div>
-              <div class="kpi-detail">うち2名は締切30日以内</div>
-            </div>
-            <div class="kpi-card inf" onclick="goView('docs-evidence','証憑管理',null)">
-              <div class="kpi-lbl">🔵 証憑未提出</div>
-              <div class="kpi-val">6</div>
-              <div class="kpi-detail">確認・アップロード待ち</div>
-            </div>
-          </div>
-
-          <!-- 本日対応すべき項目 -->
-          <div class="section">
-            <div class="slbl">🚨 本日対応すべき項目 — リスクが高い順<div class="sdivider"></div></div>
-
-            <div class="today-item" onclick="openAction('山田 太郎','RCCM更新期限（本日）')">
-              <div class="pdot" style="background:var(--red)"></div>
-              <div style="flex:1">
-                <div class="t-name">山田 太郎 — RCCM（建設部門）更新期限が本日</div>
-                <div class="t-meta">更新手続き未確認・証憑未提出 / 土木設計部 主任</div>
-              </div>
-              <span class="badge b-urg">🔴 緊急</span>
-              <button class="btn btn-prim btn-sm" onclick="event.stopPropagation();openAction('山田 太郎','RCCM更新 — 緊急対応')">対応する</button>
-            </div>
-
-            <div class="today-item" onclick="openAction('鈴木 健二','CPD単位不足 12単位・締切28日前')">
-              <div class="pdot" style="background:var(--orange)"></div>
-              <div style="flex:1">
-                <div class="t-name">鈴木 健二 — CPD不足 12単位・締切28日前</div>
-                <div class="t-meta">技術士（建設部門）年度更新 / 建設設計部</div>
-              </div>
-              <span class="badge b-act">🟠 要対応</span>
-              <button class="btn btn-amb btn-sm" onclick="event.stopPropagation();openAction('鈴木 健二','受講提案送信')">提案送信</button>
-            </div>
-
-            <div class="today-item" onclick="openAction('田中 美沙','受講証明書 未提出（2件）')">
-              <div class="pdot" style="background:var(--amber)"></div>
-              <div style="flex:1">
-                <div class="t-name">田中 美沙 — 受講証明書 未提出（2件）</div>
-                <div class="t-meta">CPDS申請に必要 / 地質調査部</div>
-              </div>
-              <span class="badge b-cau">🟡 要注意</span>
-              <button class="btn btn-out btn-sm" onclick="event.stopPropagation();openAction('田中 美沙','証憑提出依頼')">依頼する</button>
-            </div>
-
-            <div class="today-item" onclick="openAction('伊藤 誠一','地質調査技士 更新26日前')">
-              <div class="pdot" style="background:var(--amber)"></div>
-              <div style="flex:1">
-                <div class="t-name">伊藤 誠一 — 地質調査技士 更新26日前</div>
-                <div class="t-meta">更新書類準備・郵送対応が必要 / 地質調査部 主任</div>
-              </div>
-              <span class="badge b-cau">🟡 要注意</span>
-              <button class="btn btn-out btn-sm" onclick="event.stopPropagation();openAction('伊藤 誠一','更新書類対応連絡')">連絡する</button>
-            </div>
-          </div>
-
-          <!-- 全体状況 -->
-          <div class="section">
-            <div class="slbl">📈 対応進捗・全体状況<div class="sdivider"></div></div>
-            <div class="prog-summary">
-              <div class="prog-row">
-                <div>
-                  <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-                    <span style="font-size:11px;font-weight:600;color:#334455;">今月のアラート対応完了率</span>
-                    <span style="font-size:13px;font-weight:700;color:var(--teal)">68%</span>
-                  </div>
-                  <div class="prog"><div class="pf pf-ok" style="width:68%"></div></div>
-                  <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">対応済み: 8 / 12件</div>
-                </div>
-                <div>
-                  <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-                    <span style="font-size:11px;font-weight:600;color:#334455;">全技術者CPD達成率</span>
-                    <span style="font-size:13px;font-weight:700;color:var(--amber)">72%</span>
-                  </div>
-                  <div class="prog"><div class="pf pf-cau" style="width:72%"></div></div>
-                  <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">達成: 13 / 18名</div>
-                </div>
-              </div>
-              <div class="stat-row">
-                <div class="stat-mini"><div class="stat-num">18</div><div class="stat-lbl">管理技術者数</div></div>
-                <div class="stat-mini"><div class="stat-num">47</div><div class="stat-lbl">保有資格数</div></div>
-                <div class="stat-mini g"><div class="stat-num" style="color:var(--teal)">13</div><div class="stat-lbl">正常</div></div>
-                <div class="stat-mini a"><div class="stat-num" style="color:var(--orange)">5</div><div class="stat-lbl">要対応</div></div>
-                <div class="stat-mini r"><div class="stat-num" style="color:var(--red)">2</div><div class="stat-lbl">緊急</div></div>
-              </div>
-            </div>
-          </div>
+        <div class="stat-row">
+          <div class="stat-mini"><div class="stat-num">18</div><div class="stat-lbl">管理技術者数</div></div>
+          <div class="stat-mini"><div class="stat-num">47</div><div class="stat-lbl">保有資格数</div></div>
+          <div class="stat-mini g"><div class="stat-num" style="color:var(--teal)">13</div><div class="stat-lbl">正常</div></div>
+          <div class="stat-mini a"><div class="stat-num" style="color:var(--orange)">5</div><div class="stat-lbl">要対応</div></div>
+          <div class="stat-mini r"><div class="stat-num" style="color:var(--red)">2</div><div class="stat-lbl">緊急</div></div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
 
-      <!-- ===================================
-           ② 技術者一覧
-           =================================== -->
-      <div class="view" id="view-eng-list">
-        <div class="panel-header">
-          <div class="panel-tg">
-            <div class="panel-title">👷 技術者一覧</div>
-            <div class="panel-desc">状態確認 → 選択 → 一括アクションの起点画面 / 全18名</div>
-          </div>
-          <div class="panel-acts">
-            <button class="btn btn-out btn-sm">📥 CSV取込</button>
-            <button class="btn btn-prim btn-sm">＋ 技術者追加</button>
-          </div>
-        </div>
-        <div class="filter-bar">
-          <div class="sw"><input class="si" type="text" placeholder="技術者を検索..."></div>
-          <div class="chip on" onclick="filterEng(this,'all')">すべて</div>
-          <div class="chip" onclick="filterEng(this,'urgent')">🔴 緊急</div>
-          <div class="chip" onclick="filterEng(this,'action')">🟠 要対応</div>
-          <div class="chip" onclick="filterEng(this,'caution')">🟡 要注意</div>
-          <div class="chip" onclick="filterEng(this,'ok')">✅ 正常</div>
-        </div>
-        <div class="center-scroll" style="position:relative;">
-          <table class="data-table" id="engTable">
-            <thead>
-              <tr>
-                <th class="cb-col"><input type="checkbox" id="cbAll" onchange="cbSelectAll(this)"></th>
-                <th>氏名 / 部署</th>
-                <th>ステータス</th>
-                <th>保有資格</th>
-                <th>CPD進捗</th>
-                <th>証憑</th>
-                <th>次回期限</th>
-                <th>アクション</th>
-              </tr>
-            </thead>
-            <tbody id="engTbody"></tbody>
-          </table>
-        </div>
-        <div class="bulk-bar" id="bulkBar">
-          <span class="bulk-count" id="bulkCount">0名選択中</span>
-          <button class="bulk-btn" onclick="openBulk('リマインド送信')">📨 リマインド</button>
-          <button class="bulk-btn" onclick="openBulk('証憑提出依頼')">📄 証憑依頼</button>
-          <button class="bulk-btn" onclick="openBulk('受講提案')">🎓 受講提案</button>
-          <button class="bulk-btn" onclick="openBulk('連絡する')">📞 一括連絡</button>
-          <button class="bulk-clear" onclick="clearCb()">✕ 選択解除</button>
+<!-- ────────────────────────────────────────
+     ② 更新期限一覧
+──────────────────────────────────────── -->
+<div class="view" id="view-deadline">
+  <div class="panel-header">
+    <div class="panel-tg"><div class="panel-title">📅 更新期限一覧</div><div class="panel-desc">今後90日以内に更新が必要な資格・CPD申請 8件 / 全47件</div></div>
+    <div class="panel-acts">
+      <button class="btn btn-out btn-sm">📤 Excel出力</button>
+      <button class="btn btn-prim btn-sm" onclick="openAction('期限切れ・30日以内対象者','一括リマインド送信')">一括リマインド</button>
+    </div>
+  </div>
+  <div class="filter-bar">
+    <div class="chip on">すべて</div>
+    <div class="chip">🔴 期限切れ</div><div class="chip">🟠 30日以内</div><div class="chip">🟡 60日以内</div><div class="chip">90日以内</div>
+    <div style="margin-left:auto;font-size:11px;color:var(--text-muted);">全47件中 8件表示</div>
+  </div>
+  <div class="center-scroll">
+    <table class="dt">
+      <thead><tr>
+        <th class="cb-col"><input type="checkbox"></th>
+        <th>氏名 / 部署</th><th>資格名</th><th>認定団体</th><th>有効期限</th><th>残日数</th><th>ステータス</th><th>証憑</th><th>アクション</th>
+      </tr></thead>
+      <tbody>
+        <tr onclick="selectEng(1)">
+          <td class="cb-col"><input type="checkbox"></td>
+          <td><div style="font-weight:600;">山田 太郎</div><div style="font-size:10px;color:var(--text-muted);">土木設計部</div></td>
+          <td>RCCM（建設部門）</td><td style="font-size:11px;color:var(--text-muted);">建設コンサルタンツ協会</td>
+          <td class="dl-urg">2026/04/13</td><td><span class="badge b-urg">🔴 本日</span></td>
+          <td><span class="badge b-urg">🔴 緊急</span></td>
+          <td><span class="badge b-urg">🔴 未提出</span></td>
+          <td><button class="btn btn-prim btn-xs" onclick="openAction('山田 太郎','RCCM更新 緊急対応')">今すぐ対応</button></td>
+        </tr>
+        <tr onclick="selectEng(5)">
+          <td class="cb-col"><input type="checkbox"></td>
+          <td><div style="font-weight:600;">中村 正樹</div><div style="font-size:10px;color:var(--text-muted);">地質調査部</div></td>
+          <td>技術士CPD（年度申請）</td><td style="font-size:11px;color:var(--text-muted);">日本技術士会</td>
+          <td class="dl-urg">2025/03/31</td><td><span class="badge b-urg">🔴 期限切れ</span></td>
+          <td><span class="badge b-urg">🔴 緊急</span></td>
+          <td><span class="badge b-gray">対象外</span></td>
+          <td><button class="btn btn-prim btn-xs" onclick="openAction('中村 正樹','CPD期限切れ 緊急対応')">今すぐ対応</button></td>
+        </tr>
+        <tr onclick="selectEng(4)">
+          <td class="cb-col"><input type="checkbox"></td>
+          <td><div style="font-weight:600;">伊藤 誠一</div><div style="font-size:10px;color:var(--text-muted);">地質調査部</div></td>
+          <td>地質調査技士</td><td style="font-size:11px;color:var(--text-muted);">全国地質調査業協会連合会</td>
+          <td class="dl-act">2026/05/09</td><td><span class="badge b-act">🟠 26日後</span></td>
+          <td><span class="badge b-act">🟠 要対応</span></td>
+          <td><span class="badge b-ok">✅ 確認済み</span></td>
+          <td><button class="btn btn-out btn-xs" onclick="openAction('伊藤 誠一','更新書類連絡')">連絡する</button></td>
+        </tr>
+        <tr onclick="selectEng(2)">
+          <td class="cb-col"><input type="checkbox"></td>
+          <td><div style="font-weight:600;">鈴木 健二</div><div style="font-size:10px;color:var(--text-muted);">建設設計部</div></td>
+          <td>技術士（建設部門）</td><td style="font-size:11px;color:var(--text-muted);">日本技術士会</td>
+          <td class="dl-act">2026/05/31</td><td><span class="badge b-act">🟠 48日後</span></td>
+          <td><span class="badge b-act">🟠 要対応</span></td>
+          <td><span class="badge b-urg">🔴 未提出</span></td>
+          <td><button class="btn btn-out btn-xs" onclick="openAction('鈴木 健二','受講提案送信')">受講提案</button></td>
+        </tr>
+        <tr onclick="selectEng(7)">
+          <td class="cb-col"><input type="checkbox"></td>
+          <td><div style="font-weight:600;">高橋 一郎</div><div style="font-size:10px;color:var(--text-muted);">土木設計部</div></td>
+          <td>1級土木施工管理技士</td><td style="font-size:11px;color:var(--text-muted);">全国土木施工管理技士会連合会</td>
+          <td class="dl-cau">2026/06/30</td><td><span class="badge b-cau">🟡 78日後</span></td>
+          <td><span class="badge b-cau">🟡 要注意</span></td>
+          <td><span class="badge b-urg">🔴 未提出</span></td>
+          <td><button class="btn btn-out btn-xs" onclick="openAction('高橋 一郎','証憑提出依頼')">証憑依頼</button></td>
+        </tr>
+        <tr onclick="selectEng(3)">
+          <td class="cb-col"><input type="checkbox"></td>
+          <td><div style="font-weight:600;">田中 美沙</div><div style="font-size:10px;color:var(--text-muted);">地質調査部</div></td>
+          <td>CPDS年度申請</td><td style="font-size:11px;color:var(--text-muted);">全国土木施工管理技士会連合会</td>
+          <td class="dl-ok">2026/12/31</td><td><span class="badge b-cau">🟡 263日後</span></td>
+          <td><span class="badge b-cau">🟡 要注意</span></td>
+          <td><span class="badge b-urg">🔴 未提出</span></td>
+          <td><button class="btn btn-out btn-xs" onclick="openAction('田中 美沙','証憑提出依頼')">証憑依頼</button></td>
+        </tr>
+        <tr onclick="selectEng(6)">
+          <td class="cb-col"><input type="checkbox"></td>
+          <td><div style="font-weight:600;">佐藤 恵子</div><div style="font-size:10px;color:var(--text-muted);">建設設計部</div></td>
+          <td>RCCM（都市計画）</td><td style="font-size:11px;color:var(--text-muted);">建設コンサルタンツ協会</td>
+          <td class="dl-ok">2028/01/15</td><td><span class="badge b-ok">✅ 646日後</span></td>
+          <td><span class="badge b-ok">✅ 正常</span></td>
+          <td><span class="badge b-ok">✅ 確認済み</span></td>
+          <td><span style="font-size:11px;color:var(--text-muted);">対応不要</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ────────────────────────────────────────
+     ③ 不足要件一覧
+──────────────────────────────────────── -->
+<div class="view" id="view-shortage">
+  <div class="panel-header">
+    <div class="panel-tg"><div class="panel-title">⚠️ 不足要件一覧</div><div class="panel-desc">CPD単位不足・受講時間不足・証憑未提出など、要件を充足していない案件 一覧</div></div>
+    <div class="panel-acts">
+      <button class="btn btn-amb btn-sm" onclick="openAction('不足者全員（5名）','受講提案一括送信')">🎓 受講提案一括送信</button>
+    </div>
+  </div>
+  <div class="filter-bar">
+    <div class="chip on">すべて</div><div class="chip">CPD不足</div><div class="chip">証憑不足</div><div class="chip">受講不足</div>
+  </div>
+  <div class="center-scroll">
+    <table class="dt">
+      <thead><tr>
+        <th class="cb-col"><input type="checkbox"></th>
+        <th>氏名 / 部署</th><th>資格名</th><th>不足タイプ</th><th>現在値</th><th>必要値</th><th>不足量</th><th>締切</th><th>アクション</th>
+      </tr></thead>
+      <tbody>
+        <tr onclick="selectEng(5)">
+          <td class="cb-col"><input type="checkbox"></td>
+          <td><div style="font-weight:600;">中村 正樹</div><div style="font-size:10px;color:var(--text-muted);">地質調査部</div></td>
+          <td>技術士（建設部門）</td><td><span class="tag urg">CPD単位</span></td>
+          <td style="font-weight:700;color:var(--red);">0単位</td><td>50単位/年</td>
+          <td><span class="badge b-urg">▼ 50単位不足</span></td>
+          <td class="dl-urg">期限切れ</td>
+          <td><button class="btn btn-prim btn-xs" onclick="openAction('中村 正樹','CPD受講提案 緊急')">提案送信</button></td>
+        </tr>
+        <tr onclick="selectEng(2)">
+          <td class="cb-col"><input type="checkbox"></td>
+          <td><div style="font-weight:600;">鈴木 健二</div><div style="font-size:10px;color:var(--text-muted);">建設設計部</div></td>
+          <td>技術士（建設部門）</td><td><span class="tag urg">CPD単位</span></td>
+          <td style="font-weight:700;color:var(--orange);">38単位</td><td>50単位/年</td>
+          <td><span class="badge b-act">▼ 12単位不足</span></td>
+          <td class="dl-act">2026/05/31</td>
+          <td><button class="btn btn-amb btn-xs" onclick="openAction('鈴木 健二','受講提案送信')">提案送信</button></td>
+        </tr>
+        <tr onclick="selectEng(3)">
+          <td class="cb-col"><input type="checkbox"></td>
+          <td><div style="font-weight:600;">田中 美沙</div><div style="font-size:10px;color:var(--text-muted);">地質調査部</div></td>
+          <td>地質調査技士</td><td><span class="tag cau">CPD単位</span></td>
+          <td style="font-weight:700;color:var(--amber);">22単位</td><td>30単位/年</td>
+          <td><span class="badge b-cau">▼ 8単位不足</span></td>
+          <td class="dl-cau">2027/02/28</td>
+          <td><button class="btn btn-out btn-xs" onclick="openAction('田中 美沙','受講提案送信')">提案送信</button></td>
+        </tr>
+        <tr onclick="selectEng(7)">
+          <td class="cb-col"><input type="checkbox"></td>
+          <td><div style="font-weight:600;">高橋 一郎</div><div style="font-size:10px;color:var(--text-muted);">土木設計部</div></td>
+          <td>1級土木施工管理技士</td><td><span class="tag cau">CPD単位</span></td>
+          <td style="font-weight:700;color:var(--amber);">25単位</td><td>30単位/年</td>
+          <td><span class="badge b-cau">▼ 5単位不足</span></td>
+          <td class="dl-cau">2026/06/30</td>
+          <td><button class="btn btn-out btn-xs" onclick="openAction('高橋 一郎','受講提案送信')">提案送信</button></td>
+        </tr>
+        <tr onclick="selectEng(1)">
+          <td class="cb-col"><input type="checkbox"></td>
+          <td><div style="font-weight:600;">山田 太郎</div><div style="font-size:10px;color:var(--text-muted);">土木設計部</div></td>
+          <td>RCCM（建設部門）</td><td><span class="tag urg">証憑未提出</span></td>
+          <td style="font-weight:700;color:var(--red);">0件</td><td>2件必要</td>
+          <td><span class="badge b-urg">▼ 証憑 2件不足</span></td>
+          <td class="dl-urg">本日</td>
+          <td><button class="btn btn-prim btn-xs" onclick="openAction('山田 太郎','証憑提出依頼 緊急')">証憑依頼</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ────────────────────────────────────────
+     ④ 提出状況
+──────────────────────────────────────── -->
+<div class="view" id="view-submission">
+  <div class="panel-header">
+    <div class="panel-tg"><div class="panel-title">📋 提出状況</div><div class="panel-desc">証憑・書類・CPD申請の提出ステータス管理 / 全18名 × 47資格</div></div>
+    <div class="panel-acts">
+      <button class="btn btn-out btn-sm">📤 一括エクスポート</button>
+      <button class="btn btn-prim btn-sm" onclick="openAction('未提出者全員（6名）','証憑提出依頼一括送信')">一括依頼送信</button>
+    </div>
+  </div>
+  <div class="center-scroll">
+    <div class="sub-summary-row">
+      <div class="sub-mini"><div class="sub-num" style="color:var(--teal)">26</div><div class="sub-lbl">✅ 提出済み</div></div>
+      <div class="sub-mini"><div class="sub-num" style="color:var(--red)">6</div><div class="sub-lbl">🔴 未提出</div></div>
+      <div class="sub-mini"><div class="sub-num" style="color:var(--amber)">3</div><div class="sub-lbl">🟡 確認中</div></div>
+      <div class="sub-mini"><div class="sub-num" style="color:var(--orange)">12</div><div class="sub-lbl">🟠 期限到来前</div></div>
+    </div>
+    <div style="padding:0 20px;">
+      <table class="dt">
+        <thead><tr>
+          <th>氏名</th><th>資格 / 書類名</th><th>書類種別</th><th>提出先</th><th>期限</th><th>ステータス</th><th>操作</th>
+        </tr></thead>
+        <tbody>
+          <tr onclick="selectEng(1)"><td><div style="font-weight:600;">山田 太郎</div></td><td>RCCM更新講習修了証</td><td><span class="tag urg">必須</span></td><td>建設コンサルタンツ協会</td><td class="dl-urg">本日</td><td><span class="badge b-urg">🔴 未提出</span></td><td><button class="btn btn-amb btn-xs" onclick="openAction('山田 太郎','証憑提出依頼')">依頼</button></td></tr>
+          <tr onclick="selectEng(1)"><td><div style="font-weight:600;">山田 太郎</div></td><td>CPD実績証明書（2025年度）</td><td><span class="tag urg">必須</span></td><td>建設コンサルタンツ協会</td><td class="dl-urg">本日</td><td><span class="badge b-urg">🔴 未提出</span></td><td><button class="btn btn-amb btn-xs" onclick="openAction('山田 太郎','証憑提出依頼')">依頼</button></td></tr>
+          <tr onclick="selectEng(2)"><td><div style="font-weight:600;">鈴木 健二</div></td><td>土木学会CPD受講証明書</td><td><span class="tag urg">必須</span></td><td>日本技術士会</td><td class="dl-act">2026/05/31</td><td><span class="badge b-urg">🔴 未提出</span></td><td><button class="btn btn-amb btn-xs" onclick="openAction('鈴木 健二','証憑提出依頼')">依頼</button></td></tr>
+          <tr onclick="selectEng(2)"><td><div style="font-weight:600;">鈴木 健二</div></td><td>建設コンサルタンツ協会研修修了証</td><td><span class="tag urg">必須</span></td><td>日本技術士会</td><td class="dl-act">2026/05/31</td><td><span class="badge b-cau">🟡 確認中</span></td><td><button class="btn btn-out btn-xs">確認</button></td></tr>
+          <tr onclick="selectEng(3)"><td><div style="font-weight:600;">田中 美沙</div></td><td>CPDS受講証明書（セミナーA）</td><td><span class="tag urg">必須</span></td><td>全国土木施工管理技士会連合会</td><td class="dl-cau">2026/12/31</td><td><span class="badge b-urg">🔴 未提出</span></td><td><button class="btn btn-amb btn-xs" onclick="openAction('田中 美沙','証憑提出依頼')">依頼</button></td></tr>
+          <tr onclick="selectEng(3)"><td><div style="font-weight:600;">田中 美沙</div></td><td>CPDS受講証明書（セミナーB）</td><td><span class="tag urg">必須</span></td><td>全国土木施工管理技士会連合会</td><td class="dl-cau">2026/12/31</td><td><span class="badge b-urg">🔴 未提出</span></td><td><button class="btn btn-amb btn-xs" onclick="openAction('田中 美沙','証憑提出依頼')">依頼</button></td></tr>
+          <tr onclick="selectEng(7)"><td><div style="font-weight:600;">高橋 一郎</div></td><td>施工管理技士会研修修了証</td><td><span class="tag">任意</span></td><td>全国土木施工管理技士会連合会</td><td class="dl-cau">2026/06/30</td><td><span class="badge b-urg">🔴 未提出</span></td><td><button class="btn btn-amb btn-xs" onclick="openAction('高橋 一郎','証憑提出依頼')">依頼</button></td></tr>
+          <tr onclick="selectEng(6)"><td><div style="font-weight:600;">佐藤 恵子</div></td><td>RCCM更新講習修了証</td><td><span class="tag urg">必須</span></td><td>建設コンサルタンツ協会</td><td class="dl-ok">2028/01/15</td><td><span class="badge b-ok">✅ 確認済み</span></td><td><button class="btn btn-out btn-xs">表示</button></td></tr>
+          <tr onclick="selectEng(4)"><td><div style="font-weight:600;">伊藤 誠一</div></td><td>地質調査技士 更新申請書</td><td><span class="tag urg">必須</span></td><td>全国地質調査業協会連合会</td><td class="dl-act">2026/05/09</td><td><span class="badge b-ok">✅ 確認済み</span></td><td><button class="btn btn-out btn-xs">表示</button></td></tr>
+          <tr onclick="selectEng(4)"><td><div style="font-weight:600;">伊藤 誠一</div></td><td>CPD実績報告書（2025年度）</td><td><span class="tag urg">必須</span></td><td>全国地質調査業協会連合会</td><td class="dl-act">2026/05/09</td><td><span class="badge b-cau">🟡 確認中</span></td><td><button class="btn btn-out btn-xs">確認</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────────────────────────────
+     ⑤ 保存ビュー
+──────────────────────────────────────── -->
+<div class="view" id="view-saved">
+  <div class="panel-header">
+    <div class="panel-tg"><div class="panel-title">📌 保存ビュー</div><div class="panel-desc">よく使うフィルター条件を保存して素早くアクセス</div></div>
+    <div class="panel-acts"><button class="btn btn-prim btn-sm">＋ ビューを保存</button></div>
+  </div>
+  <div class="center-scroll" style="padding-top:14px;">
+    <div class="saved-card" onclick="goView('deadline',null)"><span style="font-size:20px;">📅</span><div><div style="font-size:12.5px;font-weight:700;">30日以内更新対象</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px;">期限切れ + 30日以内 / 5件 / 毎日自動更新</div></div><span class="badge b-act" style="margin-left:auto;">5件</span></div>
+    <div class="saved-card" onclick="goView('shortage',null)"><span style="font-size:20px;">⚠️</span><div><div style="font-size:12.5px;font-weight:700;">CPD不足者一覧</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px;">全技術者のCPD未達者 / 5名 / 毎週月曜更新</div></div><span class="badge b-act" style="margin-left:auto;">5名</span></div>
+    <div class="saved-card" onclick="goView('submission',null)"><span style="font-size:20px;">📄</span><div><div style="font-size:12.5px;font-weight:700;">証憑未提出者</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px;">未提出 + 確認中 / 6名 / リアルタイム</div></div><span class="badge b-urg" style="margin-left:auto;">6名</span></div>
+    <div class="saved-card" onclick="goView('eng-list',null)"><span style="font-size:20px;">👷</span><div><div style="font-size:12.5px;font-weight:700;">土木設計部 技術者</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px;">土木設計部に所属する全技術者 / 4名</div></div><span class="badge b-gray" style="margin-left:auto;">4名</span></div>
+    <div class="saved-card" onclick="goView('eng-list',null)"><span style="font-size:20px;">🏅</span><div><div style="font-size:12.5px;font-weight:700;">技術士保有者</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px;">技術士（建設部門）保有者のみ / 3名</div></div><span class="badge b-gray" style="margin-left:auto;">3名</span></div>
+  </div>
+</div>
+
+<!-- ────────────────────────────────────────
+     ⑥ 技術者一覧
+──────────────────────────────────────── -->
+<div class="view" id="view-eng-list">
+  <div class="panel-header">
+    <div class="panel-tg"><div class="panel-title">👷 技術者一覧</div><div class="panel-desc">状態確認 → 選択 → 一括アクションの起点画面 / 全18名</div></div>
+    <div class="panel-acts">
+      <button class="btn btn-out btn-sm">📥 CSV取込</button>
+      <button class="btn btn-prim btn-sm">＋ 技術者追加</button>
+    </div>
+  </div>
+  <div class="filter-bar">
+    <div class="sw"><input class="si" type="text" placeholder="技術者を検索..."></div>
+    <div class="chip on" onclick="filterEng(this,'all')">すべて</div>
+    <div class="chip" onclick="filterEng(this,'urgent')">🔴 緊急</div>
+    <div class="chip" onclick="filterEng(this,'action')">🟠 要対応</div>
+    <div class="chip" onclick="filterEng(this,'caution')">🟡 要注意</div>
+    <div class="chip" onclick="filterEng(this,'ok')">✅ 正常</div>
+  </div>
+  <div class="center-scroll" style="position:relative;">
+    <table class="dt" id="engTable">
+      <thead><tr>
+        <th class="cb-col"><input type="checkbox" id="cbAll" onchange="cbSelectAll(this)"></th>
+        <th>氏名 / 部署</th><th>ステータス</th><th>保有資格</th><th>CPD進捗</th><th>証憑</th><th>次回期限</th><th>アクション</th>
+      </tr></thead>
+      <tbody id="engTbody"></tbody>
+    </table>
+  </div>
+  <div class="bulk-bar" id="bulkBar">
+    <span class="bulk-count" id="bulkCount">0名選択中</span>
+    <button class="bulk-btn" onclick="openBulk('リマインド送信')">📨 リマインド</button>
+    <button class="bulk-btn" onclick="openBulk('証憑提出依頼')">📄 証憑依頼</button>
+    <button class="bulk-btn" onclick="openBulk('受講提案')">🎓 受講提案</button>
+    <button class="bulk-btn" onclick="openBulk('連絡する')">📞 一括連絡</button>
+    <button class="bulk-clear" onclick="clearCb()">✕ 選択解除</button>
+  </div>
+</div>
+
+<!-- ────────────────────────────────────────
+     ⑦ 連絡履歴（タイムライン）
+──────────────────────────────────────── -->
+<div class="view" id="view-contact-history">
+  <div class="panel-header">
+    <div class="panel-tg"><div class="panel-title">📨 連絡履歴</div><div class="panel-desc">全技術者への連絡・依頼・提案・メモの履歴 — 最新24件</div></div>
+    <div class="panel-acts">
+      <div class="chip on">すべて</div>
+      <div class="chip">リマインド</div><div class="chip">証憑依頼</div><div class="chip">受講提案</div><div class="chip">メモ</div>
+    </div>
+  </div>
+  <div class="center-scroll">
+    <div class="tl-item"><div class="tl-dot-wrap"><div class="tl-dot" style="background:var(--red)"></div><div class="tl-line"></div></div><div class="tl-content"><div style="display:flex;align-items:center;gap:7px;"><span class="tl-action">🚨 緊急連絡</span><span class="badge b-urg">🔴 緊急</span><span class="tl-target">山田 太郎</span></div><div class="tl-meta">佐藤 管理部長 / 2026/04/13 09:15 / RCCM更新期限当日対応</div><div class="tl-body">山田さん、RCCM更新書類の提出期限が本日となっています。至急、協会へのご提出をお願いいたします。</div></div></div>
+    <div class="tl-item"><div class="tl-dot-wrap"><div class="tl-dot" style="background:var(--orange)"></div><div class="tl-line"></div></div><div class="tl-content"><div style="display:flex;align-items:center;gap:7px;"><span class="tl-action">🎓 受講提案</span><span class="badge b-act">🟠 要対応</span><span class="tl-target">鈴木 健二</span></div><div class="tl-meta">田中 担当 / 2026/04/10 14:30 / CPD不足 12単位</div><div class="tl-body">鈴木さん、CPD単位が12単位不足しています。土木学会CPD認定セミナー（3.0単位/回）の受講をご検討ください。</div></div></div>
+    <div class="tl-item"><div class="tl-dot-wrap"><div class="tl-dot" style="background:var(--orange)"></div><div class="tl-line"></div></div><div class="tl-content"><div style="display:flex;align-items:center;gap:7px;"><span class="tl-action">📨 リマインド送信</span><span class="badge b-act">🟠 要対応</span><span class="tl-target">山田 太郎</span></div><div class="tl-meta">佐藤 管理部長 / 2026/04/10 10:00 / RCCM更新 3日前リマインド</div><div class="tl-body">山田さん、RCCM更新期限まで残3日です。更新書類の準備状況をご確認ください。</div></div></div>
+    <div class="tl-item"><div class="tl-dot-wrap"><div class="tl-dot" style="background:var(--amber)"></div><div class="tl-line"></div></div><div class="tl-content"><div style="display:flex;align-items:center;gap:7px;"><span class="tl-action">📄 証憑提出依頼</span><span class="badge b-cau">🟡 要注意</span><span class="tl-target">田中 美沙</span></div><div class="tl-meta">田中 担当 / 2026/04/05 13:15 / CPDS申請用証明書</div><div class="tl-body">田中さん、CPDS申請のため、受講証明書のご提出をお願いいたします。対象: 2025年12月・2026年2月の受講分</div></div></div>
+    <div class="tl-item"><div class="tl-dot-wrap"><div class="tl-dot" style="background:var(--teal)"></div><div class="tl-line"></div></div><div class="tl-content"><div style="display:flex;align-items:center;gap:7px;"><span class="tl-action">📝 メモ</span><span class="badge b-gray">情報</span><span class="tl-target">山田 太郎</span></div><div class="tl-meta">佐藤 管理部長 / 2026/04/08 16:40 / 電話確認</div><div class="tl-body">本人に電話確認済み。更新書類は準備中とのこと。受領次第、証憑をシステムへアップロードする旨を確認。</div></div></div>
+    <div class="tl-item"><div class="tl-dot-wrap"><div class="tl-dot" style="background:var(--orange)"></div><div class="tl-line"></div></div><div class="tl-content"><div style="display:flex;align-items:center;gap:7px;"><span class="tl-action">📨 リマインド送信</span><span class="badge b-act">🟠 要対応</span><span class="tl-target">伊藤 誠一</span></div><div class="tl-meta">田中 担当 / 2026/04/07 11:30 / 地質調査技士 更新30日前</div><div class="tl-body">伊藤さん、地質調査技士の更新期限まで残30日となりました。更新書類の準備と郵送手続きをお願いいたします。</div></div></div>
+    <div class="tl-item"><div class="tl-dot-wrap"><div class="tl-dot" style="background:var(--amber)"></div><div class="tl-line"></div></div><div class="tl-content"><div style="display:flex;align-items:center;gap:7px;"><span class="tl-action">📄 証憑提出依頼</span><span class="badge b-cau">🟡 要注意</span><span class="tl-target">高橋 一郎</span></div><div class="tl-meta">佐藤 管理部長 / 2026/03/30 09:45</div><div class="tl-body">高橋さん、施工管理技士会研修の修了証をご提出ください。CPD申請に必要です。</div></div></div>
+    <div class="tl-item"><div class="tl-dot-wrap"><div class="tl-dot" style="background:var(--done-c)"></div></div><div class="tl-content"><div style="display:flex;align-items:center;gap:7px;"><span class="tl-action">✅ 対応完了</span><span class="badge b-done">✔ 対応済み</span><span class="tl-target">伊藤 誠一</span></div><div class="tl-meta">田中 担当 / 2026/03/25 15:00 / 地質調査技士登録証 受領</div><div class="tl-body">地質調査技士の登録証を受領。証憑としてシステムに保管完了。</div></div></div>
+  </div>
+</div>
+
+<!-- ────────────────────────────────────────
+     ⑧ 資格状況（一覧）
+──────────────────────────────────────── -->
+<div class="view" id="view-qual-status">
+  <div class="panel-header">
+    <div class="panel-tg"><div class="panel-title">🏅 資格状況</div><div class="panel-desc">全技術者 × 全保有資格の状態マップ / 18名・47資格</div></div>
+    <div class="panel-acts"><button class="btn btn-out btn-sm">📤 台帳出力</button></div>
+  </div>
+  <div class="filter-bar">
+    <div class="chip on">すべて</div><div class="chip">RCCM</div><div class="chip">技術士</div><div class="chip">地質調査技士</div><div class="chip">施工管理技士</div>
+  </div>
+  <div class="center-scroll">
+    <table class="dt">
+      <thead><tr><th>氏名 / 部署</th><th>資格名</th><th>登録番号</th><th>取得年</th><th>有効期限</th><th>CPD達成</th><th>証憑</th><th>ステータス</th></tr></thead>
+      <tbody>
+        <tr onclick="selectEng(1)"><td><div style="font-weight:600;">山田 太郎</div><div style="font-size:10px;color:var(--text-muted);">土木設計部</div></td><td>RCCM（建設部門）</td><td style="font-size:11px;font-family:monospace;">B-12-3456</td><td>2021年</td><td class="dl-urg">2026/04/13（本日）</td><td><span class="badge b-cau">🟡 38/40単位</span></td><td><span class="badge b-urg">🔴 未提出</span></td><td><span class="badge b-urg">🔴 緊急</span></td></tr>
+        <tr onclick="selectEng(1)"><td><div style="font-weight:600;">山田 太郎</div><div style="font-size:10px;color:var(--text-muted);">土木設計部</div></td><td>1級土木施工管理技士</td><td style="font-size:11px;font-family:monospace;">第○○○○号</td><td>2018年</td><td class="dl-ok">2028/03/31</td><td><span class="badge b-ok">✅ 30/30単位</span></td><td><span class="badge b-ok">✅ 保管済み</span></td><td><span class="badge b-ok">✅ 正常</span></td></tr>
+        <tr onclick="selectEng(2)"><td><div style="font-weight:600;">鈴木 健二</div><div style="font-size:10px;color:var(--text-muted);">建設設計部</div></td><td>技術士（建設部門）</td><td style="font-size:11px;font-family:monospace;">第○○○○号</td><td>2016年</td><td class="dl-act">2026/05/31</td><td><span class="badge b-act">🟠 38/50単位</span></td><td><span class="badge b-urg">🔴 未提出</span></td><td><span class="badge b-act">🟠 要対応</span></td></tr>
+        <tr onclick="selectEng(3)"><td><div style="font-weight:600;">田中 美沙</div><div style="font-size:10px;color:var(--text-muted);">地質調査部</div></td><td>地質調査技士</td><td style="font-size:11px;font-family:monospace;">第○○○○号</td><td>2022年</td><td class="dl-ok">2027/02/28</td><td><span class="badge b-cau">🟡 22/30単位</span></td><td><span class="badge b-urg">🔴 未提出</span></td><td><span class="badge b-cau">🟡 要注意</span></td></tr>
+        <tr onclick="selectEng(3)"><td><div style="font-weight:600;">田中 美沙</div><div style="font-size:10px;color:var(--text-muted);">地質調査部</div></td><td>CPDS認定技術者</td><td style="font-size:11px;font-family:monospace;">C-789012</td><td>2020年</td><td class="dl-ok">2026/12/31</td><td><span class="badge b-ok">✅ 15/15単位</span></td><td><span class="badge b-urg">🔴 未提出</span></td><td><span class="badge b-cau">🟡 要注意</span></td></tr>
+        <tr onclick="selectEng(4)"><td><div style="font-weight:600;">伊藤 誠一</div><div style="font-size:10px;color:var(--text-muted);">地質調査部</div></td><td>地質調査技士</td><td style="font-size:11px;font-family:monospace;">第○○○○号</td><td>2021年</td><td class="dl-act">2026/05/09</td><td><span class="badge b-cau">🟡 28/30単位</span></td><td><span class="badge b-ok">✅ 確認済み</span></td><td><span class="badge b-act">🟠 要対応</span></td></tr>
+        <tr onclick="selectEng(5)"><td><div style="font-weight:600;">中村 正樹</div><div style="font-size:10px;color:var(--text-muted);">地質調査部</div></td><td>技術士（建設部門）</td><td style="font-size:11px;font-family:monospace;">第○○○○号</td><td>2012年</td><td class="dl-urg">期限切れ</td><td><span class="badge b-urg">🔴 0/50単位</span></td><td><span class="badge b-gray">対象外</span></td><td><span class="badge b-urg">🔴 緊急</span></td></tr>
+        <tr onclick="selectEng(6)"><td><div style="font-weight:600;">佐藤 恵子</div><div style="font-size:10px;color:var(--text-muted);">建設設計部</div></td><td>RCCM（都市計画）</td><td style="font-size:11px;font-family:monospace;">B-11-7890</td><td>2023年</td><td class="dl-ok">2028/01/15</td><td><span class="badge b-ok">✅ 42/40単位</span></td><td><span class="badge b-ok">✅ 保管済み</span></td><td><span class="badge b-ok">✅ 正常</span></td></tr>
+        <tr onclick="selectEng(7)"><td><div style="font-weight:600;">高橋 一郎</div><div style="font-size:10px;color:var(--text-muted);">土木設計部</div></td><td>1級土木施工管理技士</td><td style="font-size:11px;font-family:monospace;">第○○○○号</td><td>2019年</td><td class="dl-ok">2027/06/30</td><td><span class="badge b-cau">🟡 25/30単位</span></td><td><span class="badge b-urg">🔴 未提出</span></td><td><span class="badge b-cau">🟡 要注意</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ────────────────────────────────────────
+     ⑨ CPD達成状況
+──────────────────────────────────────── -->
+<div class="view" id="view-cpd-status">
+  <div class="panel-header">
+    <div class="panel-tg"><div class="panel-title">📊 CPD達成状況</div><div class="panel-desc">全技術者のCPD進捗をリアルタイム可視化 / 2026年度</div></div>
+    <div class="panel-acts">
+      <button class="btn btn-out btn-sm">📤 達成率レポート</button>
+      <button class="btn btn-amb btn-sm" onclick="openAction('不足者全員（5名）','受講提案一括送信')">🎓 不足者に受講提案</button>
+    </div>
+  </div>
+  <div class="center-scroll">
+    <div class="cpd-grid">
+      <div class="cpd-card urg">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div class="cpd-name">中村 正樹</div><div class="cpd-qual">技術士（建設部門）/ 日本技術士会</div></div><span class="badge b-urg">🔴 期限切れ</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:11px;color:var(--text-sub);">2025年度</span><span style="font-weight:700;color:var(--red);">0 / 50単位</span></div>
+        <div class="prog"><div class="pf pf-urg" style="width:0%"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;">
+          <span style="font-size:10px;color:var(--text-muted);">不足: 50単位</span>
+          <button class="btn btn-prim btn-xs" onclick="openAction('中村 正樹','受講提案送信')">🎓 受講提案</button>
         </div>
       </div>
-
-      <!-- ===================================
-           ③ アラート: 緊急
-           =================================== -->
-      <div class="view" id="view-alert-urgent">
-        <div class="panel-header">
-          <div class="panel-tg">
-            <div class="panel-title">🔴 緊急アラート</div>
-            <div class="panel-desc">即時対応が必要な案件 2件 — どの画面からでもアクション可能</div>
-          </div>
-          <div class="panel-acts">
-            <button class="btn btn-out btn-sm" onclick="toast('すべてを対応済みにしました','ok')">すべて対応済みにする</button>
-          </div>
-        </div>
-        <div class="center-scroll">
-          <div style="padding:15px 20px;">
-            <div class="alert-card urg">
-              <div class="a-head">
-                <span class="a-em">🚨</span>
-                <div style="flex:1">
-                  <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;">
-                    <span class="badge b-urg">🔴 緊急</span>
-                    <span style="font-size:10px;color:var(--text-muted);">資格更新</span>
-                    <span class="dl-urg">有効期限: 2026/04/13（本日）</span>
-                  </div>
-                  <div style="font-size:13px;font-weight:700;">山田 太郎 — RCCM（建設部門）更新期限が本日</div>
-                  <div style="font-size:11px;color:var(--text-sub);margin-top:2px;">土木設計部 主任技術者 / 建設コンサルタンツ協会</div>
-                </div>
-                <input type="checkbox" style="width:14px;height:14px;cursor:pointer;">
-              </div>
-              <div class="a-body">
-                <div class="highlight">
-                  <div class="hl-title">⚡ 今すぐやること</div>
-                  <div class="hl-body">更新申請書類を建設コンサルタンツ協会に提出してください。証憑（受講証明書）の確認が必要です。</div>
-                </div>
-              </div>
-              <div class="a-acts">
-                <button class="btn btn-prim btn-sm" onclick="openAction('山田 太郎','RCCM更新 — 緊急連絡')">📞 今すぐ連絡</button>
-                <button class="btn btn-out btn-sm" onclick="openAction('山田 太郎','証憑確認依頼')">📄 証憑確認依頼</button>
-                <button class="btn btn-out btn-sm" onclick="selectEng(1)">👤 技術者詳細</button>
-                <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="toast('山田 太郎の対応を完了としました','ok')">✓ 対応済みにする</button>
-              </div>
-            </div>
-
-            <div class="alert-card urg">
-              <div class="a-head">
-                <span class="a-em">🚨</span>
-                <div style="flex:1">
-                  <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;">
-                    <span class="badge b-urg">🔴 緊急</span>
-                    <span style="font-size:10px;color:var(--text-muted);">CPD期限切れ</span>
-                    <span class="dl-urg">2025年度 期限超過</span>
-                  </div>
-                  <div style="font-size:13px;font-weight:700;">中村 正樹 — 技術士CPD 年度単位0のまま期限切れ</div>
-                  <div style="font-size:11px;color:var(--text-sub);margin-top:2px;">地質調査部 部長 / 日本技術士会</div>
-                </div>
-                <input type="checkbox" style="width:14px;height:14px;cursor:pointer;">
-              </div>
-              <div class="a-body">
-                <div class="highlight">
-                  <div class="hl-title">⚡ 今すぐやること</div>
-                  <div class="hl-body">技術士会への年度報告が必要です。未取得分の追加受講または事後申請の可否を確認してください。</div>
-                </div>
-              </div>
-              <div class="a-acts">
-                <button class="btn btn-prim btn-sm" onclick="openAction('中村 正樹','CPD期限切れ — 緊急連絡')">📞 今すぐ連絡</button>
-                <button class="btn btn-amb btn-sm" onclick="openAction('中村 正樹','受講提案送信')">🎓 受講提案送信</button>
-                <button class="btn btn-out btn-sm" onclick="selectEng(5)">👤 技術者詳細</button>
-                <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="toast('中村 正樹の対応を完了としました','ok')">✓ 対応済みにする</button>
-              </div>
-            </div>
-
-            <div style="display:flex;align-items:center;gap:9px;margin:16px 0 9px;">
-              <span style="font-size:10.5px;font-weight:700;color:var(--text-muted);white-space:nowrap;">🟠 要対応（5件）</span>
-              <div style="flex:1;height:1px;background:var(--border);"></div>
-              <button class="btn btn-ghost btn-sm" onclick="goView('alert-action','要対応',null)">すべて見る ›</button>
-            </div>
-
-            <div class="alert-card act">
-              <div class="a-head">
-                <span class="a-em">⚠️</span>
-                <div style="flex:1">
-                  <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;">
-                    <span class="badge b-act">🟠 要対応</span>
-                    <span class="dl-act">締切: 2026/05/31（48日後）</span>
-                  </div>
-                  <div style="font-size:13px;font-weight:700;">鈴木 健二 — CPD不足 12単位・締切28日前</div>
-                  <div style="font-size:11px;color:var(--text-sub);">技術士（建設部門）/ 建設設計部</div>
-                </div>
-              </div>
-              <div class="a-acts">
-                <button class="btn btn-amb btn-sm" onclick="openAction('鈴木 健二','受講提案送信')">🎓 受講提案送信</button>
-                <button class="btn btn-out btn-sm" onclick="openAction('鈴木 健二','リマインド送信')">📨 リマインド</button>
-                <button class="btn btn-out btn-sm" onclick="selectEng(2)">👤 詳細</button>
-                <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="toast('対応を完了としました','ok')">✓ 対応済み</button>
-              </div>
-            </div>
-          </div>
+      <div class="cpd-card act">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div class="cpd-name">鈴木 健二</div><div class="cpd-qual">技術士（建設部門）/ 日本技術士会</div></div><span class="badge b-act">🟠 要対応</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:11px;color:var(--text-sub);">2025年度</span><span style="font-weight:700;color:var(--orange);">38 / 50単位</span></div>
+        <div class="prog"><div class="pf pf-cau" style="width:76%"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;">
+          <span style="font-size:10px;color:var(--text-muted);">不足: 12単位 / 締切28日後</span>
+          <button class="btn btn-amb btn-xs" onclick="openAction('鈴木 健二','受講提案送信')">🎓 受講提案</button>
         </div>
       </div>
-
-      <!-- ===================================
-           ④ アラート: 要対応
-           =================================== -->
-      <div class="view" id="view-alert-action">
-        <div class="panel-header">
-          <div class="panel-tg">
-            <div class="panel-title">🟠 要対応アラート</div>
-            <div class="panel-desc">30日以内に対応が必要な案件 5件</div>
-          </div>
-        </div>
-        <div class="center-scroll">
-          <div style="padding:15px 20px;">
-            <div class="alert-card act">
-              <div class="a-head">
-                <span class="a-em">⚠️</span>
-                <div style="flex:1">
-                  <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;">
-                    <span class="badge b-act">🟠 要対応</span><span class="dl-act">締切: 2026/05/31（48日後）</span>
-                  </div>
-                  <div style="font-size:13px;font-weight:700;">鈴木 健二 — CPD不足 12単位</div>
-                  <div style="font-size:11px;color:var(--text-sub);">技術士（建設部門）/ 建設設計部</div>
-                </div>
-              </div>
-              <div class="a-acts">
-                <button class="btn btn-amb btn-sm" onclick="openAction('鈴木 健二','受講提案送信')">🎓 受講提案</button>
-                <button class="btn btn-out btn-sm" onclick="openAction('鈴木 健二','リマインド送信')">📨 リマインド</button>
-                <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="toast('対応済みにしました','ok')">✓ 対応済み</button>
-              </div>
-            </div>
-            <div class="alert-card act">
-              <div class="a-head">
-                <span class="a-em">⚠️</span>
-                <div style="flex:1">
-                  <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;">
-                    <span class="badge b-act">🟠 要対応</span><span class="dl-act">締切: 2026/05/09（26日後）</span>
-                  </div>
-                  <div style="font-size:13px;font-weight:700;">伊藤 誠一 — 地質調査技士 更新26日前</div>
-                  <div style="font-size:11px;color:var(--text-sub);">地質調査技士 / 地質調査部 主任</div>
-                </div>
-              </div>
-              <div class="a-acts">
-                <button class="btn btn-prim btn-sm" onclick="openAction('伊藤 誠一','更新手続き連絡')">📞 連絡する</button>
-                <button class="btn btn-out btn-sm" onclick="openAction('伊藤 誠一','リマインド送信')">📨 リマインド</button>
-                <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="toast('対応済みにしました','ok')">✓ 対応済み</button>
-              </div>
-            </div>
-          </div>
+      <div class="cpd-card cau">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div class="cpd-name">田中 美沙</div><div class="cpd-qual">地質調査技士 / 全国地質調査業協会連合会</div></div><span class="badge b-cau">🟡 要注意</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:11px;color:var(--text-sub);">2025年度</span><span style="font-weight:700;color:var(--amber);">22 / 30単位</span></div>
+        <div class="prog"><div class="pf pf-cau" style="width:73%"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;">
+          <span style="font-size:10px;color:var(--text-muted);">不足: 8単位 / 締切321日後</span>
+          <button class="btn btn-out btn-xs" onclick="openAction('田中 美沙','受講提案送信')">🎓 受講提案</button>
         </div>
       </div>
-
-      <!-- ===================================
-           ⑤ 証憑管理
-           =================================== -->
-      <div class="view" id="view-docs-evidence">
-        <div class="panel-header">
-          <div class="panel-tg">
-            <div class="panel-title">📁 証憑管理</div>
-            <div class="panel-desc">提出・監査・説明責任まで一気通貫 — 人・資格・年度と紐付け</div>
-          </div>
-          <div class="panel-acts">
-            <button class="btn btn-out btn-sm">📤 一括エクスポート</button>
-            <button class="btn btn-prim btn-sm">＋ 証憑アップロード</button>
-          </div>
-        </div>
-        <div class="filter-bar">
-          <div class="chip on">すべて</div>
-          <div class="chip">未提出</div><div class="chip">提出済み</div>
-          <div class="chip">確認中</div><div class="chip">期限切れ</div>
-        </div>
-        <div class="center-scroll">
-          <div style="padding:14px 20px;">
-            <div class="highlight" style="margin-bottom:13px;">
-              <div class="hl-title">📋 証憑管理の目的</div>
-              <div class="hl-body">受講証明書・資格証の紐付け管理により、監査対応・行政提出・社内説明の際にすぐ取り出せる状態を維持します。</div>
-            </div>
-            <div class="doc-card">
-              <div class="doc-icon" style="background:#e8f7f7;">📜</div>
-              <div style="flex:1;">
-                <div style="font-size:12.5px;font-weight:600;">土木学会CPD受講証明書_鈴木健二.pdf</div>
-                <div style="font-size:11px;color:var(--text-muted);">鈴木 健二 / 技術士（建設部門）/ 3.0単位 / 2026/03/15受講</div>
-              </div>
-              <span class="badge b-ok">✅ 確認済み</span>
-              <button class="btn btn-out btn-xs">表示</button>
-            </div>
-            <div class="doc-card">
-              <div class="doc-icon" style="background:#fde8e6;">📜</div>
-              <div style="flex:1;">
-                <div style="font-size:12.5px;font-weight:600;">RCCM更新講習修了証_山田太郎.pdf</div>
-                <div style="font-size:11px;color:var(--text-muted);">山田 太郎 / RCCM / 更新申請添付書類</div>
-              </div>
-              <span class="badge b-urg">🔴 未提出</span>
-              <button class="btn btn-amb btn-xs" onclick="openAction('山田 太郎','証憑提出依頼')">依頼</button>
-            </div>
-            <div class="doc-card">
-              <div class="doc-icon" style="background:#e8f7f7;">🏅</div>
-              <div style="flex:1;">
-                <div style="font-size:12.5px;font-weight:600;">技術士登録証_中村正樹.pdf</div>
-                <div style="font-size:11px;color:var(--text-muted);">中村 正樹 / 技術士（建設部門）/ 登録番号: 第○○○○号</div>
-              </div>
-              <span class="badge b-ok">✅ 保管済み</span>
-              <button class="btn btn-out btn-xs">表示</button>
-            </div>
-            <div class="doc-card">
-              <div class="doc-icon" style="background:#fde8e6;">📜</div>
-              <div style="flex:1;">
-                <div style="font-size:12.5px;font-weight:600;">CPD受講証明書_田中美沙（未取得）</div>
-                <div style="font-size:11px;color:var(--text-muted);">田中 美沙 / CPDS / 2025年度受講分 — 証明書未提出</div>
-              </div>
-              <span class="badge b-urg">🔴 未提出</span>
-              <button class="btn btn-amb btn-xs" onclick="openAction('田中 美沙','証憑提出依頼')">依頼</button>
-            </div>
-            <div class="doc-card">
-              <div class="doc-icon" style="background:#fff3e8;">📋</div>
-              <div style="flex:1;">
-                <div style="font-size:12.5px;font-weight:600;">地質調査技士登録証_田中美沙.pdf</div>
-                <div style="font-size:11px;color:var(--text-muted);">田中 美沙 / 地質調査技士 / 2022年取得</div>
-              </div>
-              <span class="badge b-ok">✅ 保管済み</span>
-              <button class="btn btn-out btn-xs">表示</button>
-            </div>
-          </div>
+      <div class="cpd-card cau">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div class="cpd-name">山田 太郎</div><div class="cpd-qual">RCCM（建設部門）/ 建設コンサルタンツ協会</div></div><span class="badge b-cau">🟡 要注意</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:11px;color:var(--text-sub);">2025年度</span><span style="font-weight:700;color:var(--amber);">38 / 40単位</span></div>
+        <div class="prog"><div class="pf pf-cau" style="width:95%"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;">
+          <span style="font-size:10px;color:var(--text-muted);">不足: 2単位 / 期限当日</span>
+          <button class="btn btn-prim btn-xs" onclick="openAction('山田 太郎','受講提案送信')">🎓 受講提案</button>
         </div>
       </div>
-
-      <!-- ===================================
-           ⑥ レポート出力
-           =================================== -->
-      <div class="view" id="view-docs-report">
-        <div class="panel-header">
-          <div class="panel-tg">
-            <div class="panel-title">📊 レポート出力</div>
-            <div class="panel-desc">行政提出・社内確認・監査対応 — 目的別に出力できます</div>
-          </div>
-        </div>
-        <div class="center-scroll">
-          <div style="padding:14px 20px;">
-            <div class="rpc">
-              <div class="rpc-h">
-                <span class="rpc-icon">🏛️</span>
-                <div><div class="rpc-title">行政提出用レポート</div><div class="rpc-desc">経審・入札参加資格申請に必要な技術者・資格・CPD実績の証明書類</div></div>
-              </div>
-              <div style="display:flex;gap:6px;">
-                <button class="btn btn-prim btn-sm" onclick="toast('Excel出力を開始しました','ok')">Excel出力</button>
-                <button class="btn btn-out btn-sm" onclick="toast('PDF出力を開始しました','ok')">PDF出力</button>
-              </div>
-            </div>
-            <div class="rpc">
-              <div class="rpc-h">
-                <span class="rpc-icon">🏢</span>
-                <div><div class="rpc-title">社内確認・経営報告用レポート</div><div class="rpc-desc">技術者台帳・リスク一覧・CPD達成状況の経営層向けサマリー</div></div>
-              </div>
-              <div style="display:flex;gap:6px;">
-                <button class="btn btn-prim btn-sm" onclick="toast('Excel出力を開始しました','ok')">Excel出力</button>
-                <button class="btn btn-out btn-sm" onclick="toast('PDF出力を開始しました','ok')">PDF出力</button>
-              </div>
-            </div>
-            <div class="rpc">
-              <div class="rpc-h">
-                <span class="rpc-icon">🔍</span>
-                <div><div class="rpc-title">監査対応・証跡出力</div><div class="rpc-desc">証憑紐付き・操作ログ付きの監査証跡。第三者への説明責任を果たします</div></div>
-              </div>
-              <div style="display:flex;gap:6px;">
-                <button class="btn btn-prim btn-sm" onclick="toast('監査ログ出力を開始しました','ok')">監査ログ出力</button>
-                <button class="btn btn-out btn-sm" onclick="toast('PDF出力を開始しました','ok')">PDF出力</button>
-              </div>
-            </div>
-            <div style="background:#f7f9fb;border-radius:8px;padding:12px;margin-top:4px;">
-              <div style="font-size:11px;font-weight:600;color:var(--text-sub);margin-bottom:7px;">📁 最近の出力履歴</div>
-              <div style="font-size:11px;color:var(--text-muted);margin-bottom:3px;">技術者台帳レポート — 2026/04/01 14:32 (佐藤 管理部長)</div>
-              <div style="font-size:11px;color:var(--text-muted);">CPD達成状況レポート — 2026/03/28 10:15 (田中 担当)</div>
-            </div>
-          </div>
+      <div class="cpd-card cau">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div class="cpd-name">高橋 一郎</div><div class="cpd-qual">1級土木施工管理技士 / 全国土木施工管理技士会</div></div><span class="badge b-cau">🟡 要注意</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:11px;color:var(--text-sub);">2025年度</span><span style="font-weight:700;color:var(--amber);">25 / 30単位</span></div>
+        <div class="prog"><div class="pf pf-cau" style="width:83%"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;">
+          <span style="font-size:10px;color:var(--text-muted);">不足: 5単位 / 締切78日後</span>
+          <button class="btn btn-out btn-xs" onclick="openAction('高橋 一郎','受講提案送信')">🎓 受講提案</button>
         </div>
       </div>
-
-      <!-- ===================================
-           ⑦ 設定
-           =================================== -->
-      <div class="view" id="view-settings">
-        <div class="panel-header">
-          <div class="panel-tg">
-            <div class="panel-title">⚙️ 設定</div>
-            <div class="panel-desc">企業ごとの差分を吸収する設定基盤 — 運用ルールをここで一元管理</div>
-          </div>
-        </div>
-        <div class="center-scroll">
-          <div class="settings-grid">
-            <div class="settings-card"><div class="sc-icon">🏢</div><div class="sc-name">企業設定</div><div class="sc-desc">会社名・業種・対象部署・入札区分など基本情報</div></div>
-            <div class="settings-card"><div class="sc-icon">🏅</div><div class="sc-name">対象資格設定</div><div class="sc-desc">管理対象の資格種別・優先度・更新周期・必要書類</div></div>
-            <div class="settings-card"><div class="sc-icon">📊</div><div class="sc-name">CPDルール設定</div><div class="sc-desc">団体別・年度別CPD換算ルール・必要単位数・集計方法</div></div>
-            <div class="settings-card"><div class="sc-icon">🔔</div><div class="sc-name">アラート設定</div><div class="sc-desc">30/60/90日前通知・緊急度区分・エスカレーション設定</div></div>
-            <div class="settings-card"><div class="sc-icon">📄</div><div class="sc-name">証憑設定</div><div class="sc-desc">証憑の種別定義・必須/任意・保管ルール・有効期間</div></div>
-            <div class="settings-card"><div class="sc-icon">📨</div><div class="sc-name">通知テンプレート</div><div class="sc-desc">リマインド・依頼・受講提案の文面テンプレート管理</div></div>
-            <div class="settings-card"><div class="sc-icon">📋</div><div class="sc-name">表示カラム設定</div><div class="sc-desc">一覧画面に表示するカラムのカスタマイズ・並び順</div></div>
-            <div class="settings-card"><div class="sc-icon">🔐</div><div class="sc-name">権限設定</div><div class="sc-desc">ユーザー役割・閲覧・編集・通知送信権限の管理</div></div>
-          </div>
+      <div class="cpd-card ok">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div class="cpd-name">伊藤 誠一</div><div class="cpd-qual">地質調査技士 / 全国地質調査業協会連合会</div></div><span class="badge b-cau">🟡 要注意</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:11px;color:var(--text-sub);">2025年度</span><span style="font-weight:700;color:var(--amber);">28 / 30単位</span></div>
+        <div class="prog"><div class="pf pf-cau" style="width:93%"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;">
+          <span style="font-size:10px;color:var(--text-muted);">不足: 2単位 / 締切26日後</span>
+          <button class="btn btn-out btn-xs" onclick="openAction('伊藤 誠一','受講提案送信')">🎓 受講提案</button>
         </div>
       </div>
-
-      <!-- β版 / 一部未実装 プレースホルダー -->
-      <div class="view" id="view-ph">
-        <div class="panel-header">
-          <div class="panel-tg"><div class="panel-title" id="phTitle">-</div></div>
+      <div class="cpd-card ok">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div class="cpd-name">佐藤 恵子</div><div class="cpd-qual">RCCM（都市計画）/ 建設コンサルタンツ協会</div></div><span class="badge b-ok">✅ 正常</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:11px;color:var(--text-sub);">2025年度</span><span style="font-weight:700;color:var(--teal);">42 / 40単位</span></div>
+        <div class="prog"><div class="pf pf-ok" style="width:100%"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;">
+          <span style="font-size:10px;color:var(--text-muted);">達成済み ✅ (+2単位余剰)</span>
+          <span style="font-size:10px;color:var(--text-muted);">対応不要</span>
         </div>
-        <div class="center-scroll">
-          <div class="empty-state">
-            <div class="empty-icon">🚧</div>
-            <div class="empty-text">β版 / 一部未実装</div>
-            <div class="empty-sub">この画面は現在準備中です。今後のアップデートで追加される予定です。</div>
+      </div>
+      <div class="cpd-card ok">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div class="cpd-name">田中 美沙</div><div class="cpd-qual">CPDS認定 / 全国土木施工管理技士会連合会</div></div><span class="badge b-ok">✅ 正常</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:11px;color:var(--text-sub);">2025年度</span><span style="font-weight:700;color:var(--teal);">15 / 15単位</span></div>
+        <div class="prog"><div class="pf pf-ok" style="width:100%"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;">
+          <span style="font-size:10px;color:var(--text-muted);">達成済み ✅</span>
+          <span style="font-size:10px;color:var(--text-muted);">対応不要</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────────────────────────────
+     ⑩ 実績入力
+──────────────────────────────────────── -->
+<div class="view" id="view-cpd-input">
+  <div class="panel-header">
+    <div class="panel-tg"><div class="panel-title">✏️ 実績入力</div><div class="panel-desc">CPD受講実績・資格取得・研修参加などを登録 / 証憑と同時アップロード可能</div></div>
+    <div class="panel-acts"><button class="btn btn-out btn-sm">📥 CSV一括取込</button></div>
+  </div>
+  <div class="center-scroll">
+    <div style="padding:14px 20px;">
+      <div class="input-card">
+        <div class="ic-title">📝 新規実績を入力</div>
+        <div class="form-row">
+          <div class="fg"><label class="fl">対象技術者</label><select class="fc"><option>山田 太郎（土木設計部）</option><option>鈴木 健二（建設設計部）</option><option>田中 美沙（地質調査部）</option><option>伊藤 誠一（地質調査部）</option><option>中村 正樹（地質調査部）</option><option>佐藤 恵子（建設設計部）</option><option>高橋 一郎（土木設計部）</option></select></div>
+          <div class="fg"><label class="fl">対象資格</label><select class="fc"><option>技術士（建設部門）</option><option>RCCM（建設部門）</option><option>地質調査技士</option><option>CPDS認定技術者</option><option>1級土木施工管理技士</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="fg"><label class="fl">実績区分</label><select class="fc"><option>CPD認定研修・講習</option><option>学会発表</option><option>論文執筆</option><option>社内研修（講師）</option><option>社内研修（受講）</option><option>eラーニング</option></select></div>
+          <div class="fg"><label class="fl">認定団体</label><select class="fc"><option>建設系CPD協議会</option><option>土木学会（JSCE）</option><option>日本技術士会</option><option>建設コンサルタンツ協会（JCCA）</option><option>全国土木施工管理技士会連合会（CPDS）</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="fg"><label class="fl">受講・参加日</label><input class="fc" type="date" value="2026-04-13"></div>
+          <div class="fg"><label class="fl">取得単位数</label><input class="fc" type="number" value="3.0" step="0.5"></div>
+        </div>
+        <div class="form-row full">
+          <div class="fg"><label class="fl">研修・講習名</label><input class="fc" type="text" value="土木学会CPD認定セミナー 橋梁設計の最新動向" ></div>
+        </div>
+        <div class="form-row full">
+          <div class="fg"><label class="fl">証憑ファイル（受講証明書・修了証）</label>
+            <div style="border:2px dashed #d0d5de;border-radius:7px;padding:16px;text-align:center;background:#fafbfc;cursor:pointer;">
+              <div style="font-size:20px;margin-bottom:4px;">📎</div>
+              <div style="font-size:12px;color:var(--text-sub);">クリックしてファイルを選択、またはドラッグ&ドロップ</div>
+              <div style="font-size:10px;color:var(--text-muted);margin-top:3px;">PDF・PNG・JPG対応 / 最大10MB</div>
+            </div>
           </div>
         </div>
+        <div style="display:flex;gap:7px;margin-top:4px;">
+          <button class="btn btn-prim" onclick="toast('実績を登録しました','ok')">登録する</button>
+          <button class="btn btn-out">リセット</button>
+        </div>
       </div>
-
-    </div><!-- /center -->
-
-    <!-- 右パネル -->
-    <aside class="right-panel" id="rightPanel">
-      <div class="rp-ph" id="rpPh">
-        <div class="rp-ph-icon">👤</div>
-        <div class="rp-ph-txt">技術者を選択すると<br>詳細情報とアクションが<br>ここに表示されます</div>
+      <div class="input-card">
+        <div class="fc-recent">📋 最近登録された実績</div>
+        <table class="dt" style="margin-top:8px;">
+          <thead><tr><th>氏名</th><th>研修名</th><th>団体</th><th>受講日</th><th>単位</th><th>証憑</th></tr></thead>
+          <tbody>
+            <tr><td>鈴木 健二</td><td>建設コンサルタンツ協会 技術研修会</td><td>JCCA</td><td>2026/04/05</td><td>2.0</td><td><span class="badge b-ok">✅ 提出済み</span></td></tr>
+            <tr><td>佐藤 恵子</td><td>土木学会 年次学術講演会</td><td>JSCE</td><td>2026/03/28</td><td>4.5</td><td><span class="badge b-ok">✅ 提出済み</span></td></tr>
+            <tr><td>伊藤 誠一</td><td>地盤工学会 関東支部講習会</td><td>JGS</td><td>2026/03/20</td><td>3.0</td><td><span class="badge b-ok">✅ 提出済み</span></td></tr>
+            <tr><td>田中 美沙</td><td>全国地質調査業協会 CPDセミナー</td><td>CPDS</td><td>2026/03/15</td><td>2.5</td><td><span class="badge b-urg">🔴 未提出</span></td></tr>
+            <tr><td>高橋 一郎</td><td>施工管理技士会 技術研修</td><td>CPDS</td><td>2026/03/10</td><td>3.0</td><td><span class="badge b-urg">🔴 未提出</span></td></tr>
+          </tbody>
+        </table>
       </div>
-      <div class="rp-content" id="rpContent"></div>
-    </aside>
+    </div>
+  </div>
+</div>
 
-  </div><!-- /main -->
+<!-- ────────────────────────────────────────
+     ⑪ ルール確認
+──────────────────────────────────────── -->
+<div class="view" id="view-rule-check">
+  <div class="panel-header">
+    <div class="panel-tg"><div class="panel-title">📏 ルール確認</div><div class="panel-desc">認定団体別 CPD要件・換算ルール・申請方法の一覧</div></div>
+    <div class="panel-acts"><span style="font-size:11px;color:var(--text-muted);">最終更新: 2026/04/01</span></div>
+  </div>
+  <div class="center-scroll" style="padding-top:14px;">
+    <div class="rule-group">
+      <div class="rule-group-h">🏆 建設コンサルタンツ協会（JCCA）— RCCM</div>
+      <div class="rule-row head"><div>区分</div><div>年間必要単位</div><div>更新周期</div><div>申請方法</div><div>備考</div></div>
+      <div class="rule-row"><div style="font-weight:600;">RCCM（全部門共通）</div><div>40単位/年</div><div>5年</div><div>オンライン申請</div><div style="font-size:11px;color:var(--text-muted);">うち技術系20単位以上必須</div></div>
+      <div class="rule-row" style="background:#fafbfc;"><div style="color:var(--text-sub);">換算率: 講習1時間 = 1単位</div><div colspan="4" style="font-size:11px;color:var(--text-muted);">学会発表 = 3単位、論文掲載 = 10単位</div></div>
+    </div>
+    <div class="rule-group">
+      <div class="rule-group-h">🏆 日本技術士会 — 技術士（建設部門）</div>
+      <div class="rule-row head"><div>区分</div><div>年間必要単位</div><div>更新周期</div><div>申請方法</div><div>備考</div></div>
+      <div class="rule-row"><div style="font-weight:600;">技術士（全部門）</div><div>50単位/年</div><div>3年</div><div>CPD実績証明書 提出</div><div style="font-size:11px;color:var(--text-muted);">3年合計150単位以上必要</div></div>
+      <div class="rule-row" style="background:#fafbfc;"><div style="color:var(--text-sub);">換算率: 講習1時間 = 1単位</div><div colspan="4" style="font-size:11px;color:var(--text-muted);">論文掲載 = 15単位、技術発表 = 5単位</div></div>
+    </div>
+    <div class="rule-group">
+      <div class="rule-group-h">🏆 全国地質調査業協会連合会 — 地質調査技士</div>
+      <div class="rule-row head"><div>区分</div><div>年間必要単位</div><div>更新周期</div><div>申請方法</div><div>備考</div></div>
+      <div class="rule-row"><div style="font-weight:600;">地質調査技士（全部門）</div><div>30単位/年</div><div>5年</div><div>書面申請</div><div style="font-size:11px;color:var(--text-muted);">5年合計150単位以上</div></div>
+      <div class="rule-row" style="background:#fafbfc;"><div style="color:var(--text-sub);">換算率: 講習1時間 = 1単位</div><div colspan="4" style="font-size:11px;color:var(--text-muted);">eラーニング可（上限15単位まで）</div></div>
+    </div>
+    <div class="rule-group">
+      <div class="rule-group-h">🏆 全国土木施工管理技士会連合会（CPDS）</div>
+      <div class="rule-row head"><div>区分</div><div>年間必要単位</div><div>更新周期</div><div>申請方法</div><div>備考</div></div>
+      <div class="rule-row"><div style="font-weight:600;">1級土木施工管理技士</div><div>15単位/年</div><div>5年</div><div>システム申請（CPDS）</div><div style="font-size:11px;color:var(--text-muted);">5年合計75単位以上</div></div>
+      <div class="rule-row"><div style="font-weight:600;">2級土木施工管理技士</div><div>10単位/年</div><div>5年</div><div>システム申請（CPDS）</div><div style="font-size:11px;color:var(--text-muted);">5年合計50単位以上</div></div>
+      <div class="rule-row" style="background:#fafbfc;"><div style="color:var(--text-sub);">換算率: 講習1時間 = 1ユニット</div><div colspan="4" style="font-size:11px;color:var(--text-muted);">CPDSシステムへの直接申請で即時反映</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────────────────────────────
+     ⑫ アラート: 緊急
+──────────────────────────────────────── -->
+<div class="view" id="view-alert-urgent">
+  <div class="panel-header">
+    <div class="panel-tg"><div class="panel-title">🔴 緊急アラート</div><div class="panel-desc">即時対応が必要な案件 2件 — どの画面からでもアクション可能</div></div>
+    <div class="panel-acts"><button class="btn btn-out btn-sm" onclick="toast('すべてを対応済みにしました','ok')">すべて対応済みにする</button></div>
+  </div>
+  <div class="center-scroll">
+    <div style="padding:15px 20px;">
+      <div class="alert-card urg">
+        <div class="a-head"><span class="a-em">🚨</span><div style="flex:1"><div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;"><span class="badge b-urg">🔴 緊急</span><span style="font-size:10px;color:var(--text-muted);">資格更新</span><span class="dl-urg">有効期限: 2026/04/13（本日）</span></div><div style="font-size:13px;font-weight:700;">山田 太郎 — RCCM（建設部門）更新期限が本日</div><div style="font-size:11px;color:var(--text-sub);margin-top:2px;">土木設計部 主任技術者 / 建設コンサルタンツ協会</div></div></div>
+        <div class="a-body"><div class="highlight"><div class="hl-title">⚡ 今すぐやること</div><div class="hl-body">更新申請書類を建設コンサルタンツ協会に提出してください。証憑（受講証明書）の確認が必要です。</div></div></div>
+        <div class="a-acts">
+          <button class="btn btn-prim btn-sm" onclick="openAction('山田 太郎','RCCM更新 — 緊急連絡')">📞 今すぐ連絡</button>
+          <button class="btn btn-out btn-sm" onclick="openAction('山田 太郎','証憑確認依頼')">📄 証憑確認依頼</button>
+          <button class="btn btn-out btn-sm" onclick="selectEng(1)">👤 技術者詳細</button>
+          <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="toast('山田 太郎の対応を完了としました','ok')">✓ 対応済みにする</button>
+        </div>
+      </div>
+      <div class="alert-card urg">
+        <div class="a-head"><span class="a-em">🚨</span><div style="flex:1"><div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;"><span class="badge b-urg">🔴 緊急</span><span style="font-size:10px;color:var(--text-muted);">CPD期限切れ</span><span class="dl-urg">2025年度 期限超過</span></div><div style="font-size:13px;font-weight:700;">中村 正樹 — 技術士CPD 年度単位0のまま期限切れ</div><div style="font-size:11px;color:var(--text-sub);margin-top:2px;">地質調査部 部長 / 日本技術士会</div></div></div>
+        <div class="a-body"><div class="highlight"><div class="hl-title">⚡ 今すぐやること</div><div class="hl-body">技術士会への年度報告が必要です。未取得分の追加受講または事後申請の可否を確認してください。</div></div></div>
+        <div class="a-acts">
+          <button class="btn btn-prim btn-sm" onclick="openAction('中村 正樹','CPD期限切れ — 緊急連絡')">📞 今すぐ連絡</button>
+          <button class="btn btn-amb btn-sm" onclick="openAction('中村 正樹','受講提案送信')">🎓 受講提案送信</button>
+          <button class="btn btn-out btn-sm" onclick="selectEng(5)">👤 技術者詳細</button>
+          <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="toast('中村 正樹の対応を完了としました','ok')">✓ 対応済みにする</button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px;margin:16px 0 9px;">
+        <span style="font-size:10.5px;font-weight:700;color:var(--text-muted);white-space:nowrap;">🟠 要対応（5件）</span>
+        <div style="flex:1;height:1px;background:var(--border);"></div>
+        <button class="btn btn-ghost btn-sm" onclick="goView('alert-action',null)">すべて見る ›</button>
+      </div>
+      <div class="alert-card act">
+        <div class="a-head"><span class="a-em">⚠️</span><div style="flex:1"><div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;"><span class="badge b-act">🟠 要対応</span><span class="dl-act">締切: 2026/05/31（48日後）</span></div><div style="font-size:13px;font-weight:700;">鈴木 健二 — CPD不足 12単位</div><div style="font-size:11px;color:var(--text-sub);">技術士（建設部門）/ 建設設計部</div></div></div>
+        <div class="a-acts">
+          <button class="btn btn-amb btn-sm" onclick="openAction('鈴木 健二','受講提案送信')">🎓 受講提案送信</button>
+          <button class="btn btn-out btn-sm" onclick="openAction('鈴木 健二','リマインド送信')">📨 リマインド</button>
+          <button class="btn btn-out btn-sm" onclick="selectEng(2)">👤 詳細</button>
+          <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="toast('対応を完了としました','ok')">✓ 対応済み</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────────────────────────────
+     ⑬ アラート: 要対応
+──────────────────────────────────────── -->
+<div class="view" id="view-alert-action">
+  <div class="panel-header">
+    <div class="panel-tg"><div class="panel-title">🟠 要対応アラート</div><div class="panel-desc">30日以内に対応が必要な案件 5件</div></div>
+    <div class="panel-acts"><button class="btn btn-amb btn-sm" onclick="openAction('要対応者全員（5名）','一括リマインド送信')">一括リマインド</button></div>
+  </div>
+  <div class="center-scroll">
+    <div style="padding:15px 20px;">
+      <div class="alert-card act"><div class="a-head"><span class="a-em">⚠️</span><div style="flex:1"><div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;"><span class="badge b-act">🟠 要対応</span><span class="dl-act">締切: 2026/05/31（48日後）</span></div><div style="font-size:13px;font-weight:700;">鈴木 健二 — CPD不足 12単位</div><div style="font-size:11px;color:var(--text-sub);">技術士（建設部門）/ 建設設計部</div></div></div><div class="a-acts"><button class="btn btn-amb btn-sm" onclick="openAction('鈴木 健二','受講提案送信')">🎓 受講提案</button><button class="btn btn-out btn-sm" onclick="openAction('鈴木 健二','リマインド送信')">📨 リマインド</button><button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="toast('対応済みにしました','ok')">✓ 対応済み</button></div></div>
+      <div class="alert-card act"><div class="a-head"><span class="a-em">⚠️</span><div style="flex:1"><div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;"><span class="badge b-act">🟠 要対応</span><span class="dl-act">締切: 2026/05/09（26日後）</span></div><div style="font-size:13px;font-weight:700;">伊藤 誠一 — 地質調査技士 更新26日前</div><div style="font-size:11px;color:var(--text-sub);">地質調査技士 / 地質調査部 主任</div></div></div><div class="a-acts"><button class="btn btn-prim btn-sm" onclick="openAction('伊藤 誠一','更新手続き連絡')">📞 連絡する</button><button class="btn btn-out btn-sm" onclick="openAction('伊藤 誠一','リマインド送信')">📨 リマインド</button><button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="toast('対応済みにしました','ok')">✓ 対応済み</button></div></div>
+      <div class="alert-card act"><div class="a-head"><span class="a-em">⚠️</span><div style="flex:1"><div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;"><span class="badge b-act">🟠 要対応</span><span class="dl-act">締切: 2026/06/30（78日後）</span></div><div style="font-size:13px;font-weight:700;">高橋 一郎 — CPD不足 5単位・証憑未提出</div><div style="font-size:11px;color:var(--text-sub);">1級土木施工管理技士 / 土木設計部</div></div></div><div class="a-acts"><button class="btn btn-amb btn-sm" onclick="openAction('高橋 一郎','受講提案送信')">🎓 受講提案</button><button class="btn btn-out btn-sm" onclick="openAction('高橋 一郎','証憑提出依頼')">📄 証憑依頼</button><button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="toast('対応済みにしました','ok')">✓ 対応済み</button></div></div>
+      <div class="alert-card cau"><div class="a-head"><span class="a-em">📋</span><div style="flex:1"><div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;"><span class="badge b-cau">🟡 要注意</span><span class="dl-cau">締切: 2026/12/31（263日後）</span></div><div style="font-size:13px;font-weight:700;">田中 美沙 — CPDS証憑 未提出2件・CPD不足8単位</div><div style="font-size:11px;color:var(--text-sub);">地質調査技士 / 地質調査部</div></div></div><div class="a-acts"><button class="btn btn-out btn-sm" onclick="openAction('田中 美沙','証憑提出依頼')">📄 証憑依頼</button><button class="btn btn-out btn-sm" onclick="openAction('田中 美沙','受講提案送信')">🎓 受講提案</button><button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="toast('対応済みにしました','ok')">✓ 対応済み</button></div></div>
+      <div class="alert-card cau"><div class="a-head"><span class="a-em">📋</span><div style="flex:1"><div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;"><span class="badge b-cau">🟡 要注意</span><span class="dl-cau">締切: 2026/05/09（26日後）</span></div><div style="font-size:13px;font-weight:700;">伊藤 誠一 — CPD実績報告書 確認中</div><div style="font-size:11px;color:var(--text-sub);">地質調査技士 / 地質調査部</div></div></div><div class="a-acts"><button class="btn btn-out btn-sm" onclick="openAction('伊藤 誠一','提出状況確認連絡')">📞 確認連絡</button><button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="toast('対応済みにしました','ok')">✓ 対応済み</button></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────────────────────────────
+     ⑭ 対応済みアラート
+──────────────────────────────────────── -->
+<div class="view" id="view-alert-done">
+  <div class="panel-header">
+    <div class="panel-tg"><div class="panel-title">✅ 対応済みアラート</div><div class="panel-desc">過去30日間に対応完了したアラート 8件</div></div>
+    <div class="panel-acts"><button class="btn btn-out btn-sm">📤 履歴出力</button></div>
+  </div>
+  <div class="center-scroll">
+    <div style="padding:15px 20px;">
+      <div class="alert-card done-card"><div class="a-head"><span class="a-em">✅</span><div style="flex:1"><div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;"><span class="badge b-done">✔ 対応済み</span><span style="font-size:10px;color:var(--text-muted);">2026/04/01 対応</span></div><div style="font-size:13px;font-weight:600;">佐藤 恵子 — RCCM更新 証憑提出完了</div><div style="font-size:11px;color:var(--text-sub);">RCCM（都市計画）/ 建設設計部 / 対応者: 佐藤 管理部長</div></div></div></div>
+      <div class="alert-card done-card"><div class="a-head"><span class="a-em">✅</span><div style="flex:1"><div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;"><span class="badge b-done">✔ 対応済み</span><span style="font-size:10px;color:var(--text-muted);">2026/03/25 対応</span></div><div style="font-size:13px;font-weight:600;">伊藤 誠一 — 地質調査技士 登録証保管完了</div><div style="font-size:11px;color:var(--text-sub);">地質調査技士 / 地質調査部 / 対応者: 田中 担当</div></div></div></div>
+      <div class="alert-card done-card"><div class="a-head"><span class="a-em">✅</span><div style="flex:1"><div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;"><span class="badge b-done">✔ 対応済み</span><span style="font-size:10px;color:var(--text-muted);">2026/03/20 対応</span></div><div style="font-size:13px;font-weight:600;">鈴木 健二 — CPD実績 土木学会セミナー登録完了</div><div style="font-size:11px;color:var(--text-sub);">技術士（建設部門）/ 建設設計部 / 対応者: 田中 担当</div></div></div></div>
+      <div class="alert-card done-card"><div class="a-head"><span class="a-em">✅</span><div style="flex:1"><div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;"><span class="badge b-done">✔ 対応済み</span><span style="font-size:10px;color:var(--text-muted);">2026/03/15 対応</span></div><div style="font-size:13px;font-weight:600;">佐藤 恵子 — RCCM CPD年度申請 完了</div><div style="font-size:11px;color:var(--text-sub);">RCCM（都市計画）/ 建設設計部 / 対応者: 佐藤 管理部長</div></div></div></div>
+      <div class="alert-card done-card"><div class="a-head"><span class="a-em">✅</span><div style="flex:1"><div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;"><span class="badge b-done">✔ 対応済み</span><span style="font-size:10px;color:var(--text-muted);">2026/03/10 対応</span></div><div style="font-size:13px;font-weight:600;">山田 太郎 — 1級土木施工管理技士 CPD申請完了</div><div style="font-size:11px;color:var(--text-sub);">1級土木施工管理技士 / 土木設計部 / 対応者: 佐藤 管理部長</div></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────────────────────────────
+     ⑮ 証憑管理
+──────────────────────────────────────── -->
+<div class="view" id="view-docs-evidence">
+  <div class="panel-header">
+    <div class="panel-tg"><div class="panel-title">📁 証憑管理</div><div class="panel-desc">提出・監査・説明責任まで一気通貫 — 人・資格・年度と紐付け</div></div>
+    <div class="panel-acts">
+      <button class="btn btn-out btn-sm">📤 一括エクスポート</button>
+      <button class="btn btn-prim btn-sm">＋ 証憑アップロード</button>
+    </div>
+  </div>
+  <div class="filter-bar">
+    <div class="chip on">すべて</div><div class="chip">未提出</div><div class="chip">提出済み</div><div class="chip">確認中</div>
+  </div>
+  <div class="center-scroll">
+    <div style="padding:14px 20px;">
+      <div class="highlight" style="margin-bottom:13px;"><div class="hl-title">📋 証憑管理の目的</div><div class="hl-body">受講証明書・資格証の紐付け管理により、監査対応・行政提出・社内説明の際にすぐ取り出せる状態を維持します。</div></div>
+      <div class="doc-card"><div class="doc-icon" style="background:#e8f7f7;">📜</div><div style="flex:1;"><div style="font-size:12.5px;font-weight:600;">土木学会CPD受講証明書_鈴木健二.pdf</div><div style="font-size:11px;color:var(--text-muted);">鈴木 健二 / 技術士（建設部門）/ 3.0単位 / 2026/03/15受講</div></div><span class="badge b-ok">✅ 確認済み</span><button class="btn btn-out btn-xs">表示</button></div>
+      <div class="doc-card"><div class="doc-icon" style="background:#fde8e6;">📜</div><div style="flex:1;"><div style="font-size:12.5px;font-weight:600;">RCCM更新講習修了証_山田太郎.pdf</div><div style="font-size:11px;color:var(--text-muted);">山田 太郎 / RCCM / 更新申請添付書類</div></div><span class="badge b-urg">🔴 未提出</span><button class="btn btn-amb btn-xs" onclick="openAction('山田 太郎','証憑提出依頼')">依頼</button></div>
+      <div class="doc-card"><div class="doc-icon" style="background:#e8f7f7;">🏅</div><div style="flex:1;"><div style="font-size:12.5px;font-weight:600;">技術士登録証_中村正樹.pdf</div><div style="font-size:11px;color:var(--text-muted);">中村 正樹 / 技術士（建設部門）/ 登録番号: 第○○○○号</div></div><span class="badge b-ok">✅ 保管済み</span><button class="btn btn-out btn-xs">表示</button></div>
+      <div class="doc-card"><div class="doc-icon" style="background:#fde8e6;">📜</div><div style="flex:1;"><div style="font-size:12.5px;font-weight:600;">CPDS受講証明書_田中美沙（未取得）</div><div style="font-size:11px;color:var(--text-muted);">田中 美沙 / CPDS / 2025年度受講分</div></div><span class="badge b-urg">🔴 未提出</span><button class="btn btn-amb btn-xs" onclick="openAction('田中 美沙','証憑提出依頼')">依頼</button></div>
+      <div class="doc-card"><div class="doc-icon" style="background:#fff3e8;">📋</div><div style="flex:1;"><div style="font-size:12.5px;font-weight:600;">地質調査技士登録証_田中美沙.pdf</div><div style="font-size:11px;color:var(--text-muted);">田中 美沙 / 地質調査技士 / 2022年取得</div></div><span class="badge b-ok">✅ 保管済み</span><button class="btn btn-out btn-xs">表示</button></div>
+      <div class="doc-card"><div class="doc-icon" style="background:#e8f7f7;">🏅</div><div style="flex:1;"><div style="font-size:12.5px;font-weight:600;">RCCM登録証_佐藤恵子.pdf</div><div style="font-size:11px;color:var(--text-muted);">佐藤 恵子 / RCCM（都市計画）/ 2023年取得</div></div><span class="badge b-ok">✅ 保管済み</span><button class="btn btn-out btn-xs">表示</button></div>
+      <div class="doc-card"><div class="doc-icon" style="background:#fde8e6;">📜</div><div style="flex:1;"><div style="font-size:12.5px;font-weight:600;">施工管理技士会研修修了証_高橋一郎</div><div style="font-size:11px;color:var(--text-muted);">高橋 一郎 / 1級土木施工管理技士 / 2026/03/10受講分</div></div><span class="badge b-urg">🔴 未提出</span><button class="btn btn-amb btn-xs" onclick="openAction('高橋 一郎','証憑提出依頼')">依頼</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────────────────────────────
+     ⑯ 出力履歴
+──────────────────────────────────────── -->
+<div class="view" id="view-output-history">
+  <div class="panel-header">
+    <div class="panel-tg"><div class="panel-title">🗂️ 出力履歴</div><div class="panel-desc">過去に出力されたレポート・証跡の一覧 / 直近30件</div></div>
+    <div class="panel-acts"><button class="btn btn-out btn-sm">全履歴を表示</button></div>
+  </div>
+  <div class="filter-bar">
+    <div class="chip on">すべて</div><div class="chip">行政提出用</div><div class="chip">社内確認用</div><div class="chip">監査対応</div>
+  </div>
+  <div class="center-scroll">
+    <div class="hist-log"><div class="hl-icon" style="background:#e8f7f7;">🏛️</div><div style="flex:1;"><div style="font-size:12.5px;font-weight:600;">技術者台帳レポート（行政提出用）</div><div style="font-size:11px;color:var(--text-muted);">佐藤 管理部長 / 2026/04/01 14:32 / Excel出力 / 18名・47資格</div></div><span class="badge b-ok">✅ 完了</span><button class="btn btn-out btn-xs">再出力</button></div>
+    <div class="hist-log"><div class="hl-icon" style="background:#fff8e6;">🏢</div><div style="flex:1;"><div style="font-size:12.5px;font-weight:600;">CPD達成状況レポート（経営報告用）</div><div style="font-size:11px;color:var(--text-muted);">田中 担当 / 2026/03/28 10:15 / PDF出力 / 2026年度上半期</div></div><span class="badge b-ok">✅ 完了</span><button class="btn btn-out btn-xs">再出力</button></div>
+    <div class="hist-log"><div class="hl-icon" style="background:#eaf7f4;">🔍</div><div style="flex:1;"><div style="font-size:12.5px;font-weight:600;">監査証跡ログ（入札参加審査対応）</div><div style="font-size:11px;color:var(--text-muted);">佐藤 管理部長 / 2026/03/15 09:00 / PDF出力 / ○○市発注案件向け</div></div><span class="badge b-ok">✅ 完了</span><button class="btn btn-out btn-xs">再出力</button></div>
+    <div class="hist-log"><div class="hl-icon" style="background:#e8f7f7;">🏛️</div><div style="flex:1;"><div style="font-size:12.5px;font-weight:600;">資格証明書一覧（行政提出用）</div><div style="font-size:11px;color:var(--text-muted);">田中 担当 / 2026/03/10 16:45 / PDF出力 / 山田太郎・鈴木健二・伊藤誠一</div></div><span class="badge b-ok">✅ 完了</span><button class="btn btn-out btn-xs">再出力</button></div>
+    <div class="hist-log"><div class="hl-icon" style="background:#fff8e6;">🏢</div><div style="flex:1;"><div style="font-size:12.5px;font-weight:600;">リスク一覧レポート（社内共有）</div><div style="font-size:11px;color:var(--text-muted);">佐藤 管理部長 / 2026/03/01 11:30 / Excel出力 / 期限切れ・要対応者絞り込み</div></div><span class="badge b-ok">✅ 完了</span><button class="btn btn-out btn-xs">再出力</button></div>
+    <div class="hist-log"><div class="hl-icon" style="background:#eaf7f4;">🔍</div><div style="flex:1;"><div style="font-size:12.5px;font-weight:600;">操作ログ出力（内部監査対応）</div><div style="font-size:11px;color:var(--text-muted);">佐藤 管理部長 / 2026/02/20 14:00 / CSV出力 / 2025年度通期</div></div><span class="badge b-ok">✅ 完了</span><button class="btn btn-out btn-xs">再出力</button></div>
+  </div>
+</div>
+
+<!-- ────────────────────────────────────────
+     ⑰ レポート出力
+──────────────────────────────────────── -->
+<div class="view" id="view-docs-report">
+  <div class="panel-header">
+    <div class="panel-tg"><div class="panel-title">📊 レポート出力</div><div class="panel-desc">行政提出・社内確認・監査対応 — 目的別に出力できます</div></div>
+  </div>
+  <div class="center-scroll">
+    <div style="padding:14px 20px;">
+      <div class="rpc"><div class="rpc-h"><span class="rpc-icon">🏛️</span><div><div class="rpc-title">行政提出用レポート</div><div class="rpc-desc">経審・入札参加資格申請に必要な技術者・資格・CPD実績の証明書類</div></div></div><div style="display:flex;gap:6px;"><button class="btn btn-prim btn-sm" onclick="toast('Excel出力を開始しました','ok')">Excel出力</button><button class="btn btn-out btn-sm" onclick="toast('PDF出力を開始しました','ok')">PDF出力</button></div></div>
+      <div class="rpc"><div class="rpc-h"><span class="rpc-icon">🏢</span><div><div class="rpc-title">社内確認・経営報告用レポート</div><div class="rpc-desc">技術者台帳・リスク一覧・CPD達成状況の経営層向けサマリー</div></div></div><div style="display:flex;gap:6px;"><button class="btn btn-prim btn-sm" onclick="toast('Excel出力を開始しました','ok')">Excel出力</button><button class="btn btn-out btn-sm" onclick="toast('PDF出力を開始しました','ok')">PDF出力</button></div></div>
+      <div class="rpc"><div class="rpc-h"><span class="rpc-icon">🔍</span><div><div class="rpc-title">監査対応・証跡出力</div><div class="rpc-desc">証憑紐付き・操作ログ付きの監査証跡。第三者への説明責任を果たします</div></div></div><div style="display:flex;gap:6px;"><button class="btn btn-prim btn-sm" onclick="toast('監査ログ出力を開始しました','ok')">監査ログ出力</button><button class="btn btn-out btn-sm" onclick="toast('PDF出力を開始しました','ok')">PDF出力</button></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────────────────────────────
+     ⑱ 設定
+──────────────────────────────────────── -->
+<div class="view" id="view-settings">
+  <div class="panel-header">
+    <div class="panel-tg"><div class="panel-title">⚙️ 設定</div><div class="panel-desc">企業ごとの差分を吸収する設定基盤 — 運用ルールをここで一元管理</div></div>
+  </div>
+  <div class="center-scroll">
+    <div class="settings-grid">
+      <div class="settings-card"><div class="sc-icon">🏢</div><div class="sc-name">企業設定</div><div class="sc-desc">会社名・業種・対象部署・入札区分など基本情報</div></div>
+      <div class="settings-card"><div class="sc-icon">🏅</div><div class="sc-name">対象資格設定</div><div class="sc-desc">管理対象の資格種別・優先度・更新周期・必要書類</div></div>
+      <div class="settings-card"><div class="sc-icon">📊</div><div class="sc-name">CPDルール設定</div><div class="sc-desc">団体別・年度別CPD換算ルール・必要単位数・集計方法</div></div>
+      <div class="settings-card"><div class="sc-icon">🔔</div><div class="sc-name">アラート設定</div><div class="sc-desc">30/60/90日前通知・緊急度区分・エスカレーション設定</div></div>
+      <div class="settings-card"><div class="sc-icon">📄</div><div class="sc-name">証憑設定</div><div class="sc-desc">証憑の種別定義・必須/任意・保管ルール・有効期間</div></div>
+      <div class="settings-card"><div class="sc-icon">📨</div><div class="sc-name">通知テンプレート</div><div class="sc-desc">リマインド・依頼・受講提案の文面テンプレート管理</div></div>
+      <div class="settings-card"><div class="sc-icon">📋</div><div class="sc-name">表示カラム設定</div><div class="sc-desc">一覧画面に表示するカラムのカスタマイズ・並び順</div></div>
+      <div class="settings-card"><div class="sc-icon">🔐</div><div class="sc-name">権限設定</div><div class="sc-desc">ユーザー役割・閲覧・編集・通知送信権限の管理</div></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /center -->
+
+<!-- ═══════════════════════════════════════════
+     右パネル（技術者詳細）
+═══════════════════════════════════════════ -->
+<aside class="right-panel" id="rightPanel">
+  <div class="rp-ph" id="rpPh"><div class="rp-ph-icon">👤</div><div class="rp-ph-txt">技術者を選択すると<br>詳細情報とアクションが<br>ここに表示されます</div></div>
+  <div class="rp-content" id="rpContent"></div>
+</aside>
+
+</div><!-- /main -->
 </div><!-- /app -->
 
-<!-- 機能横断アクションモーダル -->
+<!-- アクションモーダル -->
 <div class="modal-overlay" id="actionModal">
   <div class="modal">
-    <div class="modal-head">
-      <div class="modal-title" id="modalTitle">対応する</div>
-      <button class="btn btn-ghost btn-sm" onclick="closeModal()">✕</button>
-    </div>
+    <div class="modal-head"><div class="modal-title" id="modalTitle">対応する</div><button class="btn btn-ghost btn-sm" onclick="closeModal()">✕</button></div>
     <div class="modal-body">
       <div id="modalTarget" style="background:#f7f9fb;border-radius:6px;padding:8px 11px;margin-bottom:12px;font-size:12px;color:#556677;"></div>
       <div id="actionChoices" class="mab-grid">
@@ -834,10 +1150,7 @@
         <button class="mab full" onclick="pickAction(this,'メモを残す')">📝 メモを残す</button>
       </div>
       <div id="msgForm" style="display:none;">
-        <div class="fg">
-          <label class="fl" id="msgLabel">メッセージ内容</label>
-          <textarea class="fc" id="msgBody" rows="5"></textarea>
-        </div>
+        <div class="mfg"><label class="mfl" id="msgLabel">メッセージ内容</label><textarea class="mfc" id="msgBody" rows="5"></textarea></div>
       </div>
     </div>
     <div class="modal-foot">
@@ -850,81 +1163,64 @@
 <div class="toast-wrap" id="toastWrap"></div>
 
 <script>
-/* =============================================
-   ダミーデータ
-   ============================================= */
-const ENG_DATA = [
+/* ─── ダミーデータ ─── */
+const ENG_DATA=[
   {id:1,name:'山田 太郎',dept:'土木設計部 / 主任技術者',status:'urgent',
     quals:[
       {name:'RCCM（建設部門）',org:'建設コンサルタンツ協会',deadline:'2026/04/13',dlLabel:'本日',cpdDone:38,cpdReq:40,status:'urgent'},
       {name:'1級土木施工管理技士',org:'全国土木施工管理技士会',deadline:'2028/03/31',dlLabel:'693日後',cpdDone:30,cpdReq:30,status:'ok'}
-    ],cpdDone:38,cpdReq:40,evidencePending:1,
-    nextDeadline:'2026/04/13（本日）',ndStatus:'urgent',
-    todoItems:['RCCM更新証憑の確認・提出','協会への更新申請書類送付'],
-    history:[{action:'リマインド送信',by:'佐藤（管理部）',date:'2026/04/10'},{action:'メモ: 本人に電話確認済み、書類準備中とのこと',by:'佐藤（管理部）',date:'2026/04/08'}]
-  },
+    ],cpdDone:38,cpdReq:40,evidencePending:2,nextDeadline:'2026/04/13（本日）',ndStatus:'urgent',
+    todoItems:['RCCM更新証憑の確認・提出（本日期限）','協会への更新申請書類送付'],
+    history:[{action:'リマインド送信',by:'佐藤（管理部）',date:'2026/04/10'},{action:'メモ: 本人電話確認済み、書類準備中',by:'佐藤（管理部）',date:'2026/04/08'}]},
   {id:2,name:'鈴木 健二',dept:'建設設計部 / 上席技術者',status:'action',
     quals:[{name:'技術士（建設部門）',org:'日本技術士会',deadline:'2026/05/31',dlLabel:'48日後',cpdDone:38,cpdReq:50,status:'action'}],
     cpdDone:38,cpdReq:50,evidencePending:2,nextDeadline:'2026/05/31（48日後）',ndStatus:'action',
     todoItems:['受講提案の送付（12単位不足）','証憑2件の提出依頼'],
-    history:[{action:'証憑依頼送信',by:'田中（担当）',date:'2026/04/05'}]
-  },
+    history:[{action:'証憑依頼送信',by:'田中（担当）',date:'2026/04/05'}]},
   {id:3,name:'田中 美沙',dept:'地質調査部 / 技術者',status:'caution',
     quals:[
       {name:'地質調査技士',org:'全国地質調査業協会連合会',deadline:'2027/02/28',dlLabel:'321日後',cpdDone:22,cpdReq:30,status:'caution'},
       {name:'CPDS認定技術者',org:'全国土木施工管理技士会',deadline:'2026/12/31',dlLabel:'263日後',cpdDone:15,cpdReq:15,status:'ok'}
     ],cpdDone:37,cpdReq:45,evidencePending:2,nextDeadline:'2026/12/31（263日後）',ndStatus:'caution',
     todoItems:['受講証明書2件の提出依頼'],
-    history:[{action:'証憑依頼送信',by:'佐藤（管理部）',date:'2026/03/30'}]
-  },
+    history:[{action:'証憑依頼送信',by:'佐藤（管理部）',date:'2026/03/30'}]},
   {id:4,name:'伊藤 誠一',dept:'地質調査部 / 主任技術者',status:'action',
     quals:[{name:'地質調査技士',org:'全国地質調査業協会連合会',deadline:'2026/05/09',dlLabel:'26日後',cpdDone:28,cpdReq:30,status:'action'}],
     cpdDone:28,cpdReq:30,evidencePending:0,nextDeadline:'2026/05/09（26日後）',ndStatus:'action',
-    todoItems:['更新書類の準備・郵送対応'],history:[]
-  },
+    todoItems:['更新書類の準備・郵送対応'],history:[{action:'リマインド送信',by:'田中（担当）',date:'2026/04/07'}]},
   {id:5,name:'中村 正樹',dept:'地質調査部 / 部長',status:'urgent',
-    quals:[{name:'技術士（建設部門）',org:'日本技術士会',deadline:'2025/03/31（期限切れ）',dlLabel:'期限切れ',cpdDone:0,cpdReq:50,status:'urgent'}],
+    quals:[{name:'技術士（建設部門）',org:'日本技術士会',deadline:'期限切れ（2025/03/31）',dlLabel:'期限切れ',cpdDone:0,cpdReq:50,status:'urgent'}],
     cpdDone:0,cpdReq:50,evidencePending:0,nextDeadline:'期限切れ（2025/03/31）',ndStatus:'urgent',
-    todoItems:['事後申請の可否確認','受講提案の送付（50単位不足）'],history:[]
-  },
+    todoItems:['事後申請の可否確認','受講提案の送付（50単位不足）'],history:[]},
   {id:6,name:'佐藤 恵子',dept:'建設設計部 / 技術者',status:'ok',
     quals:[{name:'RCCM（都市計画）',org:'建設コンサルタンツ協会',deadline:'2028/01/15',dlLabel:'646日後',cpdDone:42,cpdReq:40,status:'ok'}],
     cpdDone:42,cpdReq:40,evidencePending:0,nextDeadline:'2028/01/15（646日後）',ndStatus:'ok',
-    todoItems:[],history:[]
-  },
+    todoItems:[],history:[{action:'RCCM CPD年度申請 完了',by:'佐藤（管理部）',date:'2026/03/15'}]},
   {id:7,name:'高橋 一郎',dept:'土木設計部 / 技術者',status:'caution',
     quals:[{name:'1級土木施工管理技士',org:'全国土木施工管理技士会',deadline:'2027/06/30',dlLabel:'443日後',cpdDone:25,cpdReq:30,status:'caution'}],
     cpdDone:25,cpdReq:30,evidencePending:1,nextDeadline:'2027/06/30（443日後）',ndStatus:'caution',
-    todoItems:['証憑1件の提出依頼'],history:[]
-  }
+    todoItems:['証憑1件の提出依頼','受講提案（5単位不足）'],history:[]}
 ];
 
-/* ステータス設定 — 色+アイコン+ラベルのセット */
-const SC={
-  urgent:{label:'🔴 緊急',  cls:'b-urg'},
-  action:{label:'🟠 要対応',cls:'b-act'},
-  caution:{label:'🟡 要注意',cls:'b-cau'},
-  ok:{label:'✅ 正常', cls:'b-ok'},
-  done:{label:'✔ 対応済み',cls:'b-done'}
-};
+const SC={urgent:{label:'🔴 緊急',cls:'b-urg'},action:{label:'🟠 要対応',cls:'b-act'},caution:{label:'🟡 要注意',cls:'b-cau'},ok:{label:'✅ 正常',cls:'b-ok'},done:{label:'✔ 対応済み',cls:'b-done'}};
 const QBG={urgent:'#fde8e6',action:'#fff3e8',caution:'#fff8e6',ok:'#e8f7f7'};
 const DLC={urgent:'dl-urg',action:'dl-act',caution:'dl-cau',ok:'dl-ok'};
 
-/* ナビゲーション */
-function toggleCat(el,cat){
-  const s=document.getElementById('cat-'+cat);
-  el.classList.toggle('open');
-  if(s)s.classList.toggle('open');
-}
+/* ─── ナビゲーション ─── */
+function toggleCat(el,cat){const s=document.getElementById('cat-'+cat);el.classList.toggle('open');if(s)s.classList.toggle('open');}
 
 const VM={
-  'dashboard':'view-dashboard','eng-list':'view-eng-list',
-  'alert-urgent':'view-alert-urgent','alert-action':'view-alert-action',
-  'docs-evidence':'view-docs-evidence','docs-report':'view-docs-report',
-  'settings':'view-settings','ph':'view-ph'
+  'dashboard':'view-dashboard','deadline':'view-deadline','shortage':'view-shortage',
+  'submission':'view-submission','saved':'view-saved',
+  'eng-list':'view-eng-list','contact-history':'view-contact-history',
+  'qual-status':'view-qual-status','cpd-status':'view-cpd-status',
+  'cpd-input':'view-cpd-input','rule-check':'view-rule-check',
+  'alert-urgent':'view-alert-urgent','alert-action':'view-alert-action','alert-done':'view-alert-done',
+  'docs-evidence':'view-docs-evidence','output-history':'view-output-history',
+  'docs-report':'view-docs-report','settings':'view-settings'
 };
 
-function goView(vid,title,nav){
+function goView(vid,nav){
   if(nav){
     document.querySelectorAll('.nav-sub').forEach(s=>s.classList.remove('active'));
     nav.classList.add('active');
@@ -932,20 +1228,17 @@ function goView(vid,title,nav){
     if(ps){ps.classList.add('open');const pm=ps.previousElementSibling;if(pm)pm.classList.add('open');}
   }
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('show'));
-  const tid=VM[vid]||'view-ph';
-  const el=document.getElementById(tid);
+  const el=document.getElementById(VM[vid]||'view-dashboard');
   if(el)el.classList.add('show');
-  if(tid==='view-ph')document.getElementById('phTitle').textContent=title;
   if(vid==='eng-list')renderEngTable('all');
   resetRight();
 }
 
-/* 技術者テーブル */
+/* ─── 技術者テーブル ─── */
 let selectedIds=new Set();
 
 function renderEngTable(filter){
-  const tbody=document.getElementById('engTbody');
-  if(!tbody)return;
+  const tbody=document.getElementById('engTbody');if(!tbody)return;
   const list=filter==='all'?ENG_DATA:ENG_DATA.filter(e=>e.status===filter);
   tbody.innerHTML=list.map(e=>{
     const sc=SC[e.status];
@@ -970,12 +1263,11 @@ function renderEngTable(filter){
 function engRowClick(id,rowEl){
   document.querySelectorAll('#engTbody tr').forEach(r=>r.classList.remove('selected'));
   rowEl.classList.add('selected');
-  const eng=ENG_DATA.find(e=>e.id===id);
-  if(eng)showRight(eng);
+  const eng=ENG_DATA.find(e=>e.id===id);if(eng)showRight(eng);
 }
 
 function selectEng(id){
-  goView('eng-list','技術者一覧',document.querySelector('[onclick*="eng-list"]'));
+  goView('eng-list',document.querySelector('[onclick*="eng-list"]'));
   setTimeout(()=>{
     renderEngTable('all');
     const eng=ENG_DATA.find(e=>e.id===id);
@@ -983,18 +1275,16 @@ function selectEng(id){
   },60);
 }
 
-/* 右パネル */
+/* ─── 右パネル詳細 ─── */
 function showRight(eng){
   document.getElementById('rpPh').style.display='none';
-  const rc=document.getElementById('rpContent');
-  rc.style.display='block';
+  const rc=document.getElementById('rpContent');rc.style.display='block';
   const sc=SC[eng.status];
   const qHTML=eng.quals.map(q=>{
     const p=Math.min(100,Math.round(q.cpdDone/q.cpdReq*100));
     const bc=p>=100?'pf-ok':p>=70?'pf-cau':'pf-urg';
-    const qsc=SC[q.status]||SC.ok;
-    const dlc=DLC[q.status]||'dl-ok';
-    return `<div class="qual-item"><div class="qi-icon" style="background:${QBG[q.status]||'#e8f7f7'}">🏅</div><div style="flex:1;min-width:0;"><div class="qi-name">${q.name}</div><div class="qi-org">${q.org}</div><div style="display:flex;align-items:center;gap:6px;margin-top:4px;"><div class="prog" style="width:50px;"><div class="pf ${bc}" style="width:${p}%"></div></div><span style="font-size:9.5px;color:var(--text-muted);">CPD: ${q.cpdDone}/${q.cpdReq}単位</span></div><div style="font-size:10px;margin-top:2px;" class="${dlc}">有効期限: ${q.deadline}（${q.dlLabel}）</div></div><span class="badge ${qsc.cls}" style="font-size:10px;">${qsc.label}</span></div>`;
+    const qsc=SC[q.status]||SC.ok;const dlc=DLC[q.status]||'dl-ok';
+    return `<div class="qual-item"><div class="qi-icon" style="background:${QBG[q.status]||'#e8f7f7'}">🏅</div><div style="flex:1;min-width:0;"><div class="qi-name">${q.name}</div><div class="qi-org">${q.org}</div><div style="display:flex;align-items:center;gap:6px;margin-top:4px;"><div class="prog" style="width:50px;"><div class="pf ${bc}" style="width:${p}%"></div></div><span style="font-size:9.5px;color:var(--text-muted);">${q.cpdDone}/${q.cpdReq}単位</span></div><div style="font-size:10px;margin-top:2px;" class="${dlc}">${q.deadline}（${q.dlLabel}）</div></div><span class="badge ${qsc.cls}" style="font-size:10px;">${qsc.label}</span></div>`;
   }).join('');
   const hHTML=eng.history.length?eng.history.map(h=>`<div class="hist-item"><div class="hi-av">${h.by.charAt(0)}</div><div><div class="hi-act">${h.action}</div><div class="hi-meta">${h.by} / ${h.date}</div></div></div>`).join(''):'<div style="font-size:11px;color:var(--text-muted);padding:4px 0;">連絡履歴なし</div>';
   const tHTML=eng.todoItems.length?eng.todoItems.map(t=>`<div style="font-size:11px;color:#334455;padding:2px 0;display:flex;gap:5px;"><span style="color:var(--orange);">→</span>${t}</div>`).join(''):'<div style="font-size:11px;color:var(--ok-c);">✅ 現在対応不要</div>';
@@ -1004,23 +1294,19 @@ function showRight(eng){
     <div class="rp-sec"><div class="rp-sec-t">保有資格 / CPD進捗</div>${qHTML}</div>
     <div class="rp-sec"><div class="rp-sec-t">証憑状況</div>${eng.evidencePending>0?`<span class="badge b-urg">🔴 未提出 ${eng.evidencePending}件</span><button class="btn btn-amb btn-xs" style="margin-left:8px;" onclick="openAction('${eng.name}','証憑提出依頼')">依頼する</button>`:`<span class="badge b-done">✅ 提出済み</span>`}</div>
     <div class="rp-sec"><div class="rp-sec-t">連絡履歴</div>${hHTML}</div>
-    <div style="padding:10px 15px;"><button class="btn btn-out btn-sm" style="width:100%;">詳細ページへ <span class="beta">β版 / 一部未実装</span></button></div>`;
+    <div style="padding:10px 15px;"><button class="btn btn-out btn-sm" style="width:100%;" onclick="toast('詳細ページへ遷移します','ok')">詳細ページへ →</button></div>`;
 }
 
-function resetRight(){
-  document.getElementById('rpPh').style.display='flex';
-  const rc=document.getElementById('rpContent');
-  rc.style.display='none';rc.innerHTML='';
-}
+function resetRight(){document.getElementById('rpPh').style.display='flex';const rc=document.getElementById('rpContent');rc.style.display='none';rc.innerHTML='';}
 
-/* チェックボックス */
+/* ─── チェックボックス ─── */
 function cbRow(el,id){if(el.checked)selectedIds.add(id);else selectedIds.delete(id);updateBulk();}
 function cbSelectAll(el){document.querySelectorAll('.row-cb').forEach(cb=>{cb.checked=el.checked;const id=parseInt(cb.dataset.id);if(el.checked)selectedIds.add(id);else selectedIds.delete(id);});updateBulk();}
 function updateBulk(){const bar=document.getElementById('bulkBar');const cnt=document.getElementById('bulkCount');if(selectedIds.size>0){bar.classList.add('show');cnt.textContent=`${selectedIds.size}名選択中`;}else bar.classList.remove('show');}
 function clearCb(){selectedIds.clear();document.querySelectorAll('.row-cb,#cbAll').forEach(cb=>cb.checked=false);updateBulk();}
 function filterEng(el,filter){document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');renderEngTable(filter);clearCb();}
 
-/* アクションモーダル */
+/* ─── アクションモーダル ─── */
 let _target='',_action='';
 function openAction(target,ctx){
   _target=target;_action='';
@@ -1038,16 +1324,14 @@ function openBulk(type){
   if(btn)pickAction(btn,type);
 }
 const TMPL={
-  'リマインド送信':n=>`${n} 様\n\n資格更新・CPD申請の期限が近づいています。\nお早めにご対応いただけますと幸いです。\n\nご不明点がございましたらご連絡ください。`,
+  'リマインド送信':n=>`${n} 様\n\n資格更新・CPD申請の期限が近づいています。お早めにご対応いただけますと幸いです。\n\nご不明点がございましたらご連絡ください。`,
   '証憑提出依頼':n=>`${n} 様\n\nCPD申請・資格更新のため、受講証明書・修了証のご提出をお願いします。\n対象: 直近の受講分`,
   '受講提案':n=>`${n} 様\n\nCPD単位が不足しています。以下の講座受講をご検討ください。\n\n・土木学会CPD認定セミナー（3.0単位）\n・建設コンサルタンツ協会研修会（2.0単位）`,
   '連絡する':()=>'','メモを残す':()=>''
 };
 function pickAction(btn,type){
-  document.querySelectorAll('.mab').forEach(b=>b.classList.remove('sel'));
-  btn.classList.add('sel');_action=type;
-  const tmpl=TMPL[type];
-  document.getElementById('msgBody').value=tmpl?tmpl(_target):'';
+  document.querySelectorAll('.mab').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');_action=type;
+  const tmpl=TMPL[type];document.getElementById('msgBody').value=tmpl?tmpl(_target):'';
   document.getElementById('msgLabel').textContent=`${type} — メッセージ内容`;
   document.getElementById('msgForm').style.display='block';
   document.getElementById('submitBtn').disabled=false;document.getElementById('submitBtn').style.opacity='1';
@@ -1055,20 +1339,19 @@ function pickAction(btn,type){
 function submitAction(){closeModal();toast(`✅ ${_target} への「${_action}」を記録しました`,'ok');}
 function closeModal(){document.getElementById('actionModal').classList.remove('open');}
 
-/* トースト */
+/* ─── トースト ─── */
 function toast(msg,type='ok'){
-  const wrap=document.getElementById('toastWrap');
-  const el=document.createElement('div');el.className=`toast ${type}`;el.textContent=msg;
-  wrap.appendChild(el);
+  const wrap=document.getElementById('toastWrap');const el=document.createElement('div');
+  el.className=`toast ${type}`;el.textContent=msg;wrap.appendChild(el);
   setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(()=>el.remove(),300);},3000);
 }
 
-/* 初期化 */
+/* ─── 初期化 ─── */
 document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('cat-dashboard').classList.add('open');
   document.querySelector('[data-cat="dashboard"]').classList.add('open');
   document.getElementById('actionModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
-  goView('dashboard','全体サマリー',null);
+  goView('dashboard',null);
 });
 </script>
 </body>
