@@ -282,6 +282,49 @@ textarea.mfc{min-height:80px;resize:vertical}
 /* インライン入力フォーム用タグ */
 .tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10.5px;font-weight:600;background:#e8edf4;color:#556677}
 .tag.ok{background:var(--ok-bg);color:var(--ok-c)}.tag.cau{background:var(--cau-bg);color:var(--cau-c)}.tag.urg{background:var(--urg-bg);color:var(--urg-c)}
+
+/* ─── ステータスツールチップ ─── */
+#statusTooltip{
+  position:fixed;z-index:9999;width:240px;
+  background:var(--navy);color:#fff;
+  border-radius:10px;padding:13px 15px;
+  box-shadow:0 10px 32px rgba(0,18,25,.28);
+  pointer-events:none;opacity:0;
+  transition:opacity .15s ease;font-size:11.5px;
+}
+#statusTooltip.show{opacity:1}
+.stt-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:10px;font-size:12px;font-weight:700;margin-bottom:9px}
+.stt-badge.urg{background:var(--urg-bg);color:var(--urg-c)}
+.stt-badge.act{background:var(--act-bg);color:var(--act-c)}
+.stt-badge.cau{background:var(--cau-bg);color:var(--cau-c)}
+.stt-badge.ok {background:var(--ok-bg); color:var(--ok-c)}
+.stt-badge.done{background:var(--done-bg);color:var(--done-c)}
+.stt-def{font-size:11.5px;color:rgba(255,255,255,.82);line-height:1.65;margin-bottom:8px}
+.stt-rule{font-size:10.5px;color:rgba(255,255,255,.45);border-top:1px solid rgba(255,255,255,.1);padding-top:7px;line-height:1.6}
+.stt-rule span{display:block;margin-bottom:2px}
+/* hoverableバッジは下線でホバー可能を示す */
+.badge.tt{cursor:help;text-decoration:underline dotted 1px currentColor;text-underline-offset:2px}
+
+/* ─── 右パネル: アイコンツールバー ─── */
+.rp-icon-bar{display:flex;gap:3px;margin-left:auto;flex-shrink:0}
+.rpib{width:30px;height:30px;border-radius:7px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--text-sub);transition:all .13s;position:relative;}
+.rpib:hover{background:#e8edf4;color:var(--text-main)}
+.rpib::after{content:attr(data-tip);position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);background:rgba(0,18,25,.85);color:#fff;font-size:9px;white-space:nowrap;padding:2px 6px;border-radius:4px;pointer-events:none;opacity:0;transition:opacity .13s;font-family:'Noto Sans JP',sans-serif;}
+.rpib:hover::after{opacity:1}
+
+/* ─── 右パネル: Todoリスト ─── */
+.todo-item{display:flex;align-items:flex-start;gap:7px;padding:5px 0;border-bottom:1px solid #f4f6f8}
+.todo-item:last-child{border-bottom:none}
+.todo-prio{font-size:12px;flex-shrink:0;margin-top:1px}
+.todo-text{font-size:11.5px;color:#334455;flex:1;line-height:1.5}
+.todo-act-btn{flex-shrink:0;padding:2px 8px;border-radius:5px;border:1px solid var(--border);background:#fff;font-size:10.5px;font-weight:500;color:var(--teal-d);cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap}
+.todo-act-btn:hover{background:var(--teal-d);color:#fff;border-color:var(--teal-d)}
+
+/* ─── 右パネル: CPD行の文脈アクション ─── */
+.qual-ctx-btn{margin-top:6px;display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:5px;border:1px solid var(--border);background:#fff;font-size:10.5px;font-weight:500;color:#445566;cursor:pointer;font-family:inherit;transition:all .12s}
+.qual-ctx-btn:hover{background:var(--teal-d);color:#fff;border-color:var(--teal-d)}
+.qual-ctx-btn.amb{color:var(--orange);border-color:var(--orange)}
+.qual-ctx-btn.amb:hover{background:var(--orange);color:#fff}
 </style>
 </head>
 <body>
@@ -1161,6 +1204,7 @@ textarea.mfc{min-height:80px;resize:vertical}
 </div>
 
 <div class="toast-wrap" id="toastWrap"></div>
+<div id="statusTooltip"></div>
 
 <script>
 /* ─── ダミーデータ ─── */
@@ -1250,10 +1294,10 @@ function renderEngTable(filter){
     return `<tr class="${isSel?'selected':''}" data-id="${e.id}" onclick="engRowClick(${e.id},this)">
       <td class="cb-col" onclick="event.stopPropagation()"><input type="checkbox" class="row-cb" data-id="${e.id}" ${isSel?'checked':''} onchange="cbRow(this,${e.id})"></td>
       <td><div style="font-size:12.5px;font-weight:600;">${e.name}</div><div style="font-size:10px;color:var(--text-muted);">${e.dept}</div></td>
-      <td><span class="badge ${sc.cls}">${sc.label}</span></td>
+      <td><span class="badge ${sc.cls} tt" data-status="${e.status}">${sc.label}</span></td>
       <td style="font-size:11px;color:#556677;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${qs}</td>
       <td style="min-width:110px;"><div style="display:flex;align-items:center;gap:6px;"><div class="prog" style="width:55px;"><div class="pf ${bc}" style="width:${pct}%"></div></div><span style="font-size:10px;color:var(--text-sub);">${e.cpdDone}/${e.cpdReq}単位</span></div></td>
-      <td>${e.evidencePending>0?`<span class="badge b-urg">🔴 未提出 ${e.evidencePending}件</span>`:`<span class="badge b-done">✅ 提出済み</span>`}</td>
+      <td>${e.evidencePending>0?`<span class="badge b-urg tt" data-status="urgent">🔴 未提出 ${e.evidencePending}件</span>`:`<span class="badge b-done tt" data-status="done">✅ 提出済み</span>`}</td>
       <td class="${dlc}">${e.nextDeadline}</td>
       <td onclick="event.stopPropagation()"><button class="btn btn-sm btn-out" onclick="openAction('${e.name}','アクション選択')">対応 ▾</button></td>
     </tr>`;
@@ -1275,26 +1319,112 @@ function selectEng(id){
   },60);
 }
 
-/* ─── 右パネル詳細 ─── */
+/* ─── 右パネル詳細（Linear/Intercom型: アイコンツールバー + 文脈アクション）─── */
 function showRight(eng){
   document.getElementById('rpPh').style.display='none';
   const rc=document.getElementById('rpContent');rc.style.display='block';
   const sc=SC[eng.status];
+
+  /* ── アイコンツールバー（ヘッダー右上）── */
+  const iconBar=`<div class="rp-icon-bar">
+    <button class="rpib" data-tip="今すぐ連絡" onclick="openAction('${eng.name}','今すぐ連絡')">📞</button>
+    <button class="rpib" data-tip="リマインド送信" onclick="openAction('${eng.name}','リマインド送信')">📨</button>
+    <button class="rpib" data-tip="メモを残す" onclick="openAction('${eng.name}','メモを残す')">📝</button>
+    <button class="rpib" data-tip="その他のアクション" onclick="openAction('${eng.name}','アクション選択')">···</button>
+  </div>`;
+
+  /* ── 今やるべきこと（リストのみ、ボタン廃止）── */
+  const urgIcon={urgent:'🚨',action:'⚠️',caution:'📋',ok:'✅'}[eng.status]||'📌';
+  const tHTML=eng.todoItems.length
+    ?eng.todoItems.map((t,i)=>`<div class="todo-item">
+        <span class="todo-prio">${i===0&&eng.status==='urgent'?'🚨':'→'}</span>
+        <span class="todo-text">${t}</span>
+      </div>`).join('')
+    :'<div style="font-size:11.5px;color:var(--ok-c);padding:4px 0;">✅ 現在対応不要です</div>';
+
+  /* ── 保有資格 / CPD — 文脈的ボタン付き ── */
   const qHTML=eng.quals.map(q=>{
     const p=Math.min(100,Math.round(q.cpdDone/q.cpdReq*100));
     const bc=p>=100?'pf-ok':p>=70?'pf-cau':'pf-urg';
-    const qsc=SC[q.status]||SC.ok;const dlc=DLC[q.status]||'dl-ok';
-    return `<div class="qual-item"><div class="qi-icon" style="background:${QBG[q.status]||'#e8f7f7'}">🏅</div><div style="flex:1;min-width:0;"><div class="qi-name">${q.name}</div><div class="qi-org">${q.org}</div><div style="display:flex;align-items:center;gap:6px;margin-top:4px;"><div class="prog" style="width:50px;"><div class="pf ${bc}" style="width:${p}%"></div></div><span style="font-size:9.5px;color:var(--text-muted);">${q.cpdDone}/${q.cpdReq}単位</span></div><div style="font-size:10px;margin-top:2px;" class="${dlc}">${q.deadline}（${q.dlLabel}）</div></div><span class="badge ${qsc.cls}" style="font-size:10px;">${qsc.label}</span></div>`;
+    const qsc=SC[q.status]||SC.ok;
+    const dlc=DLC[q.status]||'dl-ok';
+    const shortage=q.cpdReq-q.cpdDone;
+    /* 不足あり → 受講提案ボタン、証憑未提出 → 証憑依頼ボタン */
+    const ctxBtn=p<100
+      ?`<button class="qual-ctx-btn amb" onclick="openAction('${eng.name}','受講提案')">🎓 受講提案（${shortage}単位不足）</button>`
+      :`<span style="font-size:10px;color:var(--ok-c);">✅ 単位達成済み</span>`;
+    return `<div class="qual-item">
+      <div class="qi-icon" style="background:${QBG[q.status]||'#e8f7f7'}">🏅</div>
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <span class="qi-name">${q.name}</span>
+          <span class="badge ${qsc.cls} tt" data-status="${q.status}" style="font-size:10px;">${qsc.label}</span>
+        </div>
+        <div class="qi-org">${q.org}</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:5px;">
+          <div class="prog" style="width:60px;"><div class="pf ${bc}" style="width:${p}%"></div></div>
+          <span style="font-size:10px;color:var(--text-sub);font-weight:600;">${q.cpdDone}/${q.cpdReq}単位 (${p}%)</span>
+        </div>
+        <div style="font-size:10px;margin-top:3px;" class="${dlc}">📅 有効期限: ${q.deadline}（${q.dlLabel}）</div>
+        <div class="qual-action">${ctxBtn}</div>
+      </div>
+    </div>`;
   }).join('');
-  const hHTML=eng.history.length?eng.history.map(h=>`<div class="hist-item"><div class="hi-av">${h.by.charAt(0)}</div><div><div class="hi-act">${h.action}</div><div class="hi-meta">${h.by} / ${h.date}</div></div></div>`).join(''):'<div style="font-size:11px;color:var(--text-muted);padding:4px 0;">連絡履歴なし</div>';
-  const tHTML=eng.todoItems.length?eng.todoItems.map(t=>`<div style="font-size:11px;color:#334455;padding:2px 0;display:flex;gap:5px;"><span style="color:var(--orange);">→</span>${t}</div>`).join(''):'<div style="font-size:11px;color:var(--ok-c);">✅ 現在対応不要</div>';
+
+  /* ── 連絡履歴 ── */
+  const hHTML=eng.history.length
+    ?eng.history.map(h=>`<div class="hist-item"><div class="hi-av">${h.by.charAt(0)}</div><div><div class="hi-act">${h.action}</div><div class="hi-meta">${h.by} / ${h.date}</div></div></div>`).join('')
+    :'<div style="font-size:11px;color:var(--text-muted);padding:4px 0;">まだ連絡履歴がありません</div>';
+
+  /* ── 証憑セクション ── */
+  const evidSec=eng.evidencePending>0
+    ?`<div style="display:flex;align-items:center;justify-content:space-between;">
+        <span class="badge b-urg tt" data-status="urgent">🔴 未提出 ${eng.evidencePending}件</span>
+        <button class="qual-ctx-btn" onclick="openAction('${eng.name}','証憑提出依頼')">📄 提出を依頼する</button>
+      </div>`
+    :`<span class="badge b-done tt" data-status="done">✅ すべて提出済み</span>`;
+
   rc.innerHTML=`
-    <div class="rp-head"><div style="display:flex;align-items:center;gap:9px;"><div style="width:36px;height:36px;border-radius:50%;background:var(--teal-d);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${eng.name.charAt(0)}</div><div style="flex:1;"><div class="rp-name">${eng.name}</div><div class="rp-dept">${eng.dept}</div></div><span class="badge ${sc.cls}">${sc.label}</span></div></div>
-    <div class="act-block"><div class="ab-title">⚡ 今やるべきこと</div><div style="margin-bottom:9px;">${tHTML}</div><div class="act-grid"><button class="ab-btn prim" onclick="openAction('${eng.name}','緊急連絡')">📞 今すぐ連絡</button><button class="ab-btn" onclick="openAction('${eng.name}','リマインド送信')">📨 リマインド</button><button class="ab-btn" onclick="openAction('${eng.name}','証憑提出依頼')">📄 証憑依頼</button><button class="ab-btn" onclick="openAction('${eng.name}','受講提案')">🎓 受講提案</button><button class="ab-btn full" onclick="openAction('${eng.name}','メモを残す')">📝 メモを残す</button></div></div>
-    <div class="rp-sec"><div class="rp-sec-t">保有資格 / CPD進捗</div>${qHTML}</div>
-    <div class="rp-sec"><div class="rp-sec-t">証憑状況</div>${eng.evidencePending>0?`<span class="badge b-urg">🔴 未提出 ${eng.evidencePending}件</span><button class="btn btn-amb btn-xs" style="margin-left:8px;" onclick="openAction('${eng.name}','証憑提出依頼')">依頼する</button>`:`<span class="badge b-done">✅ 提出済み</span>`}</div>
-    <div class="rp-sec"><div class="rp-sec-t">連絡履歴</div>${hHTML}</div>
-    <div style="padding:10px 15px;"><button class="btn btn-out btn-sm" style="width:100%;" onclick="toast('詳細ページへ遷移します','ok')">詳細ページへ →</button></div>`;
+    <!-- ヘッダー: 名前 + ステータス + アイコンツールバー -->
+    <div class="rp-head">
+      <div style="display:flex;align-items:center;gap:9px;">
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--teal-d);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${eng.name.charAt(0)}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="rp-name">${eng.name}</div>
+          <div class="rp-dept">${eng.dept}</div>
+        </div>
+        <span class="badge ${sc.cls} tt" data-status="${eng.status}">${sc.label}</span>
+        ${iconBar}
+      </div>
+    </div>
+
+    <!-- 今やるべきこと（ボタンなし、リストのみ）-->
+    <div class="rp-sec">
+      <div class="rp-sec-t">${urgIcon} 今やるべきこと</div>
+      ${tHTML}
+    </div>
+
+    <!-- 保有資格 / CPD（文脈的ボタン付き）-->
+    <div class="rp-sec">
+      <div class="rp-sec-t">🏅 保有資格 / CPD進捗</div>
+      ${qHTML}
+    </div>
+
+    <!-- 証憑状況（文脈的ボタン付き）-->
+    <div class="rp-sec">
+      <div class="rp-sec-t">📄 証憑状況</div>
+      ${evidSec}
+    </div>
+
+    <!-- 連絡履歴 -->
+    <div class="rp-sec">
+      <div class="rp-sec-t">📨 連絡履歴</div>
+      ${hHTML}
+    </div>
+
+    <div style="padding:10px 15px;">
+      <button class="btn btn-out btn-sm" style="width:100%;" onclick="toast('詳細ページへ遷移します','ok')">詳細ページへ →</button>
+    </div>`;
 }
 
 function resetRight(){document.getElementById('rpPh').style.display='flex';const rc=document.getElementById('rpContent');rc.style.display='none';rc.innerHTML='';}
@@ -1346,11 +1476,98 @@ function toast(msg,type='ok'){
   setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(()=>el.remove(),300);},3000);
 }
 
+/* ─── ステータス定義データ ─── */
+const STATUS_DEF={
+  urgent:{
+    cls:'urg', label:'🔴 緊急',
+    def:'有効期限が「本日以前」に到来している、またはCPD年度申請が期限切れのまま未対応の状態です。入札参加資格を失うリスクがあります。',
+    rules:[
+      '資格の有効期限が本日 ≤ または過去日付',
+      'CPD年度申請が期限切れかつ単位が0',
+      '対応しない場合: 入札参加資格喪失・営業停止処分のリスク'
+    ]
+  },
+  action:{
+    cls:'act', label:'🟠 要対応',
+    def:'有効期限まで30日以内、またはCPD単位が不足しており締切まで30日以内の状態です。今月中に対応しないと「緊急」に昇格します。',
+    rules:[
+      '資格の有効期限まで残30日以内',
+      'CPD単位不足 かつ 申請締切まで30日以内',
+      '証憑が未提出 かつ 提出期限が30日以内'
+    ]
+  },
+  caution:{
+    cls:'cau', label:'🟡 要注意',
+    def:'CPD単位が必要数に未達ですが締切まで60日以上の余裕があります。または証憑が未提出ですが期限に余裕があります。計画的に対応を進めてください。',
+    rules:[
+      'CPD単位が必要数 < 現在値 かつ 締切まで31〜90日',
+      '証憑が未提出 かつ 期限まで31日以上',
+      '放置すると「要対応」→「緊急」に昇格'
+    ]
+  },
+  ok:{
+    cls:'ok', label:'✅ 正常',
+    def:'全資格が有効期限内、CPD単位が必要数を満たし、必要な証憑もすべて提出済みです。入札参加条件を充足している状態です。',
+    rules:[
+      '全資格: 有効期限まで91日以上',
+      '全CPD: 必要単位数を100%達成',
+      '全証憑: 提出・確認済み'
+    ]
+  },
+  done:{
+    cls:'done', label:'✔ 対応済み',
+    def:'担当者がアラートに対して「対応完了」とマークした状態です。証憑提出・申請・連絡などのアクションが実施され、記録されています。',
+    rules:[
+      '担当者が手動で「対応済み」をマーク',
+      'アクション（連絡・提出依頼・受講提案など）の実施が記録済み',
+      '次のアラートサイクルで再評価されます'
+    ]
+  }
+};
+
+/* ─── ステータスツールチップ制御 ─── */
+function initStatusTooltip(){
+  const tip=document.getElementById('statusTooltip');
+  let hideTimer=null;
+
+  document.addEventListener('mouseover',e=>{
+    const badge=e.target.closest('.badge.tt');
+    if(!badge)return;
+    clearTimeout(hideTimer);
+    const status=badge.dataset.status;
+    const def=STATUS_DEF[status];
+    if(!def)return;
+
+    const rulesHTML=def.rules.map(r=>`<span>・${r}</span>`).join('');
+    tip.innerHTML=`
+      <div class="stt-badge ${def.cls}">${def.label}</div>
+      <div class="stt-def">${def.def}</div>
+      <div class="stt-rule">${rulesHTML}</div>`;
+
+    /* 位置計算: バッジの下・右に表示、画面端を考慮 */
+    const rect=badge.getBoundingClientRect();
+    let left=rect.left;
+    let top=rect.bottom+6;
+    if(left+250>window.innerWidth)left=window.innerWidth-255;
+    if(top+200>window.innerHeight)top=rect.top-200-6;
+    tip.style.left=left+'px';
+    tip.style.top=top+'px';
+    tip.classList.add('show');
+  });
+
+  document.addEventListener('mouseout',e=>{
+    const badge=e.target.closest('.badge.tt');
+    if(!badge)return;
+    hideTimer=setTimeout(()=>tip.classList.remove('show'),120);
+  });
+}
+
 /* ─── 初期化 ─── */
 document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('cat-dashboard').classList.add('open');
   document.querySelector('[data-cat="dashboard"]').classList.add('open');
   document.getElementById('actionModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+  initStatusTooltip();
   goView('dashboard',null);
 });
 </script>
