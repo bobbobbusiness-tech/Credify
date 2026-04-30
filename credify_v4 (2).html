@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>Credify Ver.4.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --c0:#001219;--c1:#005f73;--c2:#0a9396;--c3:#94d2bd;--c4:#e9d8a6;
+  --c5:#ee9b00;--c6:#ca6702;--c7:#bb3e03;--c8:#ae2012;--c9:#9b2226;
+  --bg:#f2f6f7;--surf:#ffffff;--surf2:#f8fafb;
+  --border:#d0dde0;--border2:#e4edef;
+  --text:#001a22;--muted:#5a7a82;--muted2:#8aa4aa;
+  --r-sm:6px;--r-md:9px;--r-lg:12px;
+  --font:14px;--font-sm:13px;--font-xs:12px;
+  --btn-h:40px;--btn-h-sm:32px;
+}
+body{font-family:'Noto Sans JP',sans-serif;font-size:var(--font);color:var(--text);background:var(--bg);line-height:1.6;}
+
+/* ═══════════════════════════════
+   SHELL
+═══════════════════════════════ */
+.shell{width:1440px;height:820px;display:flex;overflow:hidden;border-radius:12px;box-shadow:0 8px 40px rgba(0,18,25,0.18);}
+
+/* ═══════════════════════════════
+   SIDEBAR
+═══════════════════════════════ */
+.sidebar{width:236px;flex-shrink:0;background:var(--c0);display:flex;flex-direction:column;height:820px;}
+.sb-top{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,0.07);}
+.sb-logo{font-size:20px;font-weight:700;color:var(--c3);letter-spacing:.4px;margin-bottom:10px;}
+.sb-logo span{font-size:11px;font-weight:400;color:rgba(255,255,255,0.3);display:block;margin-top:1px;letter-spacing:.3px;}
+.scope-wrap{background:rgba(255,255,255,0.06);border-radius:var(--r-sm);padding:3px;}
+.scope-btn{width:100%;text-align:left;background:transparent;border:none;color:rgba(255,255,255,0.55);font-size:12px;padding:7px 10px;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-family:inherit;}
+.scope-btn.active{background:rgba(148,210,189,0.15);color:var(--c3);}
+.scope-btn:hover:not(.active){background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.75);}
+.scope-arr{font-size:10px;opacity:.6;}
+
+.sb-nav{flex:1;padding:10px 0;overflow-y:auto;}
+.sb-sec{padding:12px 16px 4px;font-size:10px;color:rgba(255,255,255,0.22);text-transform:uppercase;letter-spacing:1px;}
+.si{display:flex;align-items:center;gap:9px;padding:9px 16px;cursor:pointer;color:rgba(255,255,255,0.52);font-size:13.5px;border-left:2.5px solid transparent;transition:all .13s;position:relative;}
+.si:hover{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.82);}
+.si.on{background:rgba(148,210,189,0.12);color:var(--c3);border-left-color:var(--c3);font-weight:500;}
+.si-ico{width:17px;text-align:center;font-size:14px;flex-shrink:0;}
+.si-badge{margin-left:auto;background:var(--c8);color:#fff;font-size:10px;padding:1px 6px;border-radius:9px;min-width:20px;text-align:center;font-weight:600;}
+.si-badge.warn{background:var(--c6);}
+
+.sb-user{padding:12px 16px;border-top:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;gap:9px;}
+.sb-av{width:32px;height:32px;border-radius:50%;background:var(--c1);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--c3);flex-shrink:0;}
+.sb-un{font-size:12.5px;color:rgba(255,255,255,0.7);}
+.sb-ur{font-size:10px;color:rgba(255,255,255,0.3);}
+
+/* ═══════════════════════════════
+   MAIN
+═══════════════════════════════ */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;}
+
+/* HEADER */
+.hdr{height:54px;flex-shrink:0;background:var(--surf);border-bottom:1px solid var(--border2);display:flex;align-items:center;padding:0 22px;gap:14px;}
+.hdr-title{font-size:15.5px;font-weight:600;flex:1;color:var(--text);}
+.hdr-sub{font-size:12px;color:var(--muted);font-weight:400;margin-left:6px;}
+.hdr-right{display:flex;align-items:center;gap:10px;}
+.hdr-search{display:flex;align-items:center;gap:7px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-md);padding:6px 12px;}
+.hdr-search input{border:none;background:transparent;font-size:var(--font-sm);outline:none;color:var(--text);width:180px;}
+.hdr-search input::placeholder{color:var(--muted2);}
+.alert-bell{position:relative;background:transparent;border:none;cursor:pointer;padding:6px;border-radius:var(--r-sm);}
+.alert-bell:hover{background:var(--bg);}
+.alert-bell-ico{font-size:20px;line-height:1;}
+.alert-badge{position:absolute;top:2px;right:2px;background:var(--c8);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;min-width:17px;text-align:center;}
+
+/* ═══════════════════════════════
+   PAGES
+═══════════════════════════════ */
+.page{flex:1;overflow-y:auto;display:none;}
+.page.on{display:flex;flex-direction:column;}
+
+/* ═══════════════════════════════
+   PAGE HEADER BAR
+═══════════════════════════════ */
+.pg-hdr{padding:18px 24px 0;flex-shrink:0;}
+.pg-title{font-size:17px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.pg-desc{font-size:var(--font-sm);color:var(--muted);}
+.pg-body{flex:1;overflow-y:auto;padding:16px 24px 24px;}
+
+/* ═══════════════════════════════
+   BUTTONS
+═══════════════════════════════ */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:0 14px;height:var(--btn-h);border-radius:var(--r-md);border:1px solid var(--border);background:var(--surf);cursor:pointer;font-size:var(--font-sm);color:var(--text);font-family:inherit;font-weight:500;transition:all .13s;white-space:nowrap;}
+.btn:hover{background:var(--bg);}
+.btn-p{background:var(--c1);color:#fff;border-color:var(--c1);}
+.btn-p:hover{background:#004f62;border-color:#004f62;}
+.btn-danger{background:#fde8e6;color:var(--c8);border-color:#f0bfb5;}
+.btn-danger:hover{background:#fbd0cc;}
+.btn-sm{height:var(--btn-h-sm);padding:0 11px;font-size:var(--font-xs);}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--muted);}
+.btn-ghost:hover{background:var(--bg);color:var(--text);}
+
+/* ═══════════════════════════════
+   KPI CARDS
+═══════════════════════════════ */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.kpi{background:var(--surf);border:1px solid var(--border2);border-radius:var(--r-lg);padding:14px 16px;cursor:pointer;transition:all .15s;}
+.kpi:hover{border-color:var(--c2);box-shadow:0 2px 12px rgba(10,147,150,0.1);}
+.kpi-lbl{font-size:var(--font-xs);color:var(--muted);margin-bottom:5px;}
+.kpi-val{font-size:28px;font-weight:700;line-height:1;margin-bottom:4px;}
+.kpi-sub{font-size:var(--font-xs);color:var(--muted);}
+.kpi.red .kpi-val{color:var(--c8);}
+.kpi.orange .kpi-val{color:var(--c6);}
+.kpi.yellow .kpi-val{color:var(--c5);}
+.kpi.green .kpi-val{color:var(--c2);}
+.kpi.red{border-left:3px solid var(--c8);}
+.kpi.orange{border-left:3px solid var(--c6);}
+.kpi.yellow{border-left:3px solid var(--c5);}
+.kpi.green{border-left:3px solid var(--c2);}
+
+/* ═══════════════════════════════
+   HOME VIEW SWITCHER
+═══════════════════════════════ */
+.home-tabs{display:flex;gap:4px;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r-md);padding:3px;margin-bottom:16px;width:fit-content;}
+.home-tab{padding:7px 20px;border-radius:7px;font-size:var(--font-sm);font-weight:500;color:var(--muted);cursor:pointer;border:none;background:transparent;font-family:inherit;transition:all .15s;white-space:nowrap;}
+.home-tab:hover{color:var(--text);}
+.home-tab.on{background:var(--surf);color:var(--text);font-weight:600;box-shadow:0 1px 4px rgba(0,18,25,0.1);}
+.home-view{display:none;}
+.home-view.on{display:block;}
+
+/* ═══════════════════════════════
+   MONTHLY VIEW
+═══════════════════════════════ */
+/* month progress */
+.month-bar-wrap{background:var(--surf);border:1px solid var(--border2);border-radius:var(--r-lg);padding:14px 18px;margin-bottom:16px;}
+.month-bar-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.month-bar-title{font-size:13.5px;font-weight:700;}
+.month-bar-meta{font-size:var(--font-xs);color:var(--muted);}
+.month-progress{position:relative;height:10px;background:var(--border2);border-radius:5px;overflow:visible;}
+.month-progress-fill{height:100%;border-radius:5px;background:var(--c2);transition:width .4s;}
+.month-today-marker{position:absolute;top:-4px;width:3px;height:18px;background:var(--c8);border-radius:2px;}
+.month-today-label{position:absolute;top:-20px;font-size:10px;font-weight:700;color:var(--c8);transform:translateX(-50%);white-space:nowrap;}
+.month-bar-dates{display:flex;justify-content:space-between;margin-top:5px;}
+.month-bar-date{font-size:10px;color:var(--muted2);}
+
+/* month kpi strip */
+.month-kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.mkpi{background:var(--surf);border:1px solid var(--border2);border-radius:var(--r-md);padding:11px 13px;display:flex;align-items:center;gap:10px;}
+.mkpi-ico{font-size:20px;flex-shrink:0;}
+.mkpi-body{}
+.mkpi-val{font-size:19px;font-weight:700;line-height:1;}
+.mkpi-lbl{font-size:11px;color:var(--muted);margin-top:2px;}
+.mkpi-val.red{color:var(--c8);}
+.mkpi-val.orange{color:var(--c6);}
+.mkpi-val.green{color:var(--c2);}
+
+/* month filter bar */
+.month-filter{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+.mf-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surf);font-size:var(--font-xs);color:var(--muted);cursor:pointer;font-family:inherit;transition:all .13s;font-weight:500;}
+.mf-chip:hover{border-color:var(--c2);color:var(--c2);}
+.mf-chip.on{background:var(--c1);color:#fff;border-color:var(--c1);}
+
+/* week group */
+.week-group{margin-bottom:18px;}
+.week-hdr{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:var(--r-sm);border:1px solid var(--border2);margin-bottom:8px;cursor:pointer;user-select:none;}
+.week-hdr:hover{background:var(--border2);}
+.week-label{font-size:var(--font-xs);font-weight:700;color:var(--muted);display:flex;align-items:center;gap:7px;}
+.week-count{font-size:11px;font-weight:600;padding:1px 6px;border-radius:8px;}
+.week-count.red{background:#fde8e6;color:var(--c8);}
+.week-count.orange{background:#fdeede;color:var(--c6);}
+.week-count.gray{background:var(--border2);color:var(--muted);}
+.week-count.green{background:#e0f4f0;color:#004d42;}
+.week-toggle{font-size:12px;color:var(--muted2);transition:transform .2s;}
+.week-hdr.collapsed .week-toggle{transform:rotate(-90deg);}
+.week-rows{display:flex;flex-direction:column;gap:6px;}
+
+/* compact task row */
+.mrow{background:var(--surf);border:1px solid var(--border2);border-radius:var(--r-md);padding:10px 14px;display:flex;align-items:center;gap:12px;transition:box-shadow .13s;}
+.mrow:hover{box-shadow:0 2px 8px rgba(0,18,25,0.07);}
+.mrow.expired{border-left:3px solid var(--c8);}
+.mrow.urgent{border-left:3px solid var(--c6);}
+.mrow.normal{border-left:3px solid var(--c5);}
+.mrow.done-row{opacity:.5;border-left:3px solid var(--c2);}
+.mrow-type{font-size:16px;flex-shrink:0;}
+.mrow-info{flex:1;min-width:0;}
+.mrow-name{font-size:var(--font-sm);font-weight:600;margin-bottom:1px;}
+.mrow-detail{font-size:var(--font-xs);color:var(--muted);}
+.mrow-deadline{flex-shrink:0;text-align:right;}
+.mrow-dl-val{font-size:var(--font-sm);font-weight:600;}
+.mrow-dl-val.red{color:var(--c8);}
+.mrow-dl-val.orange{color:var(--c6);}
+.mrow-dl-val.yellow{color:var(--c5);}
+.mrow-dl-sub{font-size:11px;color:var(--muted2);}
+.mrow-status{flex-shrink:0;}
+.status-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all .13s;}
+.status-chip.todo{background:var(--bg);color:var(--muted);border:1px solid var(--border);}
+.status-chip.todo:hover{border-color:var(--c6);color:var(--c6);}
+.status-chip.wip{background:#fef6ed;color:var(--c6);border:1px solid #f5c08a;}
+.status-chip.wip:hover{background:#fdeede;}
+.status-chip.comp{background:#e0f4f0;color:#004d42;border:1px solid #a8ddd6;}
+.mrow-act{flex-shrink:0;}
+
+/* ═══════════════════════════════
+   SECTION HEADER
+═══════════════════════════════ */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 0 8px;border-bottom:1px solid var(--border2);margin-bottom:10px;}
+.sec-title{font-size:13.5px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:7px;}
+.sec-count{background:var(--bg);border:1px solid var(--border);color:var(--muted);font-size:11px;padding:1px 7px;border-radius:9px;font-weight:600;}
+.sec-count.red{background:#fde8e6;border-color:#f0bfb5;color:var(--c8);}
+.sec-count.orange{background:#fdeede;border-color:#f5c08a;color:var(--c6);}
+.sec-link{font-size:var(--font-sm);color:var(--c2);cursor:pointer;background:none;border:none;font-family:inherit;}
+.sec-link:hover{text-decoration:underline;}
+
+/* ═══════════════════════════════
+   TASK CARDS
+═══════════════════════════════ */
+.task-list{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+.task-card{background:var(--surf);border:1px solid var(--border2);border-radius:var(--r-lg);padding:13px 16px;transition:box-shadow .15s;}
+.task-card:hover{box-shadow:0 2px 10px rgba(0,18,25,0.08);}
+.task-card.critical{border-left:3px solid var(--c8);background:linear-gradient(to right,#fdf5f4,var(--surf));}
+.task-card.warning{border-left:3px solid var(--c6);background:linear-gradient(to right,#fdf7f2,var(--surf));}
+.task-card.caution{border-left:3px solid var(--c5);background:linear-gradient(to right,#fdfaf0,var(--surf));}
+.task-card.done{opacity:.55;border-left:3px solid var(--c2);}
+
+.task-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:9px;}
+.task-status{flex-shrink:0;margin-top:2px;}
+.status-lbl{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:5px;font-size:var(--font-xs);font-weight:600;}
+.status-lbl.critical{background:#fde8e6;color:var(--c8);}
+.status-lbl.warning{background:#fdeede;color:var(--c6);}
+.status-lbl.caution{background:#fef9e2;color:#7a5500;}
+.status-lbl.ok{background:#e0f4f0;color:#004d42;}
+.task-info{flex:1;min-width:0;}
+.task-name{font-size:var(--font);font-weight:600;color:var(--text);margin-bottom:2px;}
+.task-detail{font-size:var(--font-sm);color:var(--muted);}
+.task-deadline{font-size:var(--font-xs);color:var(--muted2);flex-shrink:0;text-align:right;}
+.task-deadline strong{display:block;font-size:var(--font-sm);color:var(--c8);font-weight:600;}
+.task-deadline.warn strong{color:var(--c6);}
+
+/* task reason block */
+.task-reason{margin:8px 0 10px;padding:10px 13px;border-radius:var(--r-sm);display:flex;flex-direction:column;gap:7px;}
+.task-card.critical .task-reason{background:#fef0ee;border:1px solid #f5ccc7;}
+.task-card.warning .task-reason{background:#fef6ed;border:1px solid #f5d8b0;}
+.task-card.done .task-reason{background:var(--bg);border:1px solid var(--border2);}
+.tr-what{display:flex;gap:8px;align-items:flex-start;}
+.tr-what-lbl{font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap;padding-top:1px;min-width:80px;}
+.tr-what-val{font-size:var(--font-sm);color:var(--text);line-height:1.6;}
+.tr-next{display:flex;gap:8px;align-items:flex-start;}
+.tr-next-lbl{font-size:11px;font-weight:700;white-space:nowrap;padding-top:1px;min-width:80px;}
+.task-card.critical .tr-next-lbl{color:var(--c8);}
+.task-card.warning .tr-next-lbl{color:var(--c6);}
+.tr-next-val{font-size:var(--font-sm);font-weight:500;line-height:1.6;}
+.task-card.critical .tr-next-val{color:var(--c8);}
+.task-card.warning .tr-next-val{color:var(--c6);}
+.task-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.act-btn{display:inline-flex;align-items:center;gap:5px;padding:0 12px;height:36px;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--surf);cursor:pointer;font-size:var(--font-xs);font-weight:500;color:var(--text);font-family:inherit;white-space:nowrap;transition:all .12s;}
+.act-btn:hover{background:var(--bg);}
+.act-btn.primary{background:var(--c1);color:#fff;border-color:var(--c1);}
+.act-btn.primary:hover{background:#004f62;}
+.act-btn.done-btn{background:#e0f4f0;color:#004d42;border-color:#a8ddd6;}
+.act-btn.done-btn:hover{background:#c8ede8;}
+.act-btn.warn-btn{background:#fdeede;color:var(--c6);border-color:#f5c08a;}
+.overflow-btn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--surf);cursor:pointer;font-size:16px;color:var(--muted);font-family:inherit;transition:all .12s;position:relative;}
+.overflow-btn:hover{background:var(--bg);color:var(--text);}
+.overflow-menu{position:absolute;top:calc(100% + 4px);right:0;background:var(--surf);border:1px solid var(--border);border-radius:var(--r-md);box-shadow:0 6px 24px rgba(0,18,25,0.14);min-width:170px;z-index:200;display:none;padding:4px 0;}
+.overflow-menu.open{display:block;}
+.overflow-item{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:var(--font-sm);color:var(--text);cursor:pointer;white-space:nowrap;}
+.overflow-item:hover{background:var(--bg);}
+.overflow-wrap{position:relative;}
+
+/* show-more */
+.show-more{text-align:center;padding:8px;color:var(--c2);font-size:var(--font-sm);cursor:pointer;border:1px dashed var(--border2);border-radius:var(--r-md);margin-top:4px;}
+.show-more:hover{background:var(--bg);}
+
+/* waiting list */
+.wait-list{display:flex;flex-direction:column;gap:6px;margin-bottom:20px;}
+.wait-item{background:var(--surf);border:1px solid var(--border2);border-radius:var(--r-md);padding:10px 14px;display:flex;align-items:center;gap:12px;}
+.wait-ico{font-size:18px;flex-shrink:0;}
+.wait-info{flex:1;min-width:0;}
+.wait-name{font-size:var(--font-sm);font-weight:600;}
+.wait-sub{font-size:var(--font-xs);color:var(--muted);}
+.wait-actions{display:flex;gap:7px;}
+
+/* dept progress */
+.dept-list{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+.dept-item{background:var(--surf);border:1px solid var(--border2);border-radius:var(--r-md);padding:11px 14px;}
+.dept-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+.dept-name{font-size:var(--font-sm);font-weight:600;}
+.dept-stat{font-size:var(--font-xs);color:var(--muted);}
+.dept-bar{height:7px;background:var(--border2);border-radius:4px;overflow:hidden;}
+.dept-fill{height:100%;border-radius:4px;background:var(--c2);transition:width .4s;}
+.dept-fill.warn{background:var(--c5);}
+.dept-fill.ng{background:var(--c7);}
+
+/* ═══════════════════════════════
+   TABLE (engineers list)
+═══════════════════════════════ */
+.filter-bar{display:flex;align-items:center;gap:9px;margin-bottom:14px;flex-wrap:wrap;}
+.fsel{padding:7px 10px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surf);font-size:var(--font-sm);color:var(--text);outline:none;font-family:inherit;height:var(--btn-h-sm);}
+.fsel:focus{border-color:var(--c2);}
+.filter-count{margin-left:auto;font-size:var(--font-xs);color:var(--muted);}
+
+.card{background:var(--surf);border:1px solid var(--border2);border-radius:var(--r-lg);}
+.card-inner{padding:16px 18px;}
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:var(--font-sm);}
+th{text-align:left;padding:9px 12px;background:var(--surf2);font-weight:600;color:var(--muted);border-bottom:1px solid var(--border2);font-size:var(--font-xs);white-space:nowrap;}
+th.sort{cursor:pointer;}
+th.sort:hover{color:var(--c1);}
+td{padding:11px 12px;border-bottom:1px solid var(--border2);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--surf2);}
+.tname{font-weight:600;color:var(--text);}
+.tid{font-size:11px;color:var(--muted2);}
+
+.risk-dot{display:inline-flex;align-items:center;gap:5px;font-size:var(--font-xs);font-weight:600;}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dot.r{background:var(--c8);}
+.dot.o{background:var(--c6);}
+.dot.y{background:var(--c5);}
+.dot.g{background:var(--c2);}
+
+.tag{display:inline-block;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;}
+.tag.r{background:#fde8e6;color:var(--c8);}
+.tag.o{background:#fdeede;color:var(--c6);}
+.tag.y{background:#fef9e2;color:#7a5500;}
+.tag.g{background:#e0f4f0;color:#004d42;}
+.tag.b{background:#e4eef6;color:#1a4a7a;}
+.tag.gr{background:var(--bg);color:var(--muted);}
+
+/* ═══════════════════════════════
+   ENGINEER DETAIL (3-pane)
+═══════════════════════════════ */
+.detail-shell{flex:1;display:flex;overflow:hidden;}
+.detail-left{width:238px;flex-shrink:0;background:var(--surf2);border-right:1px solid var(--border2);padding:18px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:14px;}
+.detail-center{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden;}
+.detail-right{width:340px;flex-shrink:0;background:var(--surf);border-left:1px solid var(--border2);padding:18px 16px;overflow-y:auto;display:none;}
+.detail-right.open{display:block;}
+
+.prof-av{width:52px;height:52px;border-radius:50%;background:var(--c1);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--c3);margin-bottom:10px;}
+.prof-name{font-size:16px;font-weight:700;margin-bottom:3px;}
+.prof-sub{font-size:var(--font-xs);color:var(--muted);margin-bottom:12px;}
+.prof-badge{margin-bottom:12px;}
+.mini-kpi{background:var(--bg);border-radius:var(--r-sm);padding:9px 11px;margin-bottom:8px;}
+.mini-kpi-lbl{font-size:11px;color:var(--muted);margin-bottom:3px;}
+.mini-kpi-val{font-size:15px;font-weight:700;}
+.mini-kpi-val.red{color:var(--c8);}
+.mini-kpi-val.ok{color:var(--c2);}
+.gauge-bar{height:6px;background:var(--border2);border-radius:3px;overflow:hidden;margin-top:4px;}
+.gauge-fill{height:100%;border-radius:3px;background:var(--c2);}
+.gauge-fill.warn{background:var(--c5);}
+.gauge-fill.ng{background:var(--c8);}
+.ql-btns{display:flex;flex-direction:column;gap:7px;margin-top:4px;}
+.ql-btn{width:100%;padding:0 12px;height:40px;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--surf);cursor:pointer;font-size:var(--font-sm);font-weight:500;color:var(--text);font-family:inherit;display:flex;align-items:center;gap:7px;transition:all .12s;}
+.ql-btn:hover{background:var(--bg);}
+.ql-btn.p{background:var(--c1);color:#fff;border-color:var(--c1);}
+.ql-btn.p:hover{background:#004f62;}
+
+.det-tabs{display:flex;border-bottom:1px solid var(--border2);flex-shrink:0;}
+.det-tab{padding:11px 18px;cursor:pointer;font-size:var(--font-sm);color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:500;transition:all .13s;}
+.det-tab:hover{color:var(--text);}
+.det-tab.on{color:var(--c2);border-bottom-color:var(--c2);font-weight:600;}
+.det-body{flex:1;overflow-y:auto;padding:16px 18px;}
+
+.form-group{margin-bottom:13px;}
+.form-label{font-size:var(--font-xs);color:var(--muted);margin-bottom:5px;display:block;font-weight:500;}
+.form-input{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:var(--r-sm);font-size:var(--font-sm);font-family:inherit;color:var(--text);outline:none;background:var(--surf);}
+.form-input:focus{border-color:var(--c2);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.upload-zone{border:1.5px dashed var(--border);border-radius:var(--r-sm);padding:16px;text-align:center;font-size:var(--font-sm);color:var(--muted);cursor:pointer;}
+.upload-zone:hover{border-color:var(--c2);background:var(--surf2);}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;padding-top:4px;}
+
+/* ═══════════════════════════════
+   CPD PAGE
+═══════════════════════════════ */
+.tabs{display:flex;border-bottom:1px solid var(--border2);margin-bottom:16px;}
+.tab{padding:9px 18px;cursor:pointer;font-size:var(--font-sm);color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:500;}
+.tab.on{color:var(--c2);border-bottom-color:var(--c2);font-weight:600;}
+.tab:hover:not(.on){color:var(--text);}
+
+.cpd-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px;}
+
+/* ═══════════════════════════════
+   DOCUMENTS
+═══════════════════════════════ */
+.doc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px;}
+.doc-card{background:var(--surf);border:1px solid var(--border2);border-radius:var(--r-lg);padding:14px 16px;cursor:pointer;transition:all .15s;}
+.doc-card:hover{border-color:var(--c2);box-shadow:0 2px 10px rgba(10,147,150,0.1);}
+.doc-card-ico{font-size:28px;margin-bottom:8px;}
+.doc-card-title{font-size:var(--font-sm);font-weight:600;margin-bottom:5px;}
+.doc-card-desc{font-size:var(--font-xs);color:var(--muted);line-height:1.6;margin-bottom:12px;}
+
+/* ═══════════════════════════════
+   SETTINGS
+═══════════════════════════════ */
+.settings-shell{flex:1;display:flex;overflow:hidden;}
+.settings-nav{width:200px;flex-shrink:0;background:var(--surf2);border-right:1px solid var(--border2);padding:14px 0;}
+.sn-item{padding:10px 16px;cursor:pointer;font-size:var(--font-sm);color:var(--muted);border-left:2px solid transparent;transition:all .13s;}
+.sn-item:hover{background:var(--border2);color:var(--text);}
+.sn-item.on{color:var(--c2);border-left-color:var(--c2);background:rgba(10,147,150,0.05);font-weight:600;}
+.settings-body{flex:1;overflow-y:auto;padding:20px 24px;}
+
+/* ═══════════════════════════════
+   ALERT PANEL (overlay)
+═══════════════════════════════ */
+.alert-overlay{position:fixed;inset:0;z-index:900;pointer-events:none;}
+.alert-overlay.open .alert-backdrop{pointer-events:all;}
+.alert-backdrop{position:absolute;inset:0;background:rgba(0,18,25,0.3);opacity:0;transition:opacity .2s;}
+.alert-overlay.open .alert-backdrop{opacity:1;pointer-events:all;}
+.alert-panel{position:absolute;top:0;right:0;width:380px;height:100%;background:var(--surf);box-shadow:-4px 0 24px rgba(0,18,25,0.18);transform:translateX(100%);transition:transform .22s ease;display:flex;flex-direction:column;}
+.alert-overlay.open .alert-panel{transform:translateX(0);pointer-events:all;}
+.ap-hdr{padding:16px 18px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.ap-title{font-size:15px;font-weight:700;}
+.ap-close{background:none;border:none;cursor:pointer;font-size:20px;color:var(--muted);padding:4px;border-radius:var(--r-sm);}
+.ap-close:hover{background:var(--bg);}
+.ap-body{flex:1;overflow-y:auto;padding:14px 16px;}
+.ap-sec{margin-bottom:16px;}
+.ap-sec-title{font-size:var(--font-xs);font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;padding:0 2px;}
+.ap-item{background:var(--surf2);border:1px solid var(--border2);border-radius:var(--r-md);padding:10px 12px;margin-bottom:7px;}
+.ap-item.critical{border-left:3px solid var(--c8);background:#fdf5f4;}
+.ap-item.warning{border-left:3px solid var(--c6);background:#fdf7f2;}
+.ap-name{font-size:var(--font-sm);font-weight:600;margin-bottom:2px;}
+.ap-detail{font-size:var(--font-xs);color:var(--muted);margin-bottom:8px;}
+.ap-btns{display:flex;gap:6px;}
+.ap-btn{padding:0 10px;height:30px;border-radius:5px;border:1px solid var(--border);background:var(--surf);cursor:pointer;font-size:11px;font-weight:500;color:var(--text);font-family:inherit;}
+.ap-btn:hover{background:var(--bg);}
+.ap-btn.done{background:#e0f4f0;color:#004d42;border-color:#a8ddd6;}
+.ap-more{text-align:center;padding:8px;color:var(--c2);font-size:var(--font-xs);cursor:pointer;}
+
+/* ═══════════════════════════════
+   SCOPE DROPDOWN
+═══════════════════════════════ */
+.scope-dropdown{position:absolute;top:calc(100% + 6px);left:16px;background:var(--surf);border:1px solid var(--border);border-radius:var(--r-md);box-shadow:0 6px 20px rgba(0,18,25,0.15);z-index:500;min-width:180px;padding:6px 0;display:none;}
+.scope-dropdown.open{display:block;}
+.scope-opt{padding:9px 14px;font-size:var(--font-sm);cursor:pointer;color:var(--text);}
+.scope-opt:hover{background:var(--bg);}
+.scope-opt.on{color:var(--c2);font-weight:600;}
+.scope-opt-sub{font-size:var(--font-xs);color:var(--muted);margin-left:6px;}
+
+/* ═══════════════════════════════
+   TOAST
+═══════════════════════════════ */
+.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:1000;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.toast{background:var(--c0);color:#fff;padding:11px 16px;border-radius:var(--r-md);font-size:var(--font-sm);display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,18,25,0.3);animation:slideUp .2s ease;pointer-events:all;}
+.toast.success{background:#0a5c4a;}
+.toast.error{background:var(--c8);}
+@keyframes slideUp{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* ═══════════════════════════════
+   MISC
+═══════════════════════════════ */
+.dl-row{display:flex;gap:8px;margin-bottom:7px;}
+.dl-lbl{width:88px;flex-shrink:0;font-size:var(--font-xs);color:var(--muted);padding-top:1px;}
+.dl-val{font-size:var(--font-sm);}
+.empty{text-align:center;padding:40px 20px;color:var(--muted);}
+.empty-ico{font-size:36px;margin-bottom:10px;}
+.section-mb{margin-bottom:22px;}
+.pbar{height:6px;background:var(--border2);border-radius:3px;overflow:hidden;margin-top:5px;}
+.pfill{height:100%;border-radius:3px;}
+.pfill.g{background:var(--c2);}
+.pfill.o{background:var(--c5);}
+.pfill.r{background:var(--c8);}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+</style>
+</head>
+<body>
+
+<!-- ALERT PANEL OVERLAY -->
+<div class="alert-overlay" id="alertOverlay">
+  <div class="alert-backdrop" onclick="closeAlertPanel()"></div>
+  <div class="alert-panel">
+    <div class="ap-hdr">
+      <div class="ap-title">⚠ 要対応一覧</div>
+      <button class="ap-close" onclick="closeAlertPanel()">✕</button>
+    </div>
+    <div class="ap-body">
+      <div class="ap-sec">
+        <div class="ap-sec-title">🔴 更新が必要です（期限切れ）</div>
+        <div class="ap-item critical">
+          <div class="ap-name">田中 一郎 ／ RCCM（鋼構造及びコンクリート）</div>
+          <div class="ap-detail">2024/03/31 失効済み — 更新申請が必要です</div>
+          <div class="ap-btns"><button class="ap-btn">連絡する</button><button class="ap-btn">証憑を依頼する</button><button class="ap-btn done" onclick="markDone(this)">対応済みにする ✓</button></div>
+        </div>
+      </div>
+      <div class="ap-sec">
+        <div class="ap-sec-title">🟠 もうすぐ更新が必要です（30日以内）</div>
+        <div class="ap-item warning">
+          <div class="ap-name">佐藤 次郎 ／ 地質調査技士</div>
+          <div class="ap-detail">あと 25日（2025/05/03）— 更新講習の受講を推奨</div>
+          <div class="ap-btns"><button class="ap-btn">連絡する</button><button class="ap-btn done" onclick="markDone(this)">対応済みにする ✓</button></div>
+        </div>
+        <div class="ap-item warning">
+          <div class="ap-name">鈴木 三郎 ／ RCCM（都市及び地方計画）</div>
+          <div class="ap-detail">あと 30日（2025/05/08）</div>
+          <div class="ap-btns"><button class="ap-btn">連絡する</button><button class="ap-btn done" onclick="markDone(this)">対応済みにする ✓</button></div>
+        </div>
+      </div>
+      <div class="ap-sec">
+        <div class="ap-sec-title">📊 単位が不足しています</div>
+        <div class="ap-item warning">
+          <div class="ap-name">山田 花子 ／ 技術士（建設部門）</div>
+          <div class="ap-detail">あと -28単位不足 — 締切まで 61日（2025/06/30）</div>
+          <div class="ap-btns"><button class="ap-btn">受講を提案する</button><button class="ap-btn">連絡する</button><button class="ap-btn done" onclick="markDone(this)">対応済み ✓</button></div>
+        </div>
+        <div class="ap-item warning">
+          <div class="ap-name">渡辺 五郎 ／ RCCM / 地質調査技士</div>
+          <div class="ap-detail">あと -8単位不足 — 締切まで 61日</div>
+          <div class="ap-btns"><button class="ap-btn">受講を提案する</button><button class="ap-btn done" onclick="markDone(this)">対応済み ✓</button></div>
+        </div>
+        <div class="ap-more">🟡 60日以内：12件を見る</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<div class="shell">
+
+<!-- ─── SIDEBAR ─── -->
+<div class="sidebar">
+  <div class="sb-top">
+    <div class="sb-logo">Credify<span>資格・CPD 運用基盤</span></div>
+    <div class="scope-wrap" style="position:relative">
+      <button class="scope-btn active" id="scopeBtn" onclick="toggleScope()">
+        <span id="scopeLabel">🏢 全社</span><span class="scope-arr">▼</span>
+      </button>
+      <div class="scope-dropdown" id="scopeDropdown">
+        <div class="scope-opt on" onclick="setScope('all','🏢 全社')">🏢 全社</div>
+        <div class="scope-opt" onclick="setScope('dept','📂 技術部')">📂 技術部 <span class="scope-opt-sub">14名</span></div>
+        <div class="scope-opt" onclick="setScope('dept','📂 設計部')">📂 設計部 <span class="scope-opt-sub">11名</span></div>
+        <div class="scope-opt" onclick="setScope('dept','📂 営業本部')">📂 営業本部 <span class="scope-opt-sub">8名</span></div>
+        <div class="scope-opt" onclick="setScope('self','👤 自分のみ')">👤 自分のみ</div>
+      </div>
+    </div>
+  </div>
+  <div class="sb-nav">
+    <div class="si on" onclick="go('home')"><span class="si-ico">🏠</span>本日の対応<span class="si-badge">11</span></div>
+    <div class="sb-sec">管理</div>
+    <div class="si" onclick="go('engineers')"><span class="si-ico">👥</span>対象者を探す</div>
+    <div class="si" onclick="go('cpd')"><span class="si-ico">📋</span>単位不足を確認する<span class="si-badge warn">5</span></div>
+    <div class="si" onclick="go('docs')"><span class="si-ico">📁</span>証明書を管理する<span class="si-badge warn">3</span></div>
+    <div class="si" onclick="go('reports')"><span class="si-ico">📊</span>報告書を出す</div>
+    <div class="sb-sec">管理設定</div>
+    <div class="si" onclick="go('settings')"><span class="si-ico">⚙️</span>設定する</div>
+  </div>
+  <div class="sb-user">
+    <div class="sb-av">南</div>
+    <div><div class="sb-un">南 かおり</div><div class="sb-ur">管理者</div></div>
+  </div>
+</div>
+
+<!-- ─── MAIN ─── -->
+<div class="main">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-title" id="hdrTitle">本日の対応<span class="hdr-sub" id="hdrSub">2025年4月29日（火）</span></div>
+    <div class="hdr-right">
+      <div class="hdr-search"><span style="color:var(--muted2)">🔍</span><input type="text" placeholder="技術者・資格を検索..."></div>
+      <button class="alert-bell" onclick="openAlertPanel()" title="要対応一覧を開く">
+        <div class="alert-bell-ico">🔔</div>
+        <div class="alert-badge" id="alertBadge">11</div>
+      </button>
+      <button class="btn btn-p" id="hdrBtn">＋ 技術者を追加</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════
+       PAGE: HOME (本日の対応)
+  ════════════════════════════ -->
+  <div class="page on" id="page-home">
+    <div class="pg-hdr">
+      <div class="pg-desc" id="homeDesc">今日やること・期限切れ・緊急の対応を確認できます</div>
+    </div>
+    <div class="pg-body">
+
+      <!-- VIEW SWITCHER -->
+      <div class="home-tabs">
+        <button class="home-tab on" onclick="switchHomeView('today',this)">🔴 今日の緊急対応</button>
+        <button class="home-tab" onclick="switchHomeView('month',this)">📅 今月のタスク管理</button>
+      </div>
+
+      <!-- ── VIEW: TODAY ── -->
+      <div class="home-view on" id="view-today">
+
+        <div class="kpi-row">
+          <div class="kpi red"><div class="kpi-lbl">⚠ 更新が必要です（期限切れ）</div><div class="kpi-val">3</div><div class="kpi-sub">今すぐ対応してください</div></div>
+          <div class="kpi orange"><div class="kpi-lbl">⏰ もうすぐ更新が必要です（30日以内）</div><div class="kpi-val">8</div><div class="kpi-sub">早めに対応することを推奨します</div></div>
+          <div class="kpi yellow"><div class="kpi-lbl">🔔 余裕がありません（60日以内）</div><div class="kpi-val">12</div><div class="kpi-sub">今月中に確認しましょう</div></div>
+          <div class="kpi green"><div class="kpi-lbl">✅ 今日の対応完了</div><div class="kpi-val" id="doneCount">5</div><div class="kpi-sub">本日対応済み件数</div></div>
+        </div>
+
+        <div class="sec-hdr section-mb">
+          <div class="sec-title">🔴 今すぐ対応が必要です <span class="sec-count red">3件</span></div>
+          <button class="sec-link" onclick="go('engineers')">対象者一覧で全件確認 →</button>
+        </div>
+        <div class="task-list">
+
+          <div class="task-card critical">
+            <div class="task-top">
+              <div class="task-status"><span class="status-lbl critical">⚠ 更新が必要です</span></div>
+              <div class="task-info">
+                <div class="task-name">田中 一郎　<span style="font-size:12px;color:var(--muted);font-weight:400">技術部 ／ 常勤</span></div>
+                <div class="task-detail">RCCM（鋼構造及びコンクリート）— RC-28741</div>
+              </div>
+              <div class="task-deadline"><span style="font-size:11px;color:var(--muted)">有効期限</span><strong>2024/03/31 失効済み</strong></div>
+            </div>
+            <div class="task-reason">
+              <div class="tr-what"><span class="tr-what-lbl">何が問題か</span><span class="tr-what-val">RCCM（鋼構造及びコンクリート）の資格証が約13ヶ月前に失効しています。このまま放置すると入札要件から外れるリスクがあります。</span></div>
+              <div class="tr-next"><span class="tr-next-lbl">▶ 次のステップ</span><span class="tr-next-val">本人へ連絡 → 更新講習の受講手続きを確認 → 受講証明書を収集して資格登録機関へ更新申請</span></div>
+            </div>
+            <div class="task-actions">
+              <button class="act-btn primary" onclick="showToast('連絡メールを作成しました','success')">📧 連絡する</button>
+              <button class="act-btn warn-btn" onclick="showToast('証憑依頼を送信しました','success')">📎 証憑を依頼する</button>
+              <button class="act-btn done-btn" onclick="completeTask(this)">✓ 対応済みにする</button>
+              <div class="overflow-wrap"><button class="overflow-btn" onclick="toggleOverflow(this)">・・・</button>
+                <div class="overflow-menu">
+                  <div class="overflow-item" onclick="go('engineer-detail')">👤 詳細を確認する</div>
+                  <div class="overflow-item" onclick="showToast('リマインドを送信しました','success')">🔁 リマインドを送る</div>
+                  <div class="overflow-item">📝 メモを残す</div>
+                  <div class="overflow-item">📋 履歴を確認する</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="task-card critical">
+            <div class="task-top">
+              <div class="task-status"><span class="status-lbl critical">📊 単位が不足しています</span></div>
+              <div class="task-info">
+                <div class="task-name">山田 花子　<span style="font-size:12px;color:var(--muted);font-weight:400">設計部 ／ 常勤</span></div>
+                <div class="task-detail">技術士（建設部門）— PE-55023 ／ あと -28単位不足</div>
+              </div>
+              <div class="task-deadline warn"><span style="font-size:11px;color:var(--muted)">CPD締切</span><strong style="color:var(--c6)">61日後（2025/06/30）</strong></div>
+            </div>
+            <div class="task-reason">
+              <div class="tr-what"><span class="tr-what-lbl">何が問題か</span><span class="tr-what-val">技術士（建設部門）のCPDが年間必要単位50に対し現在22単位。あと28単位が不足しており、締切まで61日しかありません。</span></div>
+              <div class="tr-next"><span class="tr-next-lbl">▶ 次のステップ</span><span class="tr-next-val">受講可能な認定講習を提案 → 本人へ申込を依頼 → 受講後に証明書を提出してもらい実績を登録</span></div>
+            </div>
+            <div class="task-actions">
+              <button class="act-btn primary" onclick="showToast('受講提案を送信しました','success')">🎓 受講を提案する</button>
+              <button class="act-btn" onclick="showToast('連絡メールを作成しました','success')">📧 連絡する</button>
+              <button class="act-btn done-btn" onclick="completeTask(this)">✓ 対応済みにする</button>
+              <div class="overflow-wrap"><button class="overflow-btn" onclick="toggleOverflow(this)">・・・</button>
+                <div class="overflow-menu">
+                  <div class="overflow-item" onclick="go('engineer-detail')">👤 詳細を確認する</div>
+                  <div class="overflow-item">🔁 リマインドを送る</div>
+                  <div class="overflow-item">📝 メモを残す</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="task-card critical">
+            <div class="task-top">
+              <div class="task-status"><span class="status-lbl critical">⚠ 更新が必要です</span></div>
+              <div class="task-info">
+                <div class="task-name">佐藤 次郎　<span style="font-size:12px;color:var(--muted);font-weight:400">営業本部 ／ 常勤</span></div>
+                <div class="task-detail">地質調査技士 — GE-9021</div>
+              </div>
+              <div class="task-deadline warn"><span style="font-size:11px;color:var(--muted)">有効期限</span><strong style="color:var(--c6)">あと 25日（2025/05/03）</strong></div>
+            </div>
+            <div class="task-reason">
+              <div class="tr-what"><span class="tr-what-lbl">何が問題か</span><span class="tr-what-val">地質調査技士（GE-9021）の有効期限まであと25日。更新手続きには通常2〜3週間かかるため、今すぐ動かないと間に合いません。</span></div>
+              <div class="tr-next"><span class="tr-next-lbl">▶ 次のステップ</span><span class="tr-next-val">本人へ至急連絡 → 更新に必要な書類（証明書・申請書）を収集 → JAEG宛に更新申請を提出</span></div>
+            </div>
+            <div class="task-actions">
+              <button class="act-btn primary" onclick="showToast('連絡メールを作成しました','success')">📧 連絡する</button>
+              <button class="act-btn warn-btn" onclick="showToast('証憑依頼を送信しました','success')">📎 証憑を依頼する</button>
+              <button class="act-btn done-btn" onclick="completeTask(this)">✓ 対応済みにする</button>
+              <div class="overflow-wrap"><button class="overflow-btn" onclick="toggleOverflow(this)">・・・</button>
+                <div class="overflow-menu">
+                  <div class="overflow-item" onclick="go('engineer-detail')">👤 詳細を確認する</div>
+                  <div class="overflow-item">🔁 リマインドを送る</div>
+                  <div class="overflow-item">📝 メモを残す</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="sec-hdr section-mb">
+          <div class="sec-title">⏳ 依頼待ち（証憑・情報提供待ち） <span class="sec-count">2件</span></div>
+        </div>
+        <div class="wait-list">
+          <div class="wait-item">
+            <div class="wait-ico">📎</div>
+            <div class="wait-info"><div class="wait-name">田中 一郎 へ 証憑を依頼中</div><div class="wait-sub">RCCM（鋼構造）の受講証明書 — 4日前に送信済み</div></div>
+            <div class="wait-actions"><button class="act-btn" onclick="showToast('リマインドを再送しました','success')">🔁 リマインドする</button></div>
+          </div>
+          <div class="wait-item">
+            <div class="wait-ico">📋</div>
+            <div class="wait-info"><div class="wait-name">山本 七郎 へ CPD実績の報告を依頼中</div><div class="wait-sub">今年度CPD実績の入力 — 2日前に送信済み</div></div>
+            <div class="wait-actions"><button class="act-btn" onclick="showToast('リマインドを再送しました','success')">🔁 リマインドする</button></div>
+          </div>
+        </div>
+
+        <div class="sec-hdr section-mb">
+          <div class="sec-title">🏢 部署別の状況</div>
+          <button class="sec-link" onclick="go('engineers')">全社一覧で確認 →</button>
+        </div>
+        <div class="dept-list">
+          <div class="dept-item"><div class="dept-top"><div class="dept-name">技術部</div><div class="dept-stat" style="color:var(--c6)">14名中 3名が要対応 ／ CPD達成率 60%</div></div><div class="dept-bar"><div class="dept-fill warn" style="width:60%"></div></div></div>
+          <div class="dept-item"><div class="dept-top"><div class="dept-name">設計部</div><div class="dept-stat" style="color:var(--c5)">11名中 1名が要対応 ／ CPD達成率 80%</div></div><div class="dept-bar"><div class="dept-fill" style="width:80%"></div></div></div>
+          <div class="dept-item"><div class="dept-top"><div class="dept-name">営業本部</div><div class="dept-stat" style="color:var(--c2)">8名中 0名が要対応 ／ CPD達成率 100%</div></div><div class="dept-bar"><div class="dept-fill" style="width:100%"></div></div></div>
+        </div>
+
+      </div><!-- /view-today -->
+
+      <!-- ── VIEW: MONTH ── -->
+      <div class="home-view" id="view-month">
+
+        <div class="month-bar-wrap">
+          <div class="month-bar-top">
+            <div class="month-bar-title">📅 2025年5月の対応進捗</div>
+            <div class="month-bar-meta">今月の対応タスク 23件 ／ 完了 8件 ／ 残り 15件</div>
+          </div>
+          <div class="month-progress">
+            <div class="month-progress-fill" style="width:0%"></div>
+            <div class="month-today-marker" style="left:0%"><div class="month-today-label">今日</div></div>
+          </div>
+          <div class="month-bar-dates">
+            <span class="month-bar-date">5/1</span>
+            <span class="month-bar-date">5/8</span>
+            <span class="month-bar-date">5/15</span>
+            <span class="month-bar-date">5/22</span>
+            <span class="month-bar-date">5/31</span>
+          </div>
+        </div>
+
+        <div class="month-kpi-strip">
+          <div class="mkpi"><div class="mkpi-ico">🔴</div><div class="mkpi-body"><div class="mkpi-val red">3</div><div class="mkpi-lbl">期限切れ・要緊急対応</div></div></div>
+          <div class="mkpi"><div class="mkpi-ico">🟠</div><div class="mkpi-body"><div class="mkpi-val orange">8</div><div class="mkpi-lbl">今月中に期限到来</div></div></div>
+          <div class="mkpi"><div class="mkpi-ico">📊</div><div class="mkpi-body"><div class="mkpi-val orange">5</div><div class="mkpi-lbl">CPD単位が不足中</div></div></div>
+          <div class="mkpi"><div class="mkpi-ico">✅</div><div class="mkpi-body"><div class="mkpi-val green">8</div><div class="mkpi-lbl">今月の対応完了</div></div></div>
+        </div>
+
+        <div class="month-filter">
+          <button class="mf-chip on" onclick="mfChip(this)">すべて</button>
+          <button class="mf-chip" onclick="mfChip(this)">🔑 資格更新</button>
+          <button class="mf-chip" onclick="mfChip(this)">📊 CPD単位</button>
+          <button class="mf-chip" onclick="mfChip(this)">📎 証明書</button>
+          <div style="margin-left:auto;display:flex;gap:8px">
+            <button class="mf-chip" onclick="mfChip(this)">未着手のみ</button>
+            <button class="mf-chip" onclick="mfChip(this)">対応中のみ</button>
+          </div>
+        </div>
+
+        <div class="week-group">
+          <div class="week-hdr" onclick="toggleWeek(this)">
+            <div class="week-label">📌 今週中（〜5/3） <span class="week-count red">2件</span></div>
+            <span class="week-toggle">▼</span>
+          </div>
+          <div class="week-rows">
+            <div class="mrow expired">
+              <div class="mrow-type">🔑</div>
+              <div class="mrow-info"><div class="mrow-name">田中 一郎　<span style="font-size:11px;color:var(--muted);font-weight:400">技術部</span></div><div class="mrow-detail">RCCM（鋼構造及びコンクリート）— 資格証の更新申請</div></div>
+              <div class="mrow-deadline"><div class="mrow-dl-val red">2024/03/31</div><div class="mrow-dl-sub">失効済み</div></div>
+              <div class="mrow-status"><button class="status-chip todo" onclick="cycleStatus(this)">未着手 ▾</button></div>
+              <div class="mrow-act"><button class="act-btn primary btn-sm" onclick="showToast('連絡メールを作成しました','success')">📧 連絡する</button></div>
+            </div>
+            <div class="mrow urgent">
+              <div class="mrow-type">🔑</div>
+              <div class="mrow-info"><div class="mrow-name">佐藤 次郎　<span style="font-size:11px;color:var(--muted);font-weight:400">営業本部</span></div><div class="mrow-detail">地質調査技士 — JAEG宛 更新申請書の提出</div></div>
+              <div class="mrow-deadline"><div class="mrow-dl-val orange">2025/05/03</div><div class="mrow-dl-sub">あと 25日</div></div>
+              <div class="mrow-status"><button class="status-chip wip" onclick="cycleStatus(this)">対応中 ▾</button></div>
+              <div class="mrow-act"><button class="act-btn btn-sm" onclick="showToast('証憑依頼を送信しました','success')">📎 証憑を依頼する</button></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="week-group">
+          <div class="week-hdr" onclick="toggleWeek(this)">
+            <div class="week-label">📅 5/4（日）〜 5/10（土） <span class="week-count orange">4件</span></div>
+            <span class="week-toggle">▼</span>
+          </div>
+          <div class="week-rows">
+            <div class="mrow urgent">
+              <div class="mrow-type">🔑</div>
+              <div class="mrow-info"><div class="mrow-name">鈴木 三郎　<span style="font-size:11px;color:var(--muted);font-weight:400">技術部 ／ 非常勤</span></div><div class="mrow-detail">RCCM（都市及び地方計画）— 更新講習の受講確認</div></div>
+              <div class="mrow-deadline"><div class="mrow-dl-val orange">2025/05/08</div><div class="mrow-dl-sub">あと 30日</div></div>
+              <div class="mrow-status"><button class="status-chip todo" onclick="cycleStatus(this)">未着手 ▾</button></div>
+              <div class="mrow-act"><button class="act-btn primary btn-sm" onclick="showToast('連絡メールを作成しました','success')">📧 連絡する</button></div>
+            </div>
+            <div class="mrow urgent">
+              <div class="mrow-type">📊</div>
+              <div class="mrow-info"><div class="mrow-name">小林 七海　<span style="font-size:11px;color:var(--muted);font-weight:400">技術部</span></div><div class="mrow-detail">RCCM（道路）— CPD不足 -5単位、受講提案が必要</div></div>
+              <div class="mrow-deadline"><div class="mrow-dl-val orange">2025/05/09</div><div class="mrow-dl-sub">あと 31日</div></div>
+              <div class="mrow-status"><button class="status-chip todo" onclick="cycleStatus(this)">未着手 ▾</button></div>
+              <div class="mrow-act"><button class="act-btn btn-sm" onclick="showToast('受講提案を送信しました','success')">🎓 受講提案</button></div>
+            </div>
+            <div class="mrow normal">
+              <div class="mrow-type">📎</div>
+              <div class="mrow-info"><div class="mrow-name">中村 六助　<span style="font-size:11px;color:var(--muted);font-weight:400">設計部</span></div><div class="mrow-detail">1級建築士 — 定期講習の受講証明書を提出依頼</div></div>
+              <div class="mrow-deadline"><div class="mrow-dl-val yellow">2025/05/10</div><div class="mrow-dl-sub">あと 32日</div></div>
+              <div class="mrow-status"><button class="status-chip wip" onclick="cycleStatus(this)">対応中 ▾</button></div>
+              <div class="mrow-act"><button class="act-btn btn-sm" onclick="showToast('リマインドを再送しました','success')">🔁 リマインド</button></div>
+            </div>
+            <div class="mrow done-row">
+              <div class="mrow-type">🔑</div>
+              <div class="mrow-info"><div class="mrow-name">伊藤 四郎　<span style="font-size:11px;color:var(--muted);font-weight:400">設計部</span></div><div class="mrow-detail">技術士（建設部門）— 更新確認・証明書収集</div></div>
+              <div class="mrow-deadline"><div class="mrow-dl-val" style="color:var(--muted)">2025/05/07</div><div class="mrow-dl-sub">対応済み</div></div>
+              <div class="mrow-status"><button class="status-chip comp" onclick="cycleStatus(this)">完了 ✓</button></div>
+              <div class="mrow-act"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="week-group">
+          <div class="week-hdr" onclick="toggleWeek(this)">
+            <div class="week-label">📅 5/11（日）〜 5/17（土） <span class="week-count orange">3件</span></div>
+            <span class="week-toggle">▼</span>
+          </div>
+          <div class="week-rows">
+            <div class="mrow normal">
+              <div class="mrow-type">📊</div>
+              <div class="mrow-info"><div class="mrow-name">山田 花子　<span style="font-size:11px;color:var(--muted);font-weight:400">設計部</span></div><div class="mrow-detail">技術士（建設）— CPD不足 -28単位 / 受講申込の進捗確認</div></div>
+              <div class="mrow-deadline"><div class="mrow-dl-val yellow">2025/05/12</div><div class="mrow-dl-sub">あと 44日</div></div>
+              <div class="mrow-status"><button class="status-chip wip" onclick="cycleStatus(this)">対応中 ▾</button></div>
+              <div class="mrow-act"><button class="act-btn btn-sm" onclick="showToast('リマインドを再送しました','success')">🔁 リマインド</button></div>
+            </div>
+            <div class="mrow normal">
+              <div class="mrow-type">🔑</div>
+              <div class="mrow-info"><div class="mrow-name">渡辺 五郎　<span style="font-size:11px;color:var(--muted);font-weight:400">技術部</span></div><div class="mrow-detail">RCCM（河川・砂防）— 更新申請書の作成サポート</div></div>
+              <div class="mrow-deadline"><div class="mrow-dl-val yellow">2025/05/15</div><div class="mrow-dl-sub">あと 47日</div></div>
+              <div class="mrow-status"><button class="status-chip todo" onclick="cycleStatus(this)">未着手 ▾</button></div>
+              <div class="mrow-act"><button class="act-btn primary btn-sm" onclick="showToast('連絡メールを作成しました','success')">📧 連絡する</button></div>
+            </div>
+            <div class="mrow normal">
+              <div class="mrow-type">📎</div>
+              <div class="mrow-info"><div class="mrow-name">鈴木 三郎　<span style="font-size:11px;color:var(--muted);font-weight:400">技術部</span></div><div class="mrow-detail">RCCM — 更新申請に必要な証明書の収集確認</div></div>
+              <div class="mrow-deadline"><div class="mrow-dl-val yellow">2025/05/16</div><div class="mrow-dl-sub">あと 48日</div></div>
+              <div class="mrow-status"><button class="status-chip todo" onclick="cycleStatus(this)">未着手 ▾</button></div>
+              <div class="mrow-act"><button class="act-btn btn-sm" onclick="showToast('証憑依頼を送信しました','success')">📎 証憑依頼</button></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="week-group">
+          <div class="week-hdr collapsed" onclick="toggleWeek(this)">
+            <div class="week-label">📅 5/18（日）〜 5/31（土） <span class="week-count gray">6件</span></div>
+            <span class="week-toggle">▼</span>
+          </div>
+          <div class="week-rows" style="display:none">
+            <div class="mrow normal">
+              <div class="mrow-type">📊</div>
+              <div class="mrow-info"><div class="mrow-name">山本 七郎　<span style="font-size:11px;color:var(--muted);font-weight:400">技術部</span></div><div class="mrow-detail">CPD実績の入力・登録サポート</div></div>
+              <div class="mrow-deadline"><div class="mrow-dl-val yellow">2025/05/20</div><div class="mrow-dl-sub">あと 52日</div></div>
+              <div class="mrow-status"><button class="status-chip todo" onclick="cycleStatus(this)">未着手 ▾</button></div>
+              <div class="mrow-act"><button class="act-btn btn-sm" onclick="showToast('連絡メールを作成しました','success')">📧 連絡する</button></div>
+            </div>
+            <div class="mrow normal" style="opacity:.7">
+              <div class="mrow-type">🔑</div>
+              <div class="mrow-info"><div class="mrow-name">他 5件</div><div class="mrow-detail">5/20 〜 5/31 に期限到来</div></div>
+              <div class="mrow-deadline"><div class="mrow-dl-val yellow">〜5/31</div></div>
+              <div class="mrow-status"></div>
+              <div class="mrow-act"><button class="act-btn btn-sm btn-ghost" onclick="go('engineers')">一覧で確認 →</button></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /view-month -->
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════
+       PAGE: ENGINEERS
+  ════════════════════════════ -->
+  <div class="page" id="page-engineers">
+    <div class="pg-hdr">
+      <div class="pg-title">対象者を探す</div>
+      <div class="pg-desc">技術者を絞り込み、リスクの高い順に確認・対応できます</div>
+    </div>
+    <div class="pg-body">
+      <div class="filter-bar">
+        <select class="fsel"><option>所属：すべて</option><option>技術部</option><option>設計部</option><option>営業本部</option></select>
+        <select class="fsel"><option>雇用区分：すべて</option><option>常勤</option><option>非常勤</option></select>
+        <select class="fsel"><option>リスク状態：すべて</option><option>期限切れあり</option><option>要対応</option><option>正常</option></select>
+        <select class="fsel"><option>CPD状況：すべて</option><option>単位不足</option><option>達成済み</option></select>
+        <div class="filter-count">47名表示中</div>
+        <button class="btn btn-sm" style="margin-left:auto">📥 一覧をダウンロードする</button>
+      </div>
+      <div class="card">
+        <div class="tw"><table>
+          <thead><tr>
+            <th class="sort">氏名 ↕</th><th>所属</th><th>雇用区分</th><th>保有資格数</th>
+            <th class="sort">最短更新期限 ↕</th><th>期限切れ</th><th>30日以内</th>
+            <th>単位の取得状況</th><th>不足単位</th><th class="sort">総合リスク ↕</th><th>操作</th>
+          </tr></thead>
+          <tbody id="engBody"></tbody>
+        </table></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════
+       PAGE: ENGINEER DETAIL
+  ════════════════════════════ -->
+  <div class="page" id="page-engineer-detail">
+    <div class="pg-hdr" style="padding-bottom:10px">
+      <button class="btn btn-sm btn-ghost" onclick="go('engineers')">← 対象者一覧に戻る</button>
+    </div>
+    <div class="detail-shell">
+      <!-- LEFT -->
+      <div class="detail-left">
+        <div>
+          <div class="prof-av">田</div>
+          <div class="prof-name">田中 一郎</div>
+          <div class="prof-sub">E-0021 ／ 技術部 ／ 常勤</div>
+          <div class="prof-badge"><span class="tag r">⚠ 期限切れあり</span></div>
+        </div>
+        <div>
+          <div class="mini-kpi"><div class="mini-kpi-lbl">今年度の単位取得状況</div><div class="mini-kpi-val red">22 / 100単位</div><div class="pbar"><div class="pfill r" style="width:22%"></div></div></div>
+          <div class="mini-kpi"><div class="mini-kpi-lbl">最短更新期限</div><div class="mini-kpi-val red">失効済み</div></div>
+        </div>
+        <div>
+          <div style="font-size:var(--font-xs);color:var(--muted);font-weight:600;margin-bottom:8px">よく使う操作</div>
+          <div class="ql-btns">
+            <button class="ql-btn p" onclick="openRightPane('cpd-form')">＋ 単位実績を登録する</button>
+            <button class="ql-btn" onclick="openRightPane('doc-form')">📎 証明書をアップロード</button>
+            <button class="ql-btn" onclick="showToast('連絡メールを作成しました','success')">📧 連絡する</button>
+            <button class="ql-btn" onclick="showToast('対応済みにしました ✓','success')">✓ 対応済みにする</button>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:var(--font-xs);color:var(--muted);font-weight:600;margin-bottom:8px">基本情報</div>
+          <div class="dl-row"><div class="dl-lbl">入社年月</div><div class="dl-val">2015年4月</div></div>
+          <div class="dl-row"><div class="dl-lbl">メール</div><div class="dl-val" style="color:var(--c2);font-size:12px">tanaka@example.co.jp</div></div>
+          <div class="dl-row"><div class="dl-lbl">CPD登録団体</div><div class="dl-val">CPDS（土木学会）</div></div>
+        </div>
+      </div>
+      <!-- CENTER -->
+      <div class="detail-center">
+        <div class="det-tabs">
+          <div class="det-tab on" onclick="switchDetTab(this,'q-tab')">保有資格</div>
+          <div class="det-tab" onclick="switchDetTab(this,'cpd-tab')">単位の取得状況</div>
+          <div class="det-tab" onclick="switchDetTab(this,'alert-tab')">要対応一覧</div>
+          <div class="det-tab" onclick="switchDetTab(this,'doc-tab')">証明書</div>
+        </div>
+        <div class="det-body">
+          <!-- 保有資格タブ -->
+          <div id="q-tab">
+            <div style="display:flex;flex-direction:column;gap:9px">
+              <div style="padding:12px;border-radius:var(--r-md);border:1px solid #f0bfb5;background:#fdf5f4">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+                  <div style="font-size:var(--font-sm);font-weight:600;color:var(--c8)">RCCM（鋼構造及びコンクリート）</div>
+                  <span class="tag r">⚠ 更新が必要です</span>
+                </div>
+                <div style="font-size:var(--font-xs);color:var(--c8)">番号: RC-28741 ／ 有効期限: 2024/03/31（失効済み）</div>
+                <div style="font-size:var(--font-xs);color:var(--c8);margin-top:2px">必要単位: 50単位 ／ 取得済: 22単位</div>
+              </div>
+              <div style="padding:12px;border-radius:var(--r-md);border:1px solid var(--border2);background:var(--surf2);cursor:pointer" onclick="openRightPane('qual-detail')">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+                  <div style="font-size:var(--font-sm);font-weight:600">技術士（建設部門）</div>
+                  <span class="tag g">✓ 問題ありません</span>
+                </div>
+                <div style="font-size:var(--font-xs);color:var(--muted)">番号: PE-11052 ／ 登録日: 2018/04/01（失効なし）</div>
+                <div style="font-size:var(--font-xs);color:var(--muted);margin-top:2px">CPD: 50単位/年必要 ／ 取得済: 22単位（達成率44%）</div>
+              </div>
+              <div style="padding:12px;border-radius:var(--r-md);border:1px solid var(--border2);background:var(--surf2)">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+                  <div style="font-size:var(--font-sm);font-weight:600">1級土木施工管理技士</div>
+                  <span class="tag g">✓ 問題ありません</span>
+                </div>
+                <div style="font-size:var(--font-xs);color:var(--muted)">番号: CM1-48832 ／ 有効期限: 2027/03/31</div>
+                <div style="font-size:var(--font-xs);color:var(--c2);margin-top:2px">更新まで 1,087日</div>
+              </div>
+            </div>
+          </div>
+          <!-- 単位取得タブ -->
+          <div id="cpd-tab" style="display:none">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+              <div style="font-size:var(--font-sm);font-weight:600">今年度の受講履歴（直近）</div>
+              <button class="btn btn-p btn-sm" onclick="openRightPane('cpd-form')">＋ 実績を登録する</button>
+            </div>
+            <table>
+              <thead><tr><th>講習・研修名</th><th>受講日</th><th>取得単位</th><th>証明書</th></tr></thead>
+              <tbody>
+                <tr><td>土木学会年次講演会2024</td><td>2024/09/11</td><td>3.0単位</td><td><span class="tag g">✓ あり</span></td></tr>
+                <tr><td>CPD認定セミナー（橋梁）</td><td>2024/06/20</td><td>2.5単位</td><td><span class="tag g">✓ あり</span></td></tr>
+                <tr><td>e-Learning（舗装工学）</td><td>2024/03/05</td><td>1.0単位</td><td><span class="tag g">✓ あり</span></td></tr>
+                <tr><td>技術士CPD研修会</td><td>2023/11/15</td><td>4.0単位</td><td><span class="tag o">📎 証明書がまだ提出されていません</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- 要対応タブ -->
+          <div id="alert-tab" style="display:none">
+            <div class="task-list">
+              <div class="task-card critical">
+                <div class="task-top">
+                  <div class="task-status"><span class="status-lbl critical">⚠ 更新が必要です</span></div>
+                  <div class="task-info"><div class="task-name">RCCM（鋼構造及びコンクリート）</div><div class="task-detail">2024/03/31 失効済み — 更新申請が必要です</div></div>
+                </div>
+                <div class="task-actions">
+                  <button class="act-btn primary" onclick="showToast('連絡メールを作成しました','success')">📧 連絡する</button>
+                  <button class="act-btn warn-btn">📎 証憑を依頼する</button>
+                  <button class="act-btn done-btn" onclick="completeTask(this)">✓ 対応済みにする</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 証明書タブ -->
+          <div id="doc-tab" style="display:none">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+              <div style="font-size:var(--font-sm);font-weight:600">アップロード済みの証明書</div>
+              <button class="btn btn-p btn-sm" onclick="openRightPane('doc-form')">＋ 証明書をアップロード</button>
+            </div>
+            <table>
+              <thead><tr><th>ファイル名</th><th>対象資格・講習</th><th>書類の種類</th><th>登録日</th><th>操作</th></tr></thead>
+              <tbody>
+                <tr><td style="color:var(--c2)">技術士登録証_田中一郎.pdf</td><td>技術士（建設部門）</td><td><span class="tag b">資格証</span></td><td>2024/04/10</td><td><button class="btn btn-sm btn-ghost">表示</button></td></tr>
+                <tr><td style="color:var(--c2)">CPD受講証明_2024_橋梁.pdf</td><td>CPD認定セミナー（橋梁）</td><td><span class="tag g">受講証明</span></td><td>2024/06/21</td><td><button class="btn btn-sm btn-ghost">表示</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <!-- RIGHT PANE -->
+      <div class="detail-right" id="detailRight">
+        <!-- CPD form -->
+        <div id="rp-cpd-form">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div style="font-size:14px;font-weight:700">単位実績を登録する</div>
+            <button class="btn btn-sm btn-ghost" onclick="closeRightPane()">✕</button>
+          </div>
+          <div class="form-group"><label class="form-label">資格・登録団体</label><select class="form-input"><option>技術士（CPDS）</option><option>RCCM（JCCA）</option></select></div>
+          <div class="form-group"><label class="form-label">講習・研修名</label><input class="form-input" type="text" placeholder="例：土木学会年次講演会2024"></div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">受講日</label><input class="form-input" type="date"></div>
+            <div class="form-group"><label class="form-label">取得単位数</label><input class="form-input" type="number" placeholder="0.0" step="0.5"></div>
+          </div>
+          <div class="form-group"><label class="form-label">証明書（画像・PDF）</label><div class="upload-zone">クリックまたはドラッグ&ドロップでアップロード</div></div>
+          <div class="form-actions"><button class="btn">キャンセル</button><button class="btn btn-p" onclick="showToast('実績を登録しました ✓','success');closeRightPane()">登録する</button></div>
+        </div>
+        <!-- Doc form -->
+        <div id="rp-doc-form" style="display:none">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div style="font-size:14px;font-weight:700">証明書をアップロードする</div>
+            <button class="btn btn-sm btn-ghost" onclick="closeRightPane()">✕</button>
+          </div>
+          <div class="form-group"><label class="form-label">対象の技術者</label><select class="form-input"><option>田中 一郎（E-0021）</option></select></div>
+          <div class="form-group"><label class="form-label">対象の資格・講習</label><select class="form-input"><option>RCCM（鋼構造）</option><option>技術士（建設部門）</option></select></div>
+          <div class="form-group"><label class="form-label">書類の種類</label><select class="form-input"><option>受講証明書</option><option>資格証</option><option>更新申請書</option></select></div>
+          <div class="form-group"><label class="form-label">ファイルを選択</label><div class="upload-zone">クリックまたはドラッグ&ドロップでアップロード<br><span style="font-size:11px;color:var(--muted2)">PDF / JPG / PNG（最大10MB）</span></div></div>
+          <div class="form-actions"><button class="btn">キャンセル</button><button class="btn btn-p" onclick="showToast('証明書をアップロードしました ✓','success');closeRightPane()">アップロードする</button></div>
+        </div>
+        <!-- qual detail -->
+        <div id="rp-qual-detail" style="display:none">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div style="font-size:14px;font-weight:700">資格の詳細</div>
+            <button class="btn btn-sm btn-ghost" onclick="closeRightPane()">✕</button>
+          </div>
+          <div style="padding:12px;border-radius:var(--r-md);background:var(--surf2);border:1px solid var(--border2);margin-bottom:14px">
+            <div style="font-weight:700;margin-bottom:6px">技術士（建設部門）</div>
+            <div class="dl-row"><div class="dl-lbl">登録番号</div><div class="dl-val">PE-11052</div></div>
+            <div class="dl-row"><div class="dl-lbl">登録日</div><div class="dl-val">2018年4月1日</div></div>
+            <div class="dl-row"><div class="dl-lbl">有効期限</div><div class="dl-val" style="color:var(--c2)">失効なし（継続登録）</div></div>
+            <div class="dl-row"><div class="dl-lbl">必要単位</div><div class="dl-val">50単位 / 年（CPDS登録）</div></div>
+            <div class="dl-row"><div class="dl-lbl">認定団体</div><div class="dl-val">日本技術士会</div></div>
+          </div>
+          <button class="btn btn-sm" style="width:100%;margin-bottom:8px">資格情報を編集する</button>
+          <button class="btn btn-p btn-sm" style="width:100%" onclick="openRightPane('cpd-form')">＋ 単位実績を登録する</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════
+       PAGE: CPD
+  ════════════════════════════ -->
+  <div class="page" id="page-cpd">
+    <div class="pg-hdr">
+      <div class="pg-title">単位不足を確認する</div>
+      <div class="pg-desc">今年度のCPD達成状況と不足している人を確認できます</div>
+    </div>
+    <div class="pg-body">
+      <div class="cpd-row">
+        <div class="kpi yellow"><div class="kpi-lbl">⏰ 今年度締切まで</div><div class="kpi-val">61日後</div><div class="kpi-sub">2025年6月30日</div></div>
+        <div class="kpi red"><div class="kpi-lbl">📊 単位が不足している人</div><div class="kpi-val">5名</div><div class="kpi-sub">フォローが必要です</div></div>
+        <div class="kpi green"><div class="kpi-lbl">✅ 必要単位を満たしている人</div><div class="kpi-val">33名</div><div class="kpi-sub">全体の 87%</div></div>
+      </div>
+      <div class="tabs">
+        <div class="tab on" onclick="switchTab(this,'cpd-status')">達成状況の確認</div>
+        <div class="tab" onclick="switchTab(this,'cpd-input')">実績を入れる</div>
+      </div>
+      <div id="cpd-status">
+        <div class="card"><div class="tw"><table>
+          <thead><tr><th>技術者名</th><th>資格</th><th>必要単位</th><th>取得済み</th><th>不足単位</th><th>達成率</th><th>進捗</th><th>状況</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tname">田中 一郎</span></td><td>技術士 / RCCM</td><td>100</td><td style="color:var(--c8)">22</td><td style="color:var(--c8)">78</td><td style="color:var(--c8)">22%</td><td style="width:100px"><div class="pbar"><div class="pfill r" style="width:22%"></div></div></td><td><span class="tag r">📊 不足しています</span></td><td><button class="btn btn-sm btn-p" onclick="showToast('受講提案を送信しました','success')">受講を提案する</button></td></tr>
+            <tr><td><span class="tname">山田 花子</span></td><td>技術士（建設）</td><td>50</td><td style="color:var(--c6)">36</td><td style="color:var(--c6)">14</td><td style="color:var(--c6)">72%</td><td style="width:100px"><div class="pbar"><div class="pfill o" style="width:72%"></div></div></td><td><span class="tag o">📊 不足しています</span></td><td><button class="btn btn-sm btn-p" onclick="showToast('受講提案を送信しました','success')">受講を提案する</button></td></tr>
+            <tr><td><span class="tname">渡辺 五郎</span></td><td>RCCM / 地質調査技士</td><td>100</td><td style="color:var(--c6)">92</td><td style="color:var(--c6)">8</td><td style="color:var(--c6)">92%</td><td style="width:100px"><div class="pbar"><div class="pfill o" style="width:92%"></div></div></td><td><span class="tag o">📊 不足しています</span></td><td><button class="btn btn-sm btn-p" onclick="showToast('受講提案を送信しました','success')">受講を提案する</button></td></tr>
+            <tr><td><span class="tname">佐藤 次郎</span></td><td>地質調査技士</td><td>所定</td><td style="color:var(--c2)">達成</td><td>—</td><td style="color:var(--c2)">100%</td><td style="width:100px"><div class="pbar"><div class="pfill g" style="width:100%"></div></div></td><td><span class="tag g">✅ 満たしています</span></td><td></td></tr>
+            <tr><td><span class="tname">伊藤 四郎</span></td><td>技術士（建設）</td><td>50</td><td style="color:var(--c2)">50</td><td>0</td><td style="color:var(--c2)">100%</td><td style="width:100px"><div class="pbar"><div class="pfill g" style="width:100%"></div></div></td><td><span class="tag g">✅ 満たしています</span></td><td></td></tr>
+          </tbody>
+        </table></div></div>
+      </div>
+      <div id="cpd-input" style="display:none">
+        <div class="card" style="max-width:560px"><div class="card-inner">
+          <div style="font-size:15px;font-weight:700;margin-bottom:16px">単位実績を登録する</div>
+          <div class="form-group"><label class="form-label">技術者を選ぶ</label><select class="form-input"><option>田中 一郎（E-0021）</option><option>山田 花子（E-0034）</option></select></div>
+          <div class="form-group"><label class="form-label">資格・登録団体</label><select class="form-input"><option>技術士（CPDS）</option><option>RCCM（JCCA）</option><option>地質調査技士（JAEG）</option></select></div>
+          <div class="form-group"><label class="form-label">講習・研修名</label><input class="form-input" type="text" placeholder="例：土木学会年次講演会2024"></div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">受講日</label><input class="form-input" type="date"></div>
+            <div class="form-group"><label class="form-label">取得単位数</label><input class="form-input" type="number" placeholder="0.0" step="0.5"></div>
+          </div>
+          <div class="form-group"><label class="form-label">証明書（画像・PDF）</label><div class="upload-zone">クリックまたはドラッグ&ドロップでアップロード</div></div>
+          <div class="form-actions"><button class="btn">キャンセル</button><button class="btn btn-p" onclick="showToast('実績を登録しました ✓','success')">登録する</button></div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════
+       PAGE: DOCS
+  ════════════════════════════ -->
+  <div class="page" id="page-docs">
+    <div class="pg-hdr">
+      <div class="pg-title">証明書を管理する</div>
+      <div class="pg-desc">受講証明・資格証を保管し、未提出・未添付のものを追えます</div>
+    </div>
+    <div class="pg-body">
+      <div class="doc-grid">
+        <div class="kpi red"><div class="kpi-lbl">📎 証明書がまだ提出されていません</div><div class="kpi-val">3件</div><div class="kpi-sub">確認が必要です</div></div>
+        <div class="kpi green"><div class="kpi-lbl">✅ 提出済み</div><div class="kpi-val">48件</div><div class="kpi-sub">問題ありません</div></div>
+        <div class="kpi yellow"><div class="kpi-lbl">📁 合計登録件数</div><div class="kpi-val">51件</div><div class="kpi-sub">最終更新：本日</div></div>
+      </div>
+      <div class="filter-bar">
+        <select class="fsel"><option>技術者：すべて</option><option>田中 一郎</option><option>山田 花子</option></select>
+        <select class="fsel"><option>書類の種類：すべて</option><option>資格証</option><option>受講証明書</option><option>更新申請書</option></select>
+        <select class="fsel"><option>提出状況：すべて</option><option>提出済み</option><option>未提出</option></select>
+        <button class="btn btn-p" style="margin-left:auto" onclick="showToast('アップロード画面を開きました','')">＋ 証明書をアップロードする</button>
+      </div>
+      <div class="card"><div class="tw"><table>
+        <thead><tr><th>ファイル名</th><th>技術者名</th><th>対象の資格・講習</th><th>書類の種類</th><th>提出状況</th><th>登録日</th><th>操作</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--c2);cursor:pointer">技術士登録証_伊藤四郎.pdf</td><td>伊藤 四郎</td><td>技術士（建設部門）</td><td><span class="tag b">資格証</span></td><td><span class="tag g">✓ 提出済み</span></td><td>2024/04/10</td><td><button class="btn btn-sm btn-ghost">表示</button></td></tr>
+          <tr><td style="color:var(--c2);cursor:pointer">CPD受講証明_山田_2024.pdf</td><td>山田 花子</td><td>土木学会CPDセミナー</td><td><span class="tag g">受講証明書</span></td><td><span class="tag g">✓ 提出済み</span></td><td>2024/09/22</td><td><button class="btn btn-sm btn-ghost">表示</button></td></tr>
+          <tr><td style="color:var(--c2);cursor:pointer">RCCM登録証_佐藤.pdf</td><td>佐藤 次郎</td><td>RCCM（河川、砂防及び海岸）</td><td><span class="tag b">資格証</span></td><td><span class="tag g">✓ 提出済み</span></td><td>2023/06/01</td><td><button class="btn btn-sm btn-ghost">表示</button></td></tr>
+          <tr><td style="color:var(--muted2)">（未アップロード）</td><td>田中 一郎</td><td>技術士CPD研修会</td><td><span class="tag gr">受講証明書</span></td><td><span class="tag r">📎 まだ提出されていません</span></td><td>—</td><td><button class="btn btn-sm btn-p" onclick="showToast('証憑依頼を送信しました','success')">依頼する</button></td></tr>
+        </tbody>
+      </table></div></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════
+       PAGE: REPORTS
+  ════════════════════════════ -->
+  <div class="page" id="page-reports">
+    <div class="pg-hdr">
+      <div class="pg-title">報告書を出す</div>
+      <div class="pg-desc">経審・入札前確認・社内報告に必要な報告書を作成できます</div>
+    </div>
+    <div class="pg-body">
+      <div class="doc-grid">
+        <div class="doc-card"><div class="doc-card-ico">📄</div><div class="doc-card-title">CPD達成状況レポート</div><div class="doc-card-desc">全技術者の今年度CPD達成状況を一覧化。経審提出用フォーマット対応。</div><button class="btn btn-p" style="width:100%" onclick="showToast('レポートを作成しました','success')">報告書を作る</button></div>
+        <div class="doc-card"><div class="doc-card-ico">⚠️</div><div class="doc-card-title">リスク一覧レポート</div><div class="doc-card-desc">期限切れ・単位不足者を一覧化。入札前の確認用チェックリストとして活用可。</div><button class="btn btn-p" style="width:100%" onclick="showToast('レポートを作成しました','success')">報告書を作る</button></div>
+        <div class="doc-card"><div class="doc-card-ico">🏢</div><div class="doc-card-title">技術者台帳（全社）</div><div class="doc-card-desc">全技術者の資格・有効期限・CPD状況をまとめたExcel形式の台帳。</div><button class="btn btn-p" style="width:100%" onclick="showToast('ダウンロードを開始しました','success')">ダウンロードする</button></div>
+        <div class="doc-card"><div class="doc-card-ico">👤</div><div class="doc-card-title">個人CPDレポート</div><div class="doc-card-desc">特定の技術者の年度別CPD履歴を出力。団体提出用としても使えます。</div><button class="btn btn-p" style="width:100%" onclick="showToast('レポートを作成しました','success')">報告書を作る</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════
+       PAGE: SETTINGS
+  ════════════════════════════ -->
+  <div class="page" id="page-settings">
+    <div class="pg-hdr">
+      <div class="pg-title">設定する</div>
+      <div class="pg-desc">資格・CPDルール・通知先・利用者をまとめて管理できます</div>
+    </div>
+    <div class="settings-shell">
+      <div class="settings-nav">
+        <div class="sn-item on" onclick="switchSettingsNav(this,'sn-qual')">📋 資格・更新ルール</div>
+        <div class="sn-item" onclick="switchSettingsNav(this,'sn-notify')">🔔 通知先・タイミング</div>
+        <div class="sn-item" onclick="switchSettingsNav(this,'sn-users')">👥 利用者と権限</div>
+      </div>
+      <div class="settings-body">
+        <div id="sn-qual">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <div style="font-size:15px;font-weight:700">資格マスタ</div>
+            <button class="btn btn-p btn-sm" onclick="showToast('追加フォームを開きました','')">＋ 資格を追加する</button>
+          </div>
+          <div class="card"><div class="tw"><table>
+            <thead><tr><th>資格名</th><th>認定団体</th><th>更新周期</th><th>必要CPD単位</th><th>備考</th><th>操作</th></tr></thead>
+            <tbody>
+              <tr><td>技術士（建設部門）</td><td>日本技術士会</td><td>失効なし</td><td>50単位/年</td><td>CPDSシステム登録必須</td><td><button class="btn btn-sm btn-ghost">編集</button></td></tr>
+              <tr><td>RCCM</td><td>JCCA</td><td>5年</td><td>50単位/更新期間</td><td>更新講習受講必須</td><td><button class="btn btn-sm btn-ghost">編集</button></td></tr>
+              <tr><td>地質調査技士</td><td>JAEG</td><td>5年</td><td>所定CPD</td><td>CPD報告書提出必須</td><td><button class="btn btn-sm btn-ghost">編集</button></td></tr>
+              <tr><td>1級土木施工管理技士</td><td>国土交通省</td><td>5年</td><td>—</td><td>講習受講で更新</td><td><button class="btn btn-sm btn-ghost">編集</button></td></tr>
+            </tbody>
+          </table></div></div>
+        </div>
+        <div id="sn-notify" style="display:none">
+          <div style="font-size:15px;font-weight:700;margin-bottom:16px">通知先・タイミングの設定</div>
+          <div class="card"><div class="card-inner">
+            <div style="font-size:var(--font-sm);font-weight:600;margin-bottom:12px">アラートのトリガー設定</div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--surf2);border-radius:var(--r-sm);border:1px solid var(--border2)"><span>🔴 期限切れ当日に通知する</span><button class="btn btn-sm" style="background:#e0f4f0;color:#004d42;border-color:#a8ddd6">有効 ✓</button></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--surf2);border-radius:var(--r-sm);border:1px solid var(--border2)"><span>🟠 30日前に通知する</span><button class="btn btn-sm" style="background:#e0f4f0;color:#004d42;border-color:#a8ddd6">有効 ✓</button></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--surf2);border-radius:var(--r-sm);border:1px solid var(--border2)"><span>🟡 60日前に通知する</span><button class="btn btn-sm" style="background:#e0f4f0;color:#004d42;border-color:#a8ddd6">有効 ✓</button></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--surf2);border-radius:var(--r-sm);border:1px solid var(--border2)"><span>📅 90日前に通知する</span><button class="btn btn-sm btn-ghost">無効</button></div>
+            </div>
+            <div style="margin-top:16px;font-size:var(--font-sm);font-weight:600;margin-bottom:10px">通知先メールアドレス</div>
+            <div style="display:flex;gap:8px"><input class="form-input" type="email" placeholder="通知先メールを追加..." style="flex:1"><button class="btn btn-p btn-sm" onclick="showToast('通知先を追加しました','success')">追加する</button></div>
+            <div style="margin-top:10px;padding:11px 14px;background:var(--surf2);border-radius:var(--r-sm);border:1px solid var(--border2);font-size:var(--font-sm)">minami@example.co.jp　<span class="tag g" style="margin-left:8px">管理者</span></div>
+          </div></div>
+        </div>
+        <div id="sn-users" style="display:none">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <div style="font-size:15px;font-weight:700">利用者と権限</div>
+            <button class="btn btn-p btn-sm" onclick="showToast('招待メールを送信しました','success')">＋ 招待する</button>
+          </div>
+          <div class="card"><div class="tw"><table>
+            <thead><tr><th>名前</th><th>メールアドレス</th><th>権限</th><th>最終ログイン</th><th>操作</th></tr></thead>
+            <tbody>
+              <tr><td><b>南 かおり</b></td><td>minami@example.co.jp</td><td><span class="tag b">管理者</span></td><td>本日</td><td><button class="btn btn-sm btn-ghost">編集</button></td></tr>
+              <tr><td>田村 健一</td><td>tamura@example.co.jp</td><td><span class="tag gr">閲覧のみ</span></td><td>3日前</td><td><button class="btn btn-sm btn-ghost">編集</button></td></tr>
+            </tbody>
+          </table></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+// ─── DATA ───
+const ENG = [
+  {id:'E-0021',name:'田中 一郎',dept:'技術部',type:'常勤',quals:4,deadline:'2024/03/31',exp:1,d30:1,d60:1,cpd:'bad',short:78,risk:1},
+  {id:'E-0034',name:'山田 花子',dept:'設計部',type:'常勤',quals:3,deadline:'2025/05/12',exp:0,d30:0,d60:1,cpd:'bad',short:14,risk:2},
+  {id:'E-0008',name:'佐藤 次郎',dept:'営業本部',type:'常勤',quals:5,deadline:'2025/05/03',exp:0,d30:1,d60:1,cpd:'ok',short:0,risk:2},
+  {id:'E-0015',name:'鈴木 三郎',dept:'技術部',type:'非常勤',quals:2,deadline:'2026/08/15',exp:0,d30:0,d60:0,cpd:'ok',short:0,risk:3},
+  {id:'E-0042',name:'伊藤 四郎',dept:'設計部',type:'常勤',quals:3,deadline:'2027/03/31',exp:0,d30:0,d60:0,cpd:'ok',short:0,risk:3},
+  {id:'E-0057',name:'渡辺 五郎',dept:'技術部',type:'常勤',quals:6,deadline:'2026/04/30',exp:0,d30:0,d60:0,cpd:'bad',short:8,risk:2},
+  {id:'E-0063',name:'中村 六助',dept:'設計部',type:'常勤',quals:2,deadline:'2025/06/20',exp:0,d30:0,d60:1,cpd:'ok',short:0,risk:3},
+  {id:'E-0071',name:'小林 七海',dept:'技術部',type:'常勤',quals:4,deadline:'2025/04/10',exp:0,d30:1,d60:1,cpd:'bad',short:5,risk:2},
+];
+
+const pgCfg = {
+  'home':            {title:'本日の対応', sub:'2025年4月29日（火）', btn:'＋ 技術者を追加'},
+  'engineers':       {title:'対象者を探す', sub:'', btn:'＋ 技術者を追加'},
+  'engineer-detail': {title:'技術者詳細', sub:'', btn:'📤 CSVでダウンロード'},
+  'cpd':             {title:'単位不足を確認する', sub:'', btn:'＋ 実績を登録する'},
+  'docs':            {title:'証明書を管理する', sub:'', btn:'＋ 証明書をアップロード'},
+  'reports':         {title:'報告書を出す', sub:'', btn:''},
+  'settings':        {title:'設定する', sub:'', btn:''},
+};
+const navMap = {
+  'home':'本日の対応','engineers':'対象者を探す','engineer-detail':'対象者を探す',
+  'cpd':'単位不足を確認する','docs':'証明書を管理する','reports':'報告書を出す','settings':'設定する',
+};
+
+function go(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  const pg = document.getElementById('page-'+id);
+  if(pg) pg.classList.add('on');
+  document.querySelectorAll('.si').forEach(s=>s.classList.remove('on'));
+  const lbl = navMap[id]||'';
+  document.querySelectorAll('.si').forEach(s=>{ if(s.textContent.trim().startsWith(lbl)) s.classList.add('on'); });
+  const cfg = pgCfg[id]||{};
+  document.getElementById('hdrTitle').innerHTML = cfg.title + (cfg.sub?`<span class="hdr-sub">${cfg.sub}</span>`:'');
+  const btn = document.getElementById('hdrBtn');
+  btn.style.display = cfg.btn ? '' : 'none';
+  if(cfg.btn) btn.textContent = cfg.btn;
+  if(id==='engineers') renderEngineers();
+  closeAllOverflow();
+}
+
+// Engineers table
+function renderEngineers(){
+  const rows = [...ENG].sort((a,b)=>a.risk-b.risk);
+  document.getElementById('engBody').innerHTML = rows.map(e=>{
+    const rTag = e.risk===1?`<span class="tag r">⚠ 期限切れあり</span>`:e.risk===2?`<span class="tag o">⏰ 要対応</span>`:`<span class="tag g">✓ 問題ありません</span>`;
+    const cpdCell = e.cpd==='bad'?`<span class="risk-dot"><span class="dot o"></span>単位が不足しています（-${e.short}）</span>`:`<span class="risk-dot"><span class="dot g"></span>必要単位を満たしています</span>`;
+    const expCell = e.exp?`<span class="tag r">あり</span>`:`<span style="color:var(--muted2)">—</span>`;
+    const d30Cell = e.d30?`<span class="tag o">あり</span>`:`<span style="color:var(--muted2)">—</span>`;
+    const tType = e.type==='非常勤'?`<span class="tag b">非常勤</span>`:`<span class="tag gr">常勤</span>`;
+    return `<tr onclick="go('engineer-detail')" style="cursor:pointer">
+      <td><span class="tname">${e.name}</span><br><span class="tid">${e.id}</span></td>
+      <td>${e.dept}</td><td>${tType}</td><td style="text-align:center">${e.quals}</td>
+      <td>${e.deadline}</td><td style="text-align:center">${expCell}</td><td style="text-align:center">${d30Cell}</td>
+      <td>${cpdCell}</td>
+      <td style="text-align:center">${e.short>0?`<span style="color:var(--c6)">-${e.short}単位</span>`:`<span style="color:var(--muted2)">—</span>`}</td>
+      <td>${rTag}</td>
+      <td><button class="btn btn-sm btn-p" onclick="event.stopPropagation();go('engineer-detail')">対応する ▷</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// Alert panel
+function openAlertPanel(){ document.getElementById('alertOverlay').classList.add('open'); }
+function closeAlertPanel(){ document.getElementById('alertOverlay').classList.remove('open'); }
+function markDone(btn){
+  const item = btn.closest('.ap-item');
+  item.style.opacity='0.45';
+  item.style.pointerEvents='none';
+  showToast('対応済みにしました ✓','success');
+  const badge = document.getElementById('alertBadge');
+  let n = parseInt(badge.textContent||'0')-1;
+  badge.textContent = Math.max(0,n);
+  if(n<=1) badge.style.display='none';
+}
+
+// Task card complete
+function completeTask(btn){
+  const card = btn.closest('.task-card');
+  card.classList.remove('critical','warning','caution');
+  card.classList.add('done');
+  btn.textContent='✓ 対応済み';
+  btn.disabled=true;
+  showToast('対応済みにしました ✓','success');
+  setTimeout(()=>{
+    card.style.transition='max-height .4s,opacity .4s,margin .4s';
+    card.style.maxHeight=card.offsetHeight+'px';
+    requestAnimationFrame(()=>{
+      card.style.maxHeight='0';card.style.opacity='0';card.style.marginBottom='0';card.style.overflow='hidden';
+    });
+    setTimeout(()=>card.remove(),420);
+  },600);
+}
+
+// Overflow menu
+function toggleOverflow(btn){
+  closeAllOverflow();
+  const menu = btn.nextElementSibling;
+  menu.classList.toggle('open');
+  event.stopPropagation();
+}
+function closeAllOverflow(){ document.querySelectorAll('.overflow-menu.open').forEach(m=>m.classList.remove('open')); }
+document.addEventListener('click',()=>closeAllOverflow());
+
+// Tabs
+function switchTab(el,targetId){
+  const tabs = el.closest('.tabs').querySelectorAll('.tab');
+  tabs.forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  ['cpd-status','cpd-input'].forEach(id=>{
+    const el2=document.getElementById(id);
+    if(el2) el2.style.display = id===targetId?'':'none';
+  });
+}
+
+// Det tabs
+function switchDetTab(el,targetId){
+  el.closest('.det-tabs').querySelectorAll('.det-tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  ['q-tab','cpd-tab','alert-tab','doc-tab'].forEach(id=>{
+    const el2=document.getElementById(id);
+    if(el2) el2.style.display = id===targetId?'':'none';
+  });
+}
+
+// Right pane
+function openRightPane(formId){
+  const right = document.getElementById('detailRight');
+  right.classList.add('open');
+  ['rp-cpd-form','rp-doc-form','rp-qual-detail'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display = id==='rp-'+formId?'':'none';
+  });
+}
+function closeRightPane(){ document.getElementById('detailRight').classList.remove('open'); }
+
+// Settings nav
+function switchSettingsNav(el,targetId){
+  el.closest('.settings-nav').querySelectorAll('.sn-item').forEach(i=>i.classList.remove('on'));
+  el.classList.add('on');
+  ['sn-qual','sn-notify','sn-users'].forEach(id=>{
+    const el2=document.getElementById(id);
+    if(el2) el2.style.display = id===targetId?'':'none';
+  });
+}
+
+// Scope switcher
+function toggleScope(){
+  document.getElementById('scopeDropdown').classList.toggle('open');
+  event.stopPropagation();
+}
+function setScope(type, label){
+  document.getElementById('scopeLabel').textContent = label;
+  document.getElementById('scopeDropdown').classList.remove('open');
+  document.querySelectorAll('.scope-opt').forEach(o=>o.classList.remove('on'));
+  event.target.classList.add('on');
+  showToast(`表示範囲を「${label}」に切り替えました`,'');
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.scope-wrap')) document.getElementById('scopeDropdown').classList.remove('open');
+});
+
+// Toast
+function showToast(msg, type){
+  const wrap = document.getElementById('toastWrap');
+  const t = document.createElement('div');
+  t.className = 'toast ' + (type||'');
+  t.innerHTML = (type==='success'?'✅ ':'ℹ️ ') + msg;
+  wrap.appendChild(t);
+  setTimeout(()=>{t.style.transition='opacity .3s';t.style.opacity='0';setTimeout(()=>t.remove(),320);},2800);
+}
+
+// Home view switcher
+function switchHomeView(viewId, btn){
+  document.querySelectorAll('.home-tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.home-view').forEach(v=>v.classList.remove('on'));
+  document.getElementById('view-'+viewId).classList.add('on');
+  const desc = document.getElementById('homeDesc');
+  if(viewId==='today') desc.textContent = '今日やること・期限切れ・緊急の対応を確認できます';
+  else desc.textContent = '今月の全タスクを期限週ごとに整理し、ステータスを管理できます';
+}
+
+// Week group accordion
+function toggleWeek(hdr){
+  const rows = hdr.nextElementSibling;
+  const isCollapsed = hdr.classList.contains('collapsed');
+  if(isCollapsed){
+    hdr.classList.remove('collapsed');
+    rows.style.display = 'flex';
+    rows.style.flexDirection = 'column';
+    rows.style.gap = '6px';
+  } else {
+    hdr.classList.add('collapsed');
+    rows.style.display = 'none';
+  }
+}
+
+// Status chip cycle: todo → wip → comp → todo
+function cycleStatus(chip){
+  const states = [
+    {cls:'todo', label:'未着手 ▾'},
+    {cls:'wip',  label:'対応中 ▾'},
+    {cls:'comp', label:'完了 ✓'},
+  ];
+  const cur = states.findIndex(s=>chip.classList.contains(s.cls));
+  const next = states[(cur+1) % states.length];
+  states.forEach(s=>chip.classList.remove(s.cls));
+  chip.classList.add(next.cls);
+  chip.textContent = next.label;
+  const row = chip.closest('.mrow');
+  if(next.cls==='comp'){
+    row.classList.add('done-row');
+    showToast('対応済みにしました ✓','success');
+  } else {
+    row.classList.remove('done-row');
+  }
+  if(next.cls==='wip') showToast('対応中に変更しました','');
+}
+
+// Month filter chips
+function mfChip(btn){
+  btn.closest('.month-filter').querySelectorAll('.mf-chip').forEach(c=>c.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+// Init
+renderEngineers();
+</script>
+</body>
+</html>
